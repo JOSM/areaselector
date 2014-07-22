@@ -10,6 +10,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
@@ -21,10 +22,12 @@ import org.openstreetmap.josm.tools.Shortcut;
 
 
 /**
- * @author ignacio_palermo
+ * @author Paul Woelfel
  *
  */
 public class AreaSelectorAction extends MapMode implements MouseListener  {
+	
+	protected Logger log=Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
 	
 	/**
 	 * 
@@ -33,7 +36,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 
 	public AreaSelectorAction(MapFrame mapFrame){
         super(
-        		tr("OSM Export"), 
+        		tr("Area Selection"), 
         		"tracer-sml",
         		tr("Select an area from an underlying image."),
         		Shortcut.registerShortcut("tools:areaselector", tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A, Shortcut.ALT_CTRL), 
@@ -47,11 +50,27 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
         return ImageProvider.getCursor("crosshair", "tracer-sml");
     }
 
+	
+	 @Override
+	    public void enterMode() {
+	        if (!isEnabled()) {
+	            return;
+	        }
+	        super.enterMode();
+	        Main.map.mapView.setCursor(getCursor());
+	        Main.map.mapView.addMouseListener(this);
+	    }
+
+	    @Override
+	    public void exitMode() {
+	        super.exitMode();
+	        Main.map.mapView.removeMouseListener(this);
+	    }
 
 	
 	public void updateMapFrame(MapFrame oldFrame, MapFrame newFrame){
 		// TODO something should change now?!?
-		
+		// or not, we just use Main to get the current mapFrame
 	}
 	
 	
@@ -61,6 +80,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
      */
 	@Override
     public void mouseClicked(MouseEvent e) {
+		
+		log.info("mouse clicked "+e);
+		
 		if (!Main.map.mapView.isActiveLayerDrawable()) {
             return;
         }
@@ -77,6 +99,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
      */
 	@Override
     public void mousePressed(MouseEvent e) {
+		log.info("mouse pressed "+e);
 	}
 
     /**
@@ -84,6 +107,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
      */
 	@Override
     public void mouseReleased(MouseEvent e) {
+		log.info("mouse released "+e);
 	}
 
     /**
@@ -91,6 +115,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
      */
 	@Override
     public void mouseEntered(MouseEvent e) {
+		log.info("mouse entered" +e);
 	}
 
     /**
@@ -98,6 +123,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
      */
 	@Override
     public void mouseExited(MouseEvent e) {
+		log.info("mouse exited "+e);
 	}
 	
 	public void createArea(Point clickPoint){

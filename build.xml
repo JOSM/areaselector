@@ -11,7 +11,7 @@
 ** Call "ant help" to get possible build targets.
 **
 -->
-<project name="sumoconvert" default="dist" basedir=".">
+<project name="areaselector" default="dist" basedir=".">
 
     <!-- enter the SVN commit message -->
     <property name="commit.message" value="Commit message"/>
@@ -26,7 +26,7 @@
     -->
     <property name="plugin.author" value="Paul Woelfel"/>
     <property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin"/>
-    <property name="plugin.description" value="Allows to edit traffic information and export it to the urban mobility simulator SUMO"/>
+    <property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of waypoints"/>
     <property name="plugin.icon" value="images/mapmode/tracer-sml.png"/>
     <!-- <property name="plugin.link" value="..."/>-->
     <!--<property name="plugin.early" value="..."/>-->
