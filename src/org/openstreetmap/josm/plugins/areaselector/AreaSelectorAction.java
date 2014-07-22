@@ -101,40 +101,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
         }
 	}
 
-    /**
-     * Invoked when a mouse button has been pressed on a component.
-     */
-	@Override
-    public void mousePressed(MouseEvent e) {
-		log.info("mouse pressed "+e);
-	}
 
-    /**
-     * Invoked when a mouse button has been released on a component.
-     */
-	@Override
-    public void mouseReleased(MouseEvent e) {
-		log.info("mouse released "+e);
-	}
-
-    /**
-     * Invoked when the mouse enters a component.
-     */
-	@Override
-    public void mouseEntered(MouseEvent e) {
-		log.info("mouse entered" +e);
-	}
-
-    /**
-     * Invoked when the mouse exits a component.
-     */
-	@Override
-    public void mouseExited(MouseEvent e) {
-		log.info("mouse exited "+e);
-	}
-	
 	public void createArea(Point clickPoint){
-		// TODO do something
 		
 		MapView mapView=Main.map.mapView;
 //		Collection<Layer> layers=mapView.getAllLayers();
