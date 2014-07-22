@@ -1,4 +1,4 @@
-README 
+JOSM Area Selector Plugin 
 ======
 
 JOSM area selector is a plugin to help creating buildings and other areas from existing imagery. Currently creating buildings is a manual task which takes much time. This plugin should help on that task. 
