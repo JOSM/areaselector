@@ -24,10 +24,10 @@
 
          See http://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
     -->
-    <property name="plugin.author" value="Ignacio Palermo - Julio Rivera"/>
-    <property name="plugin.class" value="org.openstreetmap.josm.plugins.sumoconvert.SumoConvertPlugin"/>
+    <property name="plugin.author" value="Paul Woelfel"/>
+    <property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin"/>
     <property name="plugin.description" value="Allows to edit traffic information and export it to the urban mobility simulator SUMO"/>
-    <property name="plugin.icon" value="images/dialogs/logo-sumo.png"/>
+    <property name="plugin.icon" value="images/mapmode/tracer-sml.png"/>
     <!-- <property name="plugin.link" value="..."/>-->
     <!--<property name="plugin.early" value="..."/>-->
     <!--<property name="plugin.requires" value="..."/>-->
