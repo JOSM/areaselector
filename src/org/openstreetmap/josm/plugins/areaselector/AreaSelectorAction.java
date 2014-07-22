@@ -140,7 +140,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 //		Collection<Layer> layers=mapView.getAllLayers();
 //		Layer activeLayer=mapView.getActiveLayer();
 		
-		BufferedImage bufImage=new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_RGB);
+		BufferedImage bufImage=new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D imgGraphics=bufImage.createGraphics();
 		
 		for (Layer layer : mapView.getAllLayers()){
@@ -150,7 +150,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 		
 		// X marks the spot
 		imgGraphics.setColor(Color.RED);
-		imgGraphics.setFont(new Font("Serif", Font.BOLD, 12));
+		imgGraphics.setFont(new Font("Arial", Font.BOLD, 12));
 		imgGraphics.drawString("X", clickPoint.x, clickPoint.y);
 		
 		ImageIcon icon = new ImageIcon(bufImage);
