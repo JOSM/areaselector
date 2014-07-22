@@ -5,18 +5,25 @@ package org.openstreetmap.josm.plugins.areaselector;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.gui.MapFrame;
+import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
 
@@ -127,8 +134,29 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 	}
 	
 	public void createArea(Point clickPoint){
-    	// TODO do something
-		JOptionPane.showMessageDialog(Main.parent, "You clicked on "+clickPoint.x+" "+clickPoint.y);
+		// TODO do something
+		
+		MapView mapView=Main.map.mapView;
+//		Collection<Layer> layers=mapView.getAllLayers();
+//		Layer activeLayer=mapView.getActiveLayer();
+		
+		BufferedImage bufImage=new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_RGB);
+		Graphics2D imgGraphics=bufImage.createGraphics();
+		
+		for (Layer layer : mapView.getAllLayers()){
+			layer.paint(imgGraphics, mapView, mapView.getRealBounds());
+		}
+		
+		
+		// X marks the spot
+		imgGraphics.setColor(Color.RED);
+		imgGraphics.setFont(new Font("Serif", Font.BOLD, 12));
+		imgGraphics.drawString("X", clickPoint.x, clickPoint.y);
+		
+		ImageIcon icon = new ImageIcon(bufImage);
+		
+		
+		JOptionPane.showMessageDialog(Main.parent, "You clicked on "+clickPoint.x+" "+clickPoint.y, "AreaSelection", JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 
 }
