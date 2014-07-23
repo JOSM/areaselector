@@ -71,33 +71,32 @@ public class ImageAnalyzer {
 
 		log.info("createing mat");
 		
-		this.imshow("cvImg",cvImg);
+//		ImgUtils.imshow("cvImg",cvImg);
 		Mat src=new Mat(cvImg);
 		
 		
-		Mat dst=src.clone();
-		cvtColor(src,dst,CV_BGR2GRAY);
+		Mat grey=src.clone();
+		cvtColor(src,grey,CV_BGR2GRAY);
 //		
-		this.imshow("grey scale",dst);
+//		ImgUtils.imshow("grey scale",grey);
 		
+		Mat cannySrc=src.clone();
+		/// Reduce noise with a kernel 3x3
+		blur(cannySrc,cannySrc,new Size(3,3));
+		
+		Mat cannyDst=cannySrc.clone();
+		
+		/// Canny detector
+		Canny(cannySrc, cannyDst, 50.0, 200.0);
+		
+		ImgUtils.imshow("Canny",cannyDst);
+		log.info("done.");
 		
 
 		return null;
 	}
 	
 	
-	public void imshow(String title,IplImage cvImg){
-		this.imshow(title,cvImg.getBufferedImage());
-	}
-	
-	public void imshow(String title,Mat mat){
-		this.imshow(title,mat.getBufferedImage());
-	}
-	
-	public void imshow(String title,BufferedImage bufImage){
-		ImageIcon icon = new ImageIcon(bufImage);	
-		JOptionPane.showMessageDialog(Main.parent, title, title, JOptionPane.INFORMATION_MESSAGE, icon);
-	}
 
 	/**
 	 * @param args
