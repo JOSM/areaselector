@@ -205,10 +205,17 @@ public class ImageAnalyzer {
 //		ImgUtils.imshow("inRange with extracted color at point " + point, inRange);
 		
 		// TODO: filter small points out
+		log.info("run a gaussion filter");
+		Mat gaus=inRange.clone();
+		GaussianBlur(inRange, gaus, new Size(3,3), 0);
 		
-		Mat canny= applyCanny(inRange);
+		saveImgToFile(gaus.getBufferedImage(),"test/gaus1");
+		
+		Mat canny= applyCanny(gaus);
 		
 		saveImgToFile(canny.getBufferedImage(),"test/colorPlusCanny");
+		
+		detectLines(canny);
 		
 //		ImgUtils.imshow("canny on InRange", canny);
 
@@ -218,6 +225,8 @@ public class ImageAnalyzer {
 	}
 
 	public Mat applyCanny(Mat src) {
+		
+		log.info("Applying canny filter");
 
 		Mat cannySrc = src.clone();
 		// / Reduce noise with a kernel 3x3
@@ -234,6 +243,8 @@ public class ImageAnalyzer {
 	}
 
 	public Mat applyInRange(Color fromColor, Color toColor) {
+		
+		log.info("Searching for color "+fromColor+" to "+toColor);
 
 		// from: 130, 132, 179
 		// to: 170,173,219
@@ -254,8 +265,19 @@ public class ImageAnalyzer {
 		return colorDst;
 	}
 
-	public void detectLines(Mat src) {
+	public Mat detectLines(Mat src) {
 		// http://docs.opencv.org/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
+		
+		Mat houghSrc=src.clone();
+		Mat houghDst=houghSrc.clone();
+		
+		HoughLinesP(houghSrc, houghDst, 1, CV_PI/180, 80, 30, 10);
+		
+		log.info("original hough file:"+houghSrc);
+		
+		log.info("hough lines result: "+houghDst);
+		
+		return houghDst;
 	}
 
 	/*
@@ -300,8 +322,8 @@ public class ImageAnalyzer {
 		} else {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0]);
-			imgAnalyzer.initUI(point);
-			//imgAnalyzer.getArea(point);
+			//imgAnalyzer.initUI(point);
+			imgAnalyzer.getArea(point);
 			// Mat mat = imgAnalyzer.applyInRange();
 			// ImgUtils.imshow("in range", mat);
 		}
