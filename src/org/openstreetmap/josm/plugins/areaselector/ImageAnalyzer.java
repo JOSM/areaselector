@@ -95,7 +95,7 @@ public class ImageAnalyzer {
 		Dimension size = new Dimension(cvImg.width(), cvImg.height());
 		panel.setPreferredSize(size);
 		panel.setSize(size);
-		Mat mat = applyCanny();
+		Mat mat = applyCanny(grey);
 
 		final ImageIcon icon = new ImageIcon(mat.getBufferedImage());
 
@@ -131,7 +131,7 @@ public class ImageAnalyzer {
 				ratio = ((double) ratioSlider.getValue()) / 100;
 				ratioLabel.setText("Ratio: " + ratio);
 
-				Mat canny = applyCanny();
+				Mat canny = applyCanny(grey);
 				icon.setImage(canny.getBufferedImage());
 				mainWindow.repaint();
 			}
@@ -186,15 +186,23 @@ public class ImageAnalyzer {
 		saveImgToFile(inRange.getBufferedImage(),"test/colorExtracted");
 		
 		ImgUtils.imshow("inRange with extracted color at point " + point, inRange);
+		
+		// TODO: filter small points out
+		
+		Mat canny= applyCanny(inRange);
+		
+		saveImgToFile(canny.getBufferedImage(),"test/colorPlusCanny");
+		
+		ImgUtils.imshow("canny on InRange", canny);
 
 		log.info("done.");
 
 		return null;
 	}
 
-	public Mat applyCanny() {
+	public Mat applyCanny(Mat src) {
 
-		Mat cannySrc = grey.clone();
+		Mat cannySrc = src.clone();
 		// / Reduce noise with a kernel 3x3
 		blur(cannySrc, cannySrc, new Size(3, 3));
 
