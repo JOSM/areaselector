@@ -6,6 +6,7 @@
 package org.openstreetmap.josm.plugins.areaselector;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -23,9 +24,7 @@ import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.bytedeco.javacpp.opencv_highgui;
 import org.openstreetmap.josm.data.osm.Way;
 
 import static org.bytedeco.javacpp.opencv_core.*;
@@ -50,10 +49,11 @@ public class ImageAnalyzer {
 	protected static final int cannyMin = 10, cannyMax = 200;
 
 	protected double ratio = 3;
-	
-	protected static final int ratioMin = 100, ratioMax=500;
 
-	
+	protected static final int ratioMin = 100, ratioMax = 500;
+
+	protected int colorThreshold = 20;
+
 	public ImageAnalyzer(String filename) {
 		log.info("Loading from " + filename);
 		cvImg = cvLoadImage(filename);
@@ -102,39 +102,38 @@ public class ImageAnalyzer {
 		panel.add(label);
 		// mainWindow.getContentPane().removeAll();
 		mainWindow.getContentPane().add(panel);
-		
-		
+
 		JPanel sliderPanel = new JPanel();
 		final JLabel thresholdLabel = new JLabel("Threshold: " + cannyThreshold);
 		sliderPanel.add(thresholdLabel);
 
 		final JSlider thresholdSlider = new JSlider(cannyMin, cannyMax);
 		thresholdSlider.setValue(cannyThreshold);
-		
+
 		sliderPanel.add(thresholdSlider);
-		
-		final JLabel ratioLabel=new JLabel("Ratio: "+ratio);
-		final JSlider ratioSlider=new JSlider(ratioMin,ratioMax);
-		ratioSlider.setValue((int) (ratio*100));
+
+		final JLabel ratioLabel = new JLabel("Ratio: " + ratio);
+		final JSlider ratioSlider = new JSlider(ratioMin, ratioMax);
+		ratioSlider.setValue((int) (ratio * 100));
 		sliderPanel.add(ratioLabel);
 		sliderPanel.add(ratioSlider);
-		
-		ChangeListener changeListener=new ChangeListener() {
+
+		ChangeListener changeListener = new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				cannyThreshold = thresholdSlider.getValue();
-				thresholdLabel.setText("Threshold: " +cannyThreshold);
-				
-				ratio=((double)ratioSlider.getValue())/100;
-				ratioLabel.setText("Ratio: "+ratio);
-				
+				thresholdLabel.setText("Threshold: " + cannyThreshold);
+
+				ratio = ((double) ratioSlider.getValue()) / 100;
+				ratioLabel.setText("Ratio: " + ratio);
+
 				Mat canny = applyCanny();
 				icon.setImage(canny.getBufferedImage());
 				mainWindow.repaint();
 			}
 		};
-		
+
 		thresholdSlider.addChangeListener(changeListener);
 		ratioSlider.addChangeListener(changeListener);
 
@@ -150,6 +149,38 @@ public class ImageAnalyzer {
 	}
 
 	public Way getArea(Point point) {
+
+		// get color at that point
+		BufferedImage bufImg = src.getBufferedImage();
+
+		Color pointColor = new Color(bufImg.getRGB(point.x, point.y));
+		// orignal color at point is
+		// r=236,g=202,b=201
+		
+		
+		
+		// fake the color
+		// 150, 152, 199
+		pointColor=new Color(150,152,199);
+
+		// let's create a threshold
+
+		log.info("point color: " + pointColor);
+
+		int r = pointColor.getRed(), g = pointColor.getGreen(), b = pointColor.getBlue();
+
+		Color startColor = new Color(r < colorThreshold ? 0 : r - colorThreshold, g < colorThreshold ? 0 : g - colorThreshold, b < colorThreshold ? 0
+				: b - colorThreshold);
+
+		Color endColor = new Color(r + colorThreshold > 255 ? 255 : r + colorThreshold, g + colorThreshold > 255 ? 255 : g + colorThreshold, b
+				+ colorThreshold > 255 ? 255 : b + colorThreshold);
+		
+		
+		log.info("range color: "+startColor+" "+endColor);
+
+		Mat inRange = applyInRange(startColor, endColor);
+
+		ImgUtils.imshow("inRange with extracted color at point " + point, inRange);
 
 		log.info("done.");
 
@@ -168,69 +199,36 @@ public class ImageAnalyzer {
 		Canny(cannySrc, cannyDst, cannyThreshold, cannyThreshold * ratio);
 
 		// ImgUtils.imshow("Canny",cannyDst);
-		
+
 		return cannyDst;
 	}
-	
-	public Mat applyInRange(){
-		
-		Mat colorSrc=src.clone();
-		
-		Mat colorDst=new Mat(new Size(colorSrc.cols(),colorSrc.rows()), CV_8U);
-		CvMat colorDstCV=colorDst.asCvMat();
-		
-//		Mat colorMin=new Mat(3);
-//		Mat colorMax=new Mat(3);
-		
-//		colorMin.asCvMat()
-		
-//		Scalar colorMin,colorMax;
-//		colorMin=new Scalar(3);
-//		double[] colorStart={130,132,179};
-//		
-//		colorMin.put(colorStart);
-//		colorMax=new Scalar(3);
-//		double[] colorEnd={170,173,219};
-//		colorMin.put(colorEnd);
-//		
-//		Mat mat=new Mat(new Size(3,1), CV_8U);
-//		
-//		int[] colorStartInt={130,132,179};
-//		mat.create(3, colorStartInt, CV_8U);
-//		
-//		
-//		
-//		log.info("colormin: "+colorMin);
-//		
-//		CvMat colorSrcCV=colorSrc.asCvMat();
-//		
-//		log.info("src: "+colorSrcCV.size()+" dest: "+colorDstCV.size()+" dst type: "+colorDstCV.type()+" CV_8U: "+CV_8U);
-//		
-		//inRange(colorSrc, colorSrc, colorDst, colorDst);
-		
-//		cvInRangeS(colorSrc.asCvMat(), colorMin.asCvScalar(), colorMax.asCvScalar(), colorDstCV);
-		
-		Mat matColStart=new Mat(new Scalar(130, 132, 179, 1)),matColEnd=new Mat(new Scalar(170,173,219, 1));
-		
-		inRange(colorSrc,matColStart,matColEnd,colorDst);
-		
-		ImgUtils.imshow("in range", colorDst);
-		
-		
-		colorDst=new Mat(colorDstCV.asIplImage());
-		
-		//opencv_highgui.imshow("Test", colorDst);
-		
-		//ImgUtils.imshow("in range", colorDst);
-		
+
+	public Mat applyInRange(Color fromColor, Color toColor) {
+
+		// from: 130, 132, 179
+		// to: 170,173,219
+
+		Mat colorSrc = src.clone();
+
+		Mat colorDst;
+
+		colorDst = colorSrc.clone();
+
+		Mat matColStart = new Mat(new Scalar(fromColor.getRed(), fromColor.getGreen(), fromColor.getBlue(),1 )), matColEnd = new Mat(new Scalar(
+				toColor.getRed(), toColor.getGreen(), toColor.getBlue(),1));
+
+		inRange(colorSrc, matColStart, matColEnd, colorDst);
+
 		return colorDst;
 	}
-	
-	public void detectLines(Mat src){
+
+	public void detectLines(Mat src) {
 		// http://docs.opencv.org/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#finalize()
 	 */
 	@Override
@@ -238,7 +236,6 @@ public class ImageAnalyzer {
 		cvReleaseImage(cvImg);
 		super.finalize();
 	}
-	
 
 	/**
 	 * @param args
@@ -251,14 +248,12 @@ public class ImageAnalyzer {
 			log.warn("Usage: ImageAnalyzer basefile x y");
 		} else {
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0]);
-			//imgAnalyzer.initUI();
-			//imgAnalyzer.getArea(new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
-			Mat mat=imgAnalyzer.applyInRange();
-			ImgUtils.imshow("in range", mat);
+			// imgAnalyzer.initUI();
+			imgAnalyzer.getArea(new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
+			// Mat mat = imgAnalyzer.applyInRange();
+			// ImgUtils.imshow("in range", mat);
 		}
 
 	}
-
-
 
 }
