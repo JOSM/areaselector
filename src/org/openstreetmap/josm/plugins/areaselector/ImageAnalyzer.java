@@ -42,7 +42,9 @@ public class ImageAnalyzer {
 
 	protected Mat src, grey;
 
-	protected static final String tempFile = "cvload.png";
+	public static final String IMG_TYPE="PNG";
+	
+	protected static final String tempFile = "cvload."+IMG_TYPE.toLowerCase();
 
 	protected int cannyThreshold = 30;
 
@@ -53,7 +55,8 @@ public class ImageAnalyzer {
 	protected static final int ratioMin = 100, ratioMax = 500;
 
 	protected int colorThreshold = 20;
-
+	
+	
 	public ImageAnalyzer(String filename) {
 		log.info("Loading from " + filename);
 		cvImg = cvLoadImage(filename);
@@ -61,7 +64,7 @@ public class ImageAnalyzer {
 	}
 
 	public ImageAnalyzer(BufferedImage bufImg) throws IOException {
-		ImageIO.write(bufImg, "PNG", new File(tempFile));
+		ImageIO.write(bufImg, IMG_TYPE, new File(tempFile));
 		cvImg = cvLoadImage(tempFile);
 		new File(tempFile).delete();
 		init();
@@ -179,7 +182,9 @@ public class ImageAnalyzer {
 		log.info("range color: "+startColor+" "+endColor);
 
 		Mat inRange = applyInRange(startColor, endColor);
-
+		
+		saveImgToFile(inRange.getBufferedImage(),"test/colorExtracted");
+		
 		ImgUtils.imshow("inRange with extracted color at point " + point, inRange);
 
 		log.info("done.");
@@ -238,6 +243,16 @@ public class ImageAnalyzer {
 		cvReleaseImage(cvImg);
 		super.finalize();
 	}
+	
+	public boolean saveImgToFile(BufferedImage buf,String filename){
+		try {
+			ImageIO.write(buf, IMG_TYPE, new File(filename+"."+IMG_TYPE.toLowerCase()));
+			return true;
+		} catch (IOException e) {
+			log.warn("unable to save image",e);
+		}
+		return false;
+	}
 
 	/**
 	 * @param args
@@ -245,7 +260,7 @@ public class ImageAnalyzer {
 	public static void main(String[] args) {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 
-		// baseimage.png 419 308
+		// test/baseimage.png 419 308
 		if (args.length < 3) {
 			log.warn("Usage: ImageAnalyzer basefile x y");
 		} else {
