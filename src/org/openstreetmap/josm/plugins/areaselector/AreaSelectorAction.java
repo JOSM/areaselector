@@ -14,11 +14,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.util.logging.Logger;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -115,6 +118,13 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 			layer.paint(imgGraphics, mapView, mapView.getRealBounds());
 		}
 		
+		// write image for further processing to file
+		try {
+			ImageIO.write(bufImage, "PNG", new File("baseimage.png"));
+		} catch (IOException e) {
+			
+			log.error("could not write image",e);
+		}
 		
 		// X marks the spot
 		imgGraphics.setColor(Color.RED);
@@ -125,6 +135,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 		
 		
 		JOptionPane.showMessageDialog(Main.parent, "You clicked on "+clickPoint.x+" "+clickPoint.y, "AreaSelection", JOptionPane.INFORMATION_MESSAGE, icon);
+		
+		
+		
 	}
 
 }

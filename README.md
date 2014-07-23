@@ -25,6 +25,10 @@ Under Tools you should now see a new Tool called "Area Selection".
 
 This plugin was developed by Paul Woelfel (r00tat). You can contact me on github.
 
-This software is licenses under GPL v3. 
+This software is licensed under GPL v3. 
+
+### Third party resources
 
 The icons currently in use are from the [Tracer Plugin](http://wiki.openstreetmap.org/wiki/JOSM/Plugins/Tracer). 
+
+For image manipulation [javacv](https://github.com/bytedeco/javacv) and [opencv](http://opencv.org/) are used. 

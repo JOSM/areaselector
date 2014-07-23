@@ -13,30 +13,36 @@
 -->
 <project name="areaselector" default="dist" basedir=".">
 
-    <!-- enter the SVN commit message -->
-    <property name="commit.message" value="Commit message"/>
-    <!-- enter the *lowest* JOSM version this plugin is currently compatible with -->
-    <property name="plugin.main.version" value="7001"/>
+	<!-- enter the SVN commit message -->
+	<property name="commit.message" value="Commit message" />
+	<!-- enter the *lowest* JOSM version this plugin is currently compatible with -->
+	<property name="plugin.main.version" value="7001" />
 
-    <!-- Configure these properties (replace "..." accordingly).
+	<!-- Configure these properties (replace "..." accordingly).
 
 
 
          See http://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
     -->
-    <property name="plugin.author" value="Paul Woelfel"/>
-    <property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin"/>
-    <property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of waypoints"/>
-    <property name="plugin.icon" value="images/mapmode/tracer-sml.png"/>
-    <!-- <property name="plugin.link" value="..."/>-->
-    <!--<property name="plugin.early" value="..."/>-->
-    <!--<property name="plugin.requires" value="..."/>-->
-    <!--<property name="plugin.stage" value="..."/>-->
-    
-	<property name="josm" location="../../core/dist/josm-custom.jar"/>
-	<property name="plugin.dist.dir" value="../../dist"/>
+	<property name="plugin.author" value="Paul Woelfel" />
+	<property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin" />
+	<property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of waypoints" />
+	<property name="plugin.icon" value="images/mapmode/tracer-sml.png" />
+	<property name="plugin.link" value="https://github.com/r00tat/JOSM-areaselector"/>
+	<!--<property name="plugin.early" value="..."/>-->
+	<!--<property name="plugin.requires" value="..."/>-->
+	<!--<property name="plugin.stage" value="..."/>-->
+
+	<property name="josm" location="../../core/dist/josm-custom.jar" />
+	<property name="plugin.dist.dir" value="../../dist" />
 	
-    <!-- ** include targets that all plugins have in common ** -->
-    <import file="../build-common.xml"/>
-  
+	
+
+
+	<!-- ** include targets that all plugins have in common ** -->
+	<import file="../build-common.xml" />
+
+
+
+
 </project>
