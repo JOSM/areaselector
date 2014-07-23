@@ -11,12 +11,16 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacpp.opencv_highgui;
 import org.bytedeco.javacpp.opencv_imgproc;
+import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Way;
 
 
@@ -38,6 +42,7 @@ public class ImageAnalyzer {
 	
 	
 	public ImageAnalyzer(String filename){
+		log.info("Loading from "+filename);
 		cvImg=cvLoadImage(filename);
 	}
 	
@@ -59,13 +64,39 @@ public class ImageAnalyzer {
 //		inRange(cvImg,new Scalar(130,132,179), new Scalar(170,173,219));
 		//opencv_core.cvFlip(cvImg,cvImg,opencv_imgproc.CV_RGBA2GRAY);
 		
-		Mat mat=new Mat(cvImg);
+		if(cvImg==null){
+			log.warn("cvIMG is null!!");
+		}
 		
-		imshow("new image", mat);
+
+		log.info("createing mat");
 		
-		//waitKey();
+		this.imshow("cvImg",cvImg);
+		Mat src=new Mat(cvImg);
 		
+		
+		Mat dst=src.clone();
+		cvtColor(src,dst,CV_BGR2GRAY);
+//		
+		this.imshow("grey scale",dst);
+		
+		
+
 		return null;
+	}
+	
+	
+	public void imshow(String title,IplImage cvImg){
+		this.imshow(title,cvImg.getBufferedImage());
+	}
+	
+	public void imshow(String title,Mat mat){
+		this.imshow(title,mat.getBufferedImage());
+	}
+	
+	public void imshow(String title,BufferedImage bufImage){
+		ImageIcon icon = new ImageIcon(bufImage);	
+		JOptionPane.showMessageDialog(Main.parent, title, title, JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 
 	/**
