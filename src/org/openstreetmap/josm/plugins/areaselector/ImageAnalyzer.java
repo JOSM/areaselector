@@ -161,7 +161,7 @@ public class ImageAnalyzer {
 		
 		// fake the color
 		// 150, 152, 199
-		pointColor=new Color(150,152,199);
+		//pointColor=new Color(150,152,199);
 
 		// let's create a threshold
 
@@ -214,8 +214,10 @@ public class ImageAnalyzer {
 
 		colorDst = colorSrc.clone();
 
-		Mat matColStart = new Mat(new Scalar(fromColor.getRed(), fromColor.getGreen(), fromColor.getBlue(),1 )), matColEnd = new Mat(new Scalar(
-				toColor.getRed(), toColor.getGreen(), toColor.getBlue(),1));
+		// CAUTION: inRange uses BGR intead of RGB!!!!
+		
+		Mat matColStart = new Mat(new Scalar(fromColor.getBlue(), fromColor.getGreen(), fromColor.getRed(),1 )), matColEnd = new Mat(new Scalar(
+				toColor.getBlue(), toColor.getGreen(), toColor.getRed(),1));
 
 		inRange(colorSrc, matColStart, matColEnd, colorDst);
 
