@@ -54,7 +54,9 @@ public class ImageAnalyzer {
 
 	protected static final int ratioMin = 100, ratioMax = 500;
 
-	protected int colorThreshold = 20;
+	protected int colorThreshold = 15;
+	
+	protected static final int colorMin = 0, colorMax=50;
 	
 	
 	public ImageAnalyzer(String filename) {
@@ -85,7 +87,10 @@ public class ImageAnalyzer {
 		cvtColor(src, grey, CV_BGR2GRAY);
 	}
 
-	public void initUI() {
+	public void initUI(Point point) {
+		
+		final Point colorPoint=point;
+		
 		final JFrame mainWindow = new JFrame("Image Analyzer");
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -95,9 +100,9 @@ public class ImageAnalyzer {
 		Dimension size = new Dimension(cvImg.width(), cvImg.height());
 		panel.setPreferredSize(size);
 		panel.setSize(size);
-		Mat mat = applyCanny(grey);
+		getArea(colorPoint);
 
-		final ImageIcon icon = new ImageIcon(mat.getBufferedImage());
+		final ImageIcon icon = new ImageIcon(getImgFromFile("test/colorPlusCanny"));
 
 		JLabel label = new JLabel();
 
@@ -107,6 +112,13 @@ public class ImageAnalyzer {
 		mainWindow.getContentPane().add(panel);
 
 		JPanel sliderPanel = new JPanel();
+		
+		final JSlider colorThresholdSlider=new JSlider(colorMin,colorMax);
+		colorThresholdSlider.setValue(colorThreshold);
+		final JLabel colorLabel = new JLabel("Color Threshold: "+colorThreshold);
+		sliderPanel.add(colorLabel);
+		sliderPanel.add(colorThresholdSlider);
+		
 		final JLabel thresholdLabel = new JLabel("Threshold: " + cannyThreshold);
 		sliderPanel.add(thresholdLabel);
 
@@ -130,15 +142,20 @@ public class ImageAnalyzer {
 
 				ratio = ((double) ratioSlider.getValue()) / 100;
 				ratioLabel.setText("Ratio: " + ratio);
+				
+				colorThreshold=colorThresholdSlider.getValue();
+				colorLabel.setText("Color Threshold: "+colorThreshold);
+				
 
-				Mat canny = applyCanny(grey);
-				icon.setImage(canny.getBufferedImage());
+				getArea(colorPoint);
+				icon.setImage(getImgFromFile("test/colorPlusCanny"));
 				mainWindow.repaint();
 			}
 		};
 
 		thresholdSlider.addChangeListener(changeListener);
 		ratioSlider.addChangeListener(changeListener);
+		colorThresholdSlider.addChangeListener(changeListener);
 
 		mainWindow.getContentPane().add(sliderPanel, BorderLayout.NORTH);
 
@@ -185,7 +202,7 @@ public class ImageAnalyzer {
 		
 		saveImgToFile(inRange.getBufferedImage(),"test/colorExtracted");
 		
-		ImgUtils.imshow("inRange with extracted color at point " + point, inRange);
+//		ImgUtils.imshow("inRange with extracted color at point " + point, inRange);
 		
 		// TODO: filter small points out
 		
@@ -193,7 +210,7 @@ public class ImageAnalyzer {
 		
 		saveImgToFile(canny.getBufferedImage(),"test/colorPlusCanny");
 		
-		ImgUtils.imshow("canny on InRange", canny);
+//		ImgUtils.imshow("canny on InRange", canny);
 
 		log.info("done.");
 
@@ -261,6 +278,15 @@ public class ImageAnalyzer {
 		}
 		return false;
 	}
+	
+	public BufferedImage getImgFromFile(String filename){
+		try {
+			return ImageIO.read(new File(filename+"."+IMG_TYPE.toLowerCase()));
+		} catch (IOException e) {
+			log.warn("unable to read file "+filename,e);
+		}
+		return null;
+	}
 
 	/**
 	 * @param args
@@ -272,9 +298,10 @@ public class ImageAnalyzer {
 		if (args.length < 3) {
 			log.warn("Usage: ImageAnalyzer basefile x y");
 		} else {
+			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0]);
-			// imgAnalyzer.initUI();
-			imgAnalyzer.getArea(new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
+			imgAnalyzer.initUI(point);
+			//imgAnalyzer.getArea(point);
 			// Mat mat = imgAnalyzer.applyInRange();
 			// ImgUtils.imshow("in range", mat);
 		}
