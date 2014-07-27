@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/javacv.jar" sourcepath="/Users/frig/Documents/developing/OSM/javacv/src/main/java"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/opencv.jar" sourcepath="/Users/frig/Documents/developing/OSM/javacpp/src/main/java"/>
+	<classpathentry kind="lib" path="lib/marvin_1.5.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
