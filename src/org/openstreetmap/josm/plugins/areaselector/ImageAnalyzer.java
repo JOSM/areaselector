@@ -265,19 +265,25 @@ public class ImageAnalyzer {
 		return colorDst;
 	}
 
-	public Mat detectLines(Mat src) {
+	public Mat detectLines(Mat orig) {
 		// http://docs.opencv.org/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
 		
-		Mat houghSrc=src.clone();
-		Mat houghDst=houghSrc.clone();
+		Mat src=orig.clone();
+		Mat dst=src.clone();
 		
-		HoughLinesP(houghSrc, houghDst, 1, CV_PI/180, 80, 30, 10);
+//		CvMemStorage storage = cvCreateMemStorage(0);
+//		
+//		CvSeq lines = new CvSeq();
+//		
+//		lines = cvHoughLines2(dst, storage, CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 40, 50, 10);
 		
-		log.info("original hough file:"+houghSrc);
+		HoughLinesP(src, dst, 1, Math.PI/180, 80, 30, 10);
 		
-		log.info("hough lines result: "+houghDst);
+		log.info("original hough file:"+src);
 		
-		return houghDst;
+		log.info("hough lines result: "+dst);
+		
+		return dst;
 	}
 
 	/*
