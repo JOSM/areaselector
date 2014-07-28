@@ -22,9 +22,12 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import marvin.image.MarvinImage;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.marvinproject.image.color.grayScale.GrayScale;
 import org.openstreetmap.josm.data.osm.Way;
 
 import static org.bytedeco.javacpp.opencv_core.*;
@@ -41,6 +44,8 @@ public class ImageAnalyzer {
 	protected IplImage cvImg;
 
 	protected Mat src, grey;
+	
+	protected BufferedImage baseImage;
 
 	public static final String IMG_TYPE="PNG";
 	
@@ -62,10 +67,12 @@ public class ImageAnalyzer {
 	public ImageAnalyzer(String filename) {
 		log.info("Loading from " + filename);
 		cvImg = cvLoadImage(filename);
+		baseImage=cvImg.getBufferedImage();
 		init();
 	}
 
 	public ImageAnalyzer(BufferedImage bufImg) throws IOException {
+		baseImage=bufImg;
 		ImageIO.write(bufImg, IMG_TYPE, new File(tempFile));
 		cvImg = cvLoadImage(tempFile);
 		new File(tempFile).delete();
@@ -315,6 +322,16 @@ public class ImageAnalyzer {
 		}
 		return null;
 	}
+	
+	public void testMarvin(){
+		MarvinImage marvinImg=new MarvinImage(baseImage);
+		GrayScale g=new GrayScale();
+		MarvinImage greyImg=marvinImg.clone();
+		g.process(marvinImg, greyImg);
+		BufferedImage greyBuf=greyImg.getBufferedImage();
+		ImgUtils.imshow("Marvin Test", greyBuf);
+		
+	}
 
 	/**
 	 * @param args
@@ -329,9 +346,11 @@ public class ImageAnalyzer {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0]);
 			//imgAnalyzer.initUI(point);
-			imgAnalyzer.getArea(point);
+//			imgAnalyzer.getArea(point);
 			// Mat mat = imgAnalyzer.applyInRange();
 			// ImgUtils.imshow("in range", mat);
+			
+			imgAnalyzer.testMarvin();
 		}
 
 	}
