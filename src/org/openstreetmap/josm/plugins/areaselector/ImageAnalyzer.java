@@ -6,11 +6,13 @@
 package org.openstreetmap.josm.plugins.areaselector;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -158,34 +160,34 @@ public class ImageAnalyzer {
 
 	public Way getArea(Point point) {
 
-//		// get color at that point
-//		BufferedImage bufImg = src.getBufferedImage();
-//
-//		Color pointColor = new Color(bufImg.getRGB(point.x, point.y));
-//		// orignal color at point is
-//		// r=236,g=202,b=201
+		// get color at that point
+		BufferedImage bufImg = src.getBufferedImage();
+
+		Color pointColor = new Color(bufImg.getRGB(point.x, point.y));
+		// orignal color at point is
+		// r=236,g=202,b=201
+		
+		
+		
+		// fake the color
+		// 150, 152, 199
+		//pointColor=new Color(150,152,199);
+
+		// let's create a threshold
+
+		log.info("point color: " + pointColor);
+
+		int r = pointColor.getRed(), g = pointColor.getGreen(), b = pointColor.getBlue();
+
+		HashMap<String,Object> attributes=new HashMap<String,Object>();
+		attributes.put("range", colorThreshold);
+		attributes.put("r", r);
+		attributes.put("g", g);
+		attributes.put("b", b);
+		
+		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", src, attributes);
+		ImgUtils.imshow("selected color",colorSelected);
 //		
-//		
-//		
-//		// fake the color
-//		// 150, 152, 199
-//		//pointColor=new Color(150,152,199);
-//
-//		// let's create a threshold
-//
-//		log.info("point color: " + pointColor);
-//
-//		int r = pointColor.getRed(), g = pointColor.getGreen(), b = pointColor.getBlue();
-//
-//		Color startColor = new Color(r < colorThreshold ? 0 : r - colorThreshold, g < colorThreshold ? 0 : g - colorThreshold, b < colorThreshold ? 0
-//				: b - colorThreshold);
-//
-//		Color endColor = new Color(r + colorThreshold > 255 ? 255 : r + colorThreshold, g + colorThreshold > 255 ? 255 : g + colorThreshold, b
-//				+ colorThreshold > 255 ? 255 : b + colorThreshold);
-//		
-//		
-//		log.info("range color: "+startColor+" "+endColor);
-//
 //		Mat inRange = applyInRange(startColor, endColor);
 //		
 //		saveImgToFile(inRange.getBufferedImage(),"test/colorExtracted");
@@ -252,27 +254,7 @@ public class ImageAnalyzer {
 //
 //		return colorDst;
 //	}
-//
-//	public Mat detectLines(Mat orig) {
-//		// http://docs.opencv.org/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
-//		
-//		Mat src=orig.clone();
-//		Mat dst=src.clone();
-//		
-////		CvMemStorage storage = cvCreateMemStorage(0);
-////		
-////		CvSeq lines = new CvSeq();
-////		
-////		lines = cvHoughLines2(dst, storage, CV_HOUGH_PROBABILISTIC, 1, Math.PI / 180, 40, 50, 10);
-//		
-//		HoughLinesP(src, dst, 1, Math.PI/180, 80, 30, 10);
-//		
-//		log.info("original hough file:"+src);
-//		
-//		log.info("hough lines result: "+dst);
-//		
-//		return dst;
-//	}
+
 
 	/*
 	 * (non-Javadoc)
@@ -307,26 +289,50 @@ public class ImageAnalyzer {
 	 * find out if marvin fits our needs.
 	 */
 	public void testMarvin(){
-		MarvinImage marvinImg=new MarvinImage(baseImage);
-		MarvinImage greyImg=applyPlugin("org.marvinproject.image.color.grayScale", marvinImg);
+//		MarvinImage greyImg=applyPlugin("org.marvinproject.image.color.grayScale", src);
 		
-		ImgUtils.imshow("Marvin Test", greyImg.getBufferedImage());
+		//ImgUtils.imshow("Marvin Test", greyImg.getBufferedImage());
 		
-		MarvinImage robertsImg=applyPlugin("org.marvinproject.image.edge.roberts.jar", greyImg);
+		HashMap<String,Object> attributes=new HashMap<String,Object>();
+		attributes.put("range", colorThreshold);
+		attributes.put("r", 100);
+		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.thresholdRange", src, attributes);
+		ImgUtils.imshow("selected color",colorSelected);
 		
-		ImgUtils.imshow("Marvin Edge", robertsImg);
+//		MarvinImage robertsImg=applyPlugin("org.marvinproject.image.edge.roberts.jar", greyImg);
+//		
+//		ImgUtils.imshow("Marvin Edge", robertsImg);
 		
 		
 	}
 	
 	/**
 	 * load the plugin, process it with that image and return it. The original image is not modified.
-	 * @param img
-	 * @return
+	 * @param pluginName the plugin jar name
+	 * @param img image to processed
+	 * @return the modified image
 	 */
 	public MarvinImage applyPlugin(String pluginName, MarvinImage img){
+		return applyPlugin(pluginName, img,null);
+	}
+	
+	/**
+	 * load the plugin, process it with that image and return it. The original image is not modified.
+	 * @param pluginName the plugin jar name
+	 * @param img image to processed
+	 * @param attributes attributes to set
+	 * @return the modified image
+	 */
+	public MarvinImage applyPlugin(String pluginName, MarvinImage img,HashMap<String,Object> attributes){
 		MarvinImage dest=img.clone();
 		MarvinImagePlugin plugin=MarvinPluginLoader.loadImagePlugin(pluginName);
+		
+		if(attributes!=null){
+			for(String key : attributes.keySet()){
+				plugin.setAttribute(key, attributes.get(key));
+			}
+		}
+		
 		plugin.process(img, dest);
 		dest.update();
 		return dest;
@@ -372,11 +378,11 @@ public class ImageAnalyzer {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0]);
 			//imgAnalyzer.initUI(point);
-//			imgAnalyzer.getArea(point);
+			imgAnalyzer.getArea(point);
 			// Mat mat = imgAnalyzer.applyInRange();
 			// ImgUtils.imshow("in range", mat);
 			
-			imgAnalyzer.testMarvin();
+//			imgAnalyzer.testMarvin();
 		}
 
 	}
