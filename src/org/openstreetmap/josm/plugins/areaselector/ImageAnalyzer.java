@@ -191,24 +191,45 @@ public class ImageAnalyzer {
 		
 		log.info("searching for the correct color");
 		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
-		ImgUtils.imshow("selected color",colorSelected);
+//		ImgUtils.imshow("selected color",colorSelected);
 		saveImgToFile(colorSelected.getBufferedImage(),"test/colorExtracted");
 		
+		log.info("trying Edge detection");
+//		
 //		 TODO: filter small points out
+		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
+		saveImgToFile(blackAndWhite.getBufferedImage(),"test/blackAndWhite");
 		
-//		log.info("trying Edge detection");
-//		MarvinImage sobel=applyPlugin("org.marvinproject.image.edge.sobel", colorSelected);
+		
+		
+		
+//		MarvinImage sobel=applyPlugin("org.marvinproject.image.edge.sobel", blackAndWhite);
 //		saveImgToFile(sobel.getBufferedImage(),"test/sobel");
-//		
-//		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", colorSelected);
-//		saveImgToFile(roberts.getBufferedImage(),"test/roberts");
-//		
+		boolean [][] erosionMatrix = new boolean[][]
+				{
+					{false,false,false},
+					{false,true,false},
+					{false,false,false},
+				};
+		
+		HashMap<String,Object> erosionAttributes=new HashMap<>();
+		erosionAttributes.put("matrix", erosionMatrix);
+		
+		MarvinImage erosion=blackAndWhite;
+		
+		for(int i =0 ; i < 10; i++){
+			erosion=applyPlugin("org.marvinproject.image.morphological.erosion",erosion,erosionAttributes);
+		}
+		saveImgToFile(erosion.getBufferedImage(),"test/erosion");
+		
+		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
+		saveImgToFile(roberts.getBufferedImage(),"test/roberts");
+		
 //		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
 //		saveImgToFile(prewitt.getBufferedImage(),"test/prewitt");
 		
 		log.info("detecting boundaries");
 //		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
-		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
 		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", blackAndWhite);
 		saveImgToFile(boundary.getBufferedImage(),"test/boundary");
 		
