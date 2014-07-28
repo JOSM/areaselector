@@ -12,21 +12,10 @@ import javax.swing.JOptionPane;
 
 import marvin.image.MarvinImage;
 
-import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.bytedeco.javacpp.opencv_core.Mat;
-
 /**
  * @author Paul Woelfel (paul@woelfel.at)
  */
 public class ImgUtils {
-	public static void imshow(String title,IplImage cvImg){
-		imshow(title,cvImg.getBufferedImage());
-	}
-	
-	public static void imshow(String title,Mat mat){
-		imshow(title,mat.getBufferedImage());
-	}
-	
 	/** 
 	 * display a BufferedImage
 	 * @param title title of dialog
