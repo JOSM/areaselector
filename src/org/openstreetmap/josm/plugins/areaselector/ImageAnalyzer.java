@@ -23,6 +23,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import marvin.image.MarvinColorModelConverter;
 import marvin.image.MarvinImage;
 import marvin.plugin.MarvinAbstractImagePlugin;
 import marvin.plugin.MarvinImagePlugin;
@@ -185,22 +186,34 @@ public class ImageAnalyzer {
 		attributes.put("g", g);
 		attributes.put("b", b);
 		
-		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", src, attributes);
+		log.info("Applying gaus filter");
+		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
+		
+		log.info("searching for the correct color");
+		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
 		ImgUtils.imshow("selected color",colorSelected);
+		saveImgToFile(colorSelected.getBufferedImage(),"test/colorExtracted");
+		
+//		 TODO: filter small points out
+		
+//		log.info("trying Edge detection");
+//		MarvinImage sobel=applyPlugin("org.marvinproject.image.edge.sobel", colorSelected);
+//		saveImgToFile(sobel.getBufferedImage(),"test/sobel");
 //		
-//		Mat inRange = applyInRange(startColor, endColor);
+//		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", colorSelected);
+//		saveImgToFile(roberts.getBufferedImage(),"test/roberts");
 //		
-//		saveImgToFile(inRange.getBufferedImage(),"test/colorExtracted");
-//		
-////		ImgUtils.imshow("inRange with extracted color at point " + point, inRange);
-//		
-//		// TODO: filter small points out
-//		log.info("run a gaussion filter");
-//		Mat gaus=inRange.clone();
-//		GaussianBlur(inRange, gaus, new Size(3,3), 0);
-//		
-//		saveImgToFile(gaus.getBufferedImage(),"test/gaus1");
-//		
+//		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
+//		saveImgToFile(prewitt.getBufferedImage(),"test/prewitt");
+		
+		log.info("detecting boundaries");
+//		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
+		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
+		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", blackAndWhite);
+		saveImgToFile(boundary.getBufferedImage(),"test/boundary");
+		
+		
+		
 //		Mat canny= applyCanny(gaus);
 //		
 //		saveImgToFile(canny.getBufferedImage(),"test/colorPlusCanny");
@@ -214,46 +227,6 @@ public class ImageAnalyzer {
 		return null;
 	}
 
-//	public Mat applyCanny(Mat src) {
-//		
-//		log.info("Applying canny filter");
-//
-//		Mat cannySrc = src.clone();
-//		// / Reduce noise with a kernel 3x3
-//		blur(cannySrc, cannySrc, new Size(3, 3));
-//
-//		Mat cannyDst = cannySrc.clone();
-//
-//		// / Canny detector
-//		Canny(cannySrc, cannyDst, cannyThreshold, cannyThreshold * ratio);
-//
-//		// ImgUtils.imshow("Canny",cannyDst);
-//
-//		return cannyDst;
-//	}
-
-//	public Mat applyInRange(Color fromColor, Color toColor) {
-//		
-//		log.info("Searching for color "+fromColor+" to "+toColor);
-//
-//		// from: 130, 132, 179
-//		// to: 170,173,219
-//
-//		Mat colorSrc = src.clone();
-//
-//		Mat colorDst;
-//
-//		colorDst = colorSrc.clone();
-//
-//		// CAUTION: inRange uses BGR intead of RGB!!!!
-//		
-//		Mat matColStart = new Mat(new Scalar(fromColor.getBlue(), fromColor.getGreen(), fromColor.getRed(),1 )), matColEnd = new Mat(new Scalar(
-//				toColor.getBlue(), toColor.getGreen(), toColor.getRed(),1));
-//
-//		inRange(colorSrc, matColStart, matColEnd, colorDst);
-//
-//		return colorDst;
-//	}
 
 
 	/*
@@ -293,15 +266,24 @@ public class ImageAnalyzer {
 		
 		//ImgUtils.imshow("Marvin Test", greyImg.getBufferedImage());
 		
-		HashMap<String,Object> attributes=new HashMap<String,Object>();
-		attributes.put("range", colorThreshold);
-		attributes.put("r", 100);
-		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.thresholdRange", src, attributes);
-		ImgUtils.imshow("selected color",colorSelected);
+//		HashMap<String,Object> attributes=new HashMap<String,Object>();
+//		attributes.put("range", colorThreshold);
+//		attributes.put("r", 100);
+//		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.thresholdRange", src, attributes);
+//		ImgUtils.imshow("selected color",colorSelected);
 		
 //		MarvinImage robertsImg=applyPlugin("org.marvinproject.image.edge.roberts.jar", greyImg);
 //		
 //		ImgUtils.imshow("Marvin Edge", robertsImg);
+		
+		
+		MarvinImage mImg=new MarvinImage(getImgFromFile("test/boundary_in"));
+		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", mImg);
+		//ImgUtils.imshow("inverted", inverted.getBufferedImage());
+		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(inverted, 127);
+		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", blackAndWhite);
+		ImgUtils.imshow("boundary", boundary);
+		
 		
 		
 	}
