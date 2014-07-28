@@ -31,4 +31,4 @@ This software is licensed under GPL v3.
 
 The icons currently in use are from the [Tracer Plugin](http://wiki.openstreetmap.org/wiki/JOSM/Plugins/Tracer). 
 
-For image manipulation [javacv](https://github.com/bytedeco/javacv) and [opencv](http://opencv.org/) are used. 
+For image manipulation [Marvin Project](http://marvinproject.sourceforge.net/) is used. The code was rebundled as jar files to make it easier to include. The MarvinPluginLoader was extended to search for already loaded classes first, before loading Plugins directly from jar files. The source is included in the jar files. 
