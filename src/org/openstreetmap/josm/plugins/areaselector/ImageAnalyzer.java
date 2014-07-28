@@ -5,6 +5,16 @@
  */
 package org.openstreetmap.josm.plugins.areaselector;
 
+import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
+import static org.bytedeco.javacpp.opencv_core.inRange;
+import static org.bytedeco.javacpp.opencv_highgui.cvLoadImage;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_BGR2GRAY;
+import static org.bytedeco.javacpp.opencv_imgproc.Canny;
+import static org.bytedeco.javacpp.opencv_imgproc.GaussianBlur;
+import static org.bytedeco.javacpp.opencv_imgproc.HoughLinesP;
+import static org.bytedeco.javacpp.opencv_imgproc.blur;
+import static org.bytedeco.javacpp.opencv_imgproc.cvtColor;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -23,16 +33,17 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import marvin.image.MarvinImage;
+import marvin.plugin.MarvinAbstractImagePlugin;
+import marvin.plugin.MarvinImagePlugin;
+import marvin.util.MarvinPluginLoader;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.marvinproject.image.color.grayScale.GrayScale;
+import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.opencv_core.Scalar;
+import org.bytedeco.javacpp.opencv_core.Size;
 import org.openstreetmap.josm.data.osm.Way;
-
-import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_imgproc.*;
-import static org.bytedeco.javacpp.opencv_highgui.*;
 
 /**
  * @author Paul Woelfel (paul@woelfel.at)
@@ -323,14 +334,60 @@ public class ImageAnalyzer {
 		return null;
 	}
 	
+	/**
+	 * find out if marvin fits our needs.
+	 */
 	public void testMarvin(){
 		MarvinImage marvinImg=new MarvinImage(baseImage);
-		GrayScale g=new GrayScale();
-		MarvinImage greyImg=marvinImg.clone();
-		g.process(marvinImg, greyImg);
-		BufferedImage greyBuf=greyImg.getBufferedImage();
-		ImgUtils.imshow("Marvin Test", greyBuf);
+		MarvinImage greyImg=applyPlugin("org.marvinproject.image.color.grayScale", marvinImg);
 		
+		ImgUtils.imshow("Marvin Test", greyImg.getBufferedImage());
+		
+		MarvinImage robertsImg=applyPlugin("org.marvinproject.image.edge.roberts.jar", greyImg);
+		
+		ImgUtils.imshow("Marvin Edge", greyImg);
+		
+		
+	}
+	
+	/**
+	 * load the plugin, process it with that image and return it. The original image is not modified.
+	 * @param img
+	 * @return
+	 */
+	public MarvinImage applyPlugin(String pluginName, MarvinImage img){
+		MarvinImage dest=img.clone();
+		MarvinImagePlugin plugin=MarvinPluginLoader.loadImagePlugin(pluginName);
+		plugin.process(img, dest);
+		dest.update();
+		return dest;
+	}
+	
+	/**
+	 * create a instance of a marvin plugin
+	 * @param pluginClassName full class name of the plugin
+	 * @return instance of the plugin
+	 */
+	public MarvinImagePlugin getPlugin(String pluginClassName){
+		MarvinImagePlugin plugin=null;
+		
+			try {
+				Class<?> classObject=Class.forName(pluginClassName);
+				Object classInstance=classObject.newInstance();
+				
+				if(classInstance instanceof MarvinImagePlugin){
+					// this is a correct plugin
+					plugin=(MarvinAbstractImagePlugin) classInstance;
+					plugin.load();
+				}else {
+					log.error("The class "+pluginClassName+" is not a MarvinPlugin");
+				}
+				
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				log.error("could not load marvin plugin", e);
+			}
+		
+		return plugin;
 	}
 
 	/**
