@@ -26,7 +26,7 @@ public class AddressDialog extends ExtendedDialog {
 	
 	protected static String lastHouseNum="",lastStreetName="", lastCity="", lastPostCode="",lastCountry="",lastBuilding="yes";
 	
-	public static final String TAG_HOUSENAME="addr:housename",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postCode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
+	public static final String TAG_HOUSENAME="name",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postCode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
 	
 	
     protected String houseNum, streetName, city, postCode, country, houseName,building;
@@ -67,7 +67,7 @@ public class AddressDialog extends ExtendedDialog {
         countryField=new JTextField(lastCountry);
         buildingField=new JTextField(lastBuilding);
 
-        addLabelled(tr("House name:"), houseNameField);
+        addLabelled(tr("Name:"), houseNameField);
         addLabelled(tr("House number:"), houseNumField);
         addLabelled(tr("Street:"), streetNameField);
         addLabelled(tr("City:"), cityField);
@@ -104,7 +104,7 @@ public class AddressDialog extends ExtendedDialog {
     
     public void updateTag(String tag,String value){
     	if(tag==null||tag.isEmpty()){
-    		if(way.keySet().contains(tag)){
+    		if(way.get(tag)!=null){
     			way.remove(tag);
     		}
     	}else {
