@@ -5,25 +5,20 @@ package org.openstreetmap.josm.plugins.areaselector;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
-import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
+import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -119,25 +114,53 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 		}
 		
 		// write image for further processing to file
-		try {
-			ImageIO.write(bufImage, "PNG", new File("baseimage.png"));
-		} catch (IOException e) {
-			
-			log.error("could not write image",e);
-		}
+//		try {
+//			ImageIO.write(bufImage, "PNG", new File("baseimage.png"));
+//		} catch (IOException e) {
+//			
+//			log.error("could not write image",e);
+//		}
+		
+		
 		
 		// X marks the spot
-		imgGraphics.setColor(Color.RED);
-		imgGraphics.setFont(new Font("Arial", Font.BOLD, 12));
-		imgGraphics.drawString("X", clickPoint.x, clickPoint.y);
+//		imgGraphics.setColor(Color.RED);
+//		imgGraphics.setFont(new Font("Arial", Font.BOLD, 12));
+//		imgGraphics.drawString("X", clickPoint.x, clickPoint.y);
+//		
+//		ImageIcon icon = new ImageIcon(bufImage);
+//		
+//		
+//		JOptionPane.showMessageDialog(Main.parent, "You clicked on "+clickPoint.x+" "+clickPoint.y, "AreaSelection", JOptionPane.INFORMATION_MESSAGE, icon);
 		
-		ImageIcon icon = new ImageIcon(bufImage);
 		
+		ImageAnalyzer imgAnalyzer=new ImageAnalyzer(bufImage,clickPoint);
+		Polygon polygon=imgAnalyzer.getArea();
 		
-		JOptionPane.showMessageDialog(Main.parent, "You clicked on "+clickPoint.x+" "+clickPoint.y, "AreaSelection", JOptionPane.INFORMATION_MESSAGE, icon);
+		Way way=createWayFromPolygon(mapView, polygon);
 		
+		way.put("building", "yes");
 		
+		Main.main.getCurrentDataSet().addSelected(way);
 		
+	}
+	
+	public Way createWayFromPolygon(MapView mapView,Polygon polygon){
+		Way way=new Way();
+		
+		Node firstNode=null;
+		for(int i=0;i<polygon.npoints;i++){
+			Node node=new Node(mapView.getLatLon(polygon.xpoints[i], polygon.ypoints[i]));
+			if(firstNode==null){
+				firstNode=node;
+			}
+			way.addNode(node);
+		}
+		
+		if(polygon.npoints>1&&firstNode!=null){
+			way.addNode(firstNode);
+		}
+		return way;
 	}
 
 }

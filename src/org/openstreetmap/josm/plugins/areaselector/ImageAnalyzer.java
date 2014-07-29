@@ -107,7 +107,7 @@ public class ImageAnalyzer {
 		init();
 	}
 
-	public ImageAnalyzer(BufferedImage bufImg, Point point) throws IOException {
+	public ImageAnalyzer(BufferedImage bufImg, Point point){
 		baseImage=bufImg;
 		this.point=point;
 		init();
