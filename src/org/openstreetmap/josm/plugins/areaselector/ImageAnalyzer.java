@@ -15,7 +15,6 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -40,7 +39,6 @@ import marvin.util.MarvinPluginLoader;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.openstreetmap.josm.data.osm.Way;
 
 import boofcv.abst.feature.detect.line.DetectLineSegmentsGridRansac;
 import boofcv.alg.feature.shapes.ShapeFittingOps;

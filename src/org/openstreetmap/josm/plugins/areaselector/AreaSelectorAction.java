@@ -13,11 +13,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
-import org.openstreetmap.josm.data.osm.DataSet;
+import org.openstreetmap.josm.command.AddCommand;
+import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -149,13 +154,25 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 			
 	//		Layer mapLayer=mapView.getActiveLayer();
 			
-			DataSet currentDataSet=Main.main.getCurrentDataSet();
+//			DataSet currentDataSet=Main.main.getCurrentDataSet();
 	//		for(Node n:way.getNodes()){
 	//			currentDataSet.addPrimitive(n);
 	//		}
 			
 //			currentDataSet.addPrimitive(way);
-			currentDataSet.addSelected(way);
+//			currentDataSet.addSelected(way);
+			
+			Collection<Command> cmds = new LinkedList<Command>();
+			List<Node> nodes=way.getNodes();
+	        for (int i = 0; i < nodes.size()-1; i++) {
+	            
+	                cmds.add(new AddCommand(nodes.get(i)));
+	        }
+//	        w.setKeys(ToolSettings.getTags());
+	        cmds.add(new AddCommand(way));
+	        
+	        Command c = new SequenceCommand(tr("Created area"), cmds);
+	        Main.main.undoRedo.add(c);
 		}
 		
 
