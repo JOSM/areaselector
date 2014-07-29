@@ -194,7 +194,7 @@ public class ImageAnalyzer {
 	}
 
 
-	public Way getArea() {
+	public Polygon getArea() {
 
 		// get color at that point
 		BufferedImage bufImg = src.getBufferedImage();
@@ -281,7 +281,9 @@ public class ImageAnalyzer {
 		
 //		lines=detectLines(workImage);
 		
-		detectArea(workImage,point);
+		Polygon polygon=detectArea(workImage,point);
+		
+		
 		
 		
 //		Mat canny= applyCanny(gaus);
@@ -294,7 +296,7 @@ public class ImageAnalyzer {
 
 		log.info("done.");
 
-		return null;
+		return polygon;
 	}
 	
 	
@@ -414,6 +416,11 @@ public class ImageAnalyzer {
 		return new Polygon(xpoints,ypoints,npoints);
 	}
 	
+	/**
+	 * Return the String info of a Polygon
+	 * @param p Polygon to return as String
+	 * @return 
+	 */
 	public static String polygonToString(Polygon p){
 		StringBuilder sb=new StringBuilder();
 		sb.append("Polygon (");
@@ -570,11 +577,12 @@ public class ImageAnalyzer {
 		} else {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0],point);
-			imgAnalyzer.initUI();
+//			imgAnalyzer.initUI();
 //			imgAnalyzer.getArea();
 			// Mat mat = imgAnalyzer.applyInRange();
 			// ImgUtils.imshow("in range", mat);
-			
+			Polygon polygon=imgAnalyzer.getArea();
+			log.info("got polygon "+polygonToString(polygon));
 //			imgAnalyzer.testMarvin();
 		}
 
