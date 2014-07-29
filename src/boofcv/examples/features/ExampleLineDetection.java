@@ -80,7 +80,7 @@ public class ExampleLineDetection {
 		gui.setLines(found);
 		gui.setPreferredSize(new Dimension(image.getWidth(),image.getHeight()));
 
-		ShowImages.showWindow(gui,"Found Lines");
+		//ShowImages.showWindow(gui,"Found Lines");
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class ExampleLineDetection {
 		T input = ConvertBufferedImage.convertFromSingle(image, null, imageType );
 
 		// Comment/uncomment to try a different type of line detector
-		DetectLineSegmentsGridRansac<T,D> detector = FactoryDetectLineAlgs.lineRansac(40, 30, 2.36, true, imageType, derivType);
+		DetectLineSegmentsGridRansac<T,D> detector = FactoryDetectLineAlgs.lineRansac(60, 30, 2.3, true, imageType, derivType);
 
 		List<LineSegment2D_F32> found = detector.detect(input);
 
@@ -115,7 +115,7 @@ public class ExampleLineDetection {
 	public static void main( String args[] ) {
 		BufferedImage input = UtilImageIO.loadImage("test/boundary_inverted.png");
 
-		detectLines(input,ImageUInt8.class,ImageSInt16.class);
+		//detectLines(input,ImageUInt8.class,ImageSInt16.class);
 
 		// line segment detection is still under development and only works for F32 images right now
 		detectLineSegments(input, ImageFloat32.class, ImageFloat32.class);

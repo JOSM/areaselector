@@ -5,23 +5,26 @@
  */
 package org.openstreetmap.josm.plugins.areaselector;
 
+import georegression.struct.line.LineSegment2D_F32;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.JTextArea;
 
 import marvin.image.MarvinColorModelConverter;
 import marvin.image.MarvinImage;
@@ -33,6 +36,12 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.data.osm.Way;
 
+import boofcv.abst.feature.detect.line.DetectLineSegmentsGridRansac;
+import boofcv.core.image.ConvertBufferedImage;
+import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
+import boofcv.gui.feature.ImageLinePanel;
+import boofcv.struct.image.ImageFloat32;
+
 /**
  * @author Paul Woelfel (paul@woelfel.at)
  */
@@ -40,9 +49,9 @@ public class ImageAnalyzer {
 
 	protected static Logger log = Logger.getLogger(ImageAnalyzer.class);
 
-	protected BufferedImage baseImage;
+	protected BufferedImage baseImage,workImage;
 	
-	protected MarvinImage src, greyImage;
+	protected MarvinImage src, greyImage,workMarvin;
 
 	public static final String IMG_TYPE="PNG";
 	
@@ -57,6 +66,13 @@ public class ImageAnalyzer {
 	protected int colorThreshold = 15;
 	
 	protected static final int colorMin = 0, colorMax=50;
+	
+	
+	protected int regionSize=40;
+	protected double thresholdEdge=30, thresholdAngle=2.38;
+	
+	protected List<LineSegment2D_F32> lines;
+	
 	
 	
 	public ImageAnalyzer(String filename) {
@@ -82,82 +98,78 @@ public class ImageAnalyzer {
 		
 		final Point colorPoint=point;
 		
+		
+		
 		final JFrame mainWindow = new JFrame("Image Analyzer");
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		mainWindow.setLayout(new BorderLayout());
-
-		JPanel panel = new JPanel();
-		Dimension size = new Dimension(baseImage.getWidth(), baseImage.getHeight());
-		panel.setPreferredSize(size);
-		panel.setSize(size);
 		getArea(colorPoint);
 
-		final ImageIcon icon = new ImageIcon(getImgFromFile("test/colorPlusCanny"));
-
-		JLabel label = new JLabel();
-
-		label.setIcon(icon);
-		panel.add(label);
-		// mainWindow.getContentPane().removeAll();
-		mainWindow.getContentPane().add(panel);
-
-		JPanel sliderPanel = new JPanel();
 		
-		final JSlider colorThresholdSlider=new JSlider(colorMin,colorMax);
-		colorThresholdSlider.setValue(colorThreshold);
-		final JLabel colorLabel = new JLabel("Color Threshold: "+colorThreshold);
-		sliderPanel.add(colorLabel);
-		sliderPanel.add(colorThresholdSlider);
+		final ImageLinePanel gui = new ImageLinePanel();
+		gui.setBackground(workImage);
+		gui.setLineSegments(lines);
+		gui.setPreferredSize(new Dimension(baseImage.getWidth(),baseImage.getHeight()));
+
+		mainWindow.getContentPane().add(gui);
+
+		JPanel textAreaPanel = new JPanel();
 		
-		final JLabel thresholdLabel = new JLabel("Threshold: " + cannyThreshold);
-		sliderPanel.add(thresholdLabel);
-
-		final JSlider thresholdSlider = new JSlider(cannyMin, cannyMax);
-		thresholdSlider.setValue(cannyThreshold);
-
-		sliderPanel.add(thresholdSlider);
-
-		final JLabel ratioLabel = new JLabel("Ratio: " + ratio);
-		final JSlider ratioSlider = new JSlider(ratioMin, ratioMax);
-		ratioSlider.setValue((int) (ratio * 100));
-		sliderPanel.add(ratioLabel);
-		sliderPanel.add(ratioSlider);
-
-		ChangeListener changeListener = new ChangeListener() {
-
+		final JTextArea colorThresholdTextArea=new JTextArea(1,5);
+		colorThresholdTextArea.setText(""+colorThreshold);
+		final JLabel colorLabel = new JLabel("Color Threshold: ");
+		textAreaPanel.add(colorLabel);
+		textAreaPanel.add(colorThresholdTextArea);
+		
+		final JTextArea regionSizeTextArea=new JTextArea(1,5);
+		regionSizeTextArea.setText(""+regionSize);
+		final JLabel regionSizeLabel = new JLabel("Region Size: ");
+		textAreaPanel.add(regionSizeLabel);
+		textAreaPanel.add(regionSizeTextArea);
+		
+		final JTextArea thresholdEdgeTextArea=new JTextArea(1,5);
+		thresholdEdgeTextArea.setText(""+thresholdEdge);
+		final JLabel thresholdEdgeLabel = new JLabel("Threshold Edge: ");
+		textAreaPanel.add(thresholdEdgeLabel);
+		textAreaPanel.add(thresholdEdgeTextArea);
+		
+		final JTextArea thresholdAngleTextArea=new JTextArea(1,5);
+		thresholdAngleTextArea.setText(""+(thresholdAngle));
+		final JLabel thresholdAngleLabel = new JLabel("Threshold Angle: ");
+		textAreaPanel.add(thresholdAngleLabel);
+		textAreaPanel.add(thresholdAngleTextArea);
+		
+		
+		JButton refreshButton=new JButton("Refresh");
+		refreshButton.addActionListener(new ActionListener() {
+			
 			@Override
-			public void stateChanged(ChangeEvent e) {
-				cannyThreshold = thresholdSlider.getValue();
-				thresholdLabel.setText("Threshold: " + cannyThreshold);
-
-				ratio = ((double) ratioSlider.getValue()) / 100;
-				ratioLabel.setText("Ratio: " + ratio);
+			public void actionPerformed(ActionEvent e) {
+				colorThreshold=Integer.parseInt(colorThresholdTextArea.getText());
 				
-				colorThreshold=colorThresholdSlider.getValue();
-				colorLabel.setText("Color Threshold: "+colorThreshold);
+				regionSize=Integer.parseInt(regionSizeTextArea.getText());
+				
+				thresholdEdge=Double.parseDouble(thresholdEdgeTextArea.getText());
+				
+				thresholdAngle=Double.parseDouble(thresholdAngleTextArea.getText());
 				
 
 				getArea(colorPoint);
-				icon.setImage(getImgFromFile("test/colorPlusCanny"));
+				gui.setBackground(workImage);
+				gui.setLineSegments(lines);
 				mainWindow.repaint();
 			}
-		};
-
-		thresholdSlider.addChangeListener(changeListener);
-		ratioSlider.addChangeListener(changeListener);
-		colorThresholdSlider.addChangeListener(changeListener);
-
-		mainWindow.getContentPane().add(sliderPanel, BorderLayout.NORTH);
+		});
+		
+		textAreaPanel.add(refreshButton);
+		
+		mainWindow.getContentPane().add(textAreaPanel, BorderLayout.NORTH);
 
 		mainWindow.setVisible(true);
 		mainWindow.setSize(1200, 800);
 	}
 
-	public BufferedImage enhanceContrast() {
-
-		return null;
-	}
 
 	public Way getArea(Point point) {
 
@@ -196,7 +208,6 @@ public class ImageAnalyzer {
 		
 		log.info("trying Edge detection");
 //		
-//		 TODO: filter small points out
 		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
 		saveImgToFile(blackAndWhite.getBufferedImage(),"test/blackAndWhite");
 		
@@ -224,10 +235,10 @@ public class ImageAnalyzer {
 //		}
 		saveImgToFile(erosion.getBufferedImage(),"test/erosion");
 		
-		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
-		saveImgToFile(erosion.getBufferedImage(),"test/dilation");
+//		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
+//		saveImgToFile(erosion.getBufferedImage(),"test/dilation");
 		
-		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", dilation);
+		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
 		saveImgToFile(roberts.getBufferedImage(),"test/roberts");
 		
 //		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
@@ -241,6 +252,10 @@ public class ImageAnalyzer {
 		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
 		saveImgToFile(boundaryInverted.getBufferedImage(),"test/boundary_inverted");
 		
+		workMarvin=boundaryInverted;
+		workImage=workMarvin.getBufferedImage();
+		
+		lines=detectLines(workImage);
 		
 		
 //		Mat canny= applyCanny(gaus);
@@ -254,6 +269,24 @@ public class ImageAnalyzer {
 		log.info("done.");
 
 		return null;
+	}
+	
+	
+	public List<LineSegment2D_F32> detectLines(BufferedImage image){
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class );
+
+		// Comment/uncomment to try a different type of line detector
+		DetectLineSegmentsGridRansac<ImageFloat32,ImageFloat32> detector = FactoryDetectLineAlgs.lineRansac(regionSize, thresholdEdge, thresholdAngle, true, ImageFloat32.class, ImageFloat32.class);
+
+		List<LineSegment2D_F32> found = detector.detect(input);
+		return found;
+		// display the results
+//		ImageLinePanel gui = new ImageLinePanel();
+//		gui.setBackground(image);
+//		gui.setLineSegments(found);
+//		gui.setPreferredSize(new Dimension(image.getWidth(),image.getHeight()));
+//
+//		ShowImages.showWindow(gui,"Found Line Segments");
 	}
 
 
@@ -388,8 +421,8 @@ public class ImageAnalyzer {
 		} else {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0]);
-			//imgAnalyzer.initUI(point);
-			imgAnalyzer.getArea(point);
+			imgAnalyzer.initUI(point);
+//			imgAnalyzer.getArea(point);
 			// Mat mat = imgAnalyzer.applyInRange();
 			// ImgUtils.imshow("in range", mat);
 			

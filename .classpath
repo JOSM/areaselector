@@ -9,7 +9,7 @@
 	<classpathentry kind="lib" path="lib/marvinplugins.jar"/>
 	<classpathentry kind="lib" path="lib/marvin.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-calibration-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-feature-0.17.jar"/>
+	<classpathentry kind="lib" path="lib/BoofCV-feature-0.17.jar" sourcepath="lib/BoofCV-feature-0.17-sources.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-geo-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-io-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-ip-0.17.jar"/>
@@ -17,7 +17,7 @@
 	<classpathentry kind="lib" path="lib/BoofCV-recognition-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-sfm-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-v4l4j-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-visualize-0.17.jar"/>
+	<classpathentry kind="lib" path="lib/BoofCV-visualize-0.17.jar" sourcepath="lib/BoofCV-visualize-0.17-sources.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-WebcamCapture-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-xuggler-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/ddogleg-0.5.jar"/>
