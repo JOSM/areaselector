@@ -115,7 +115,7 @@ public class ImageAnalyzer {
 	}
 
 	protected void init() {
-		if(debug) saveImgToFile(baseImage,"test/baseimage");
+		if(debug) saveImgToFile(baseImage,"test/00baseimage");
 		src=new MarvinImage(baseImage);
 		
 //		log.info("creating grey");
@@ -225,12 +225,12 @@ public class ImageAnalyzer {
 		
 		log.info("Applying gaus filter");
 		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
-		if(debug) saveImgToFile(gaus,"test/gaus");
+		if(debug) saveImgToFile(gaus,"test/01gaus");
 		
 		log.info("searching for the correct color");
 		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
 //		ImgUtils.imshow("selected color",colorSelected);
-		if(debug) saveImgToFile(colorSelected,"test/colorExtracted");
+		if(debug) saveImgToFile(colorSelected,"test/02colorExtracted");
 		
 		log.info("trying Edge detection");
 //		
@@ -259,10 +259,10 @@ public class ImageAnalyzer {
 //		for(int i =0 ; i < 10; i++){
 			erosion=applyPlugin("org.marvinproject.image.morphological.erosion",erosion,erosionAttributes);
 //		}
-		if(debug) saveImgToFile(erosion,"test/erosion");
+		if(debug) saveImgToFile(erosion,"test/03erosion");
 		
 		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
-		if(debug) saveImgToFile(dilation,"test/dilation");
+		if(debug) saveImgToFile(dilation,"test/04dilation");
 		
 //		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
 //		if(debug) saveImgToFile(roberts,"test/roberts");
