@@ -37,6 +37,7 @@ import marvin.plugin.MarvinAbstractImagePlugin;
 import marvin.plugin.MarvinImagePlugin;
 import marvin.util.MarvinPluginLoader;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -424,6 +425,7 @@ public class ImageAnalyzer {
 	 * @return 
 	 */
 	public static String polygonToString(Polygon p){
+		if(p==null)  return "";
 		StringBuilder sb=new StringBuilder();
 		sb.append("Polygon (");
 		sb.append(p.npoints);
@@ -571,7 +573,9 @@ public class ImageAnalyzer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.DEBUG);
+		
 
 		// test/baseimage.png 419 308
 		if (args.length < 3) {
