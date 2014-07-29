@@ -68,8 +68,12 @@ public class ImageAnalyzer {
 	protected static final int colorMin = 0, colorMax=50;
 	
 	
-	protected int regionSize=40;
-	protected double thresholdEdge=30, thresholdAngle=2.38;
+	// default is 40
+	protected int regionSize=35;
+	
+	// edge default is 30, but not used in the detector
+	// angle default is 2.38
+	protected double thresholdEdge=30, thresholdAngle=1.1;
 	
 	protected List<LineSegment2D_F32> lines;
 	
@@ -204,18 +208,18 @@ public class ImageAnalyzer {
 		log.info("searching for the correct color");
 		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
 //		ImgUtils.imshow("selected color",colorSelected);
-		saveImgToFile(colorSelected.getBufferedImage(),"test/colorExtracted");
+//		saveImgToFile(colorSelected,"test/colorExtracted");
 		
 		log.info("trying Edge detection");
 //		
 		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
-		saveImgToFile(blackAndWhite.getBufferedImage(),"test/blackAndWhite");
+//		saveImgToFile(blackAndWhite,"test/blackAndWhite");
 		
 		
 		
 		
 //		MarvinImage sobel=applyPlugin("org.marvinproject.image.edge.sobel", blackAndWhite);
-//		saveImgToFile(sobel.getBufferedImage(),"test/sobel");
+//		saveImgToFile(sobel,"test/sobel");
 		boolean [][] erosionMatrix = new boolean[][]
 				{
 					{true,true,true,true,true},
@@ -233,26 +237,27 @@ public class ImageAnalyzer {
 //		for(int i =0 ; i < 10; i++){
 			erosion=applyPlugin("org.marvinproject.image.morphological.erosion",erosion,erosionAttributes);
 //		}
-		saveImgToFile(erosion.getBufferedImage(),"test/erosion");
+//		saveImgToFile(erosion,"test/erosion");
 		
 //		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
-//		saveImgToFile(erosion.getBufferedImage(),"test/dilation");
+//		saveImgToFile(erosion,"test/dilation");
 		
 		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
-		saveImgToFile(roberts.getBufferedImage(),"test/roberts");
+//		saveImgToFile(roberts,"test/roberts");
 		
 //		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
-//		saveImgToFile(prewitt.getBufferedImage(),"test/prewitt");
+//		saveImgToFile(prewitt,"test/prewitt");
 		
 		log.info("detecting boundaries");
 //		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
 		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", roberts);
-		saveImgToFile(boundary.getBufferedImage(),"test/boundary");
+//		saveImgToFile(boundary,"test/boundary");
 		
 		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
-		saveImgToFile(boundaryInverted.getBufferedImage(),"test/boundary_inverted");
+//		saveImgToFile(boundaryInverted,"test/boundary_inverted");
 		
 		workMarvin=boundaryInverted;
+		workMarvin.update();
 		workImage=workMarvin.getBufferedImage();
 		
 		lines=detectLines(workImage);
@@ -260,7 +265,7 @@ public class ImageAnalyzer {
 		
 //		Mat canny= applyCanny(gaus);
 //		
-//		saveImgToFile(canny.getBufferedImage(),"test/colorPlusCanny");
+//		saveImgToFile(canny,"test/colorPlusCanny");
 //		
 //		detectLines(canny);
 //		
@@ -299,6 +304,11 @@ public class ImageAnalyzer {
 	@Override
 	protected void finalize() throws Throwable {
 		super.finalize();
+	}
+	
+	public boolean saveImgToFile(MarvinImage buf,String filename){
+		buf.update();
+		return saveImgToFile(buf.getBufferedImage(),filename);
 	}
 	
 	public boolean saveImgToFile(BufferedImage buf,String filename){
@@ -378,7 +388,9 @@ public class ImageAnalyzer {
 		}
 		
 		plugin.process(img, dest);
-		dest.update();
+		
+		// do not update every time, only when needed
+		//dest.update();
 		return dest;
 	}
 	
