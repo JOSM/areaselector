@@ -109,6 +109,8 @@ public class ImageAnalyzer {
 	
 	protected int blurRadius = 10;
 	
+	protected int fileCount=0;
+	
 	
 	public ImageAnalyzer(String filename, Point point) {
 		log.info("Loading from " + filename);
@@ -124,7 +126,7 @@ public class ImageAnalyzer {
 	}
 
 	protected void init() {
-		if(debug) saveImgToFile(baseImage,"test/baseimage");
+		if(debug) saveImgToFile(baseImage,"baseimage");
 		src=new MarvinImage(baseImage);
 		
 //		log.info("creating grey");
@@ -211,26 +213,17 @@ public class ImageAnalyzer {
 		workImage = deepCopy(baseImage);
 
 		Color pointColor = new Color(workImage.getRGB(point.x, point.y));
-		// orignal color at point is
-		// r=236,g=202,b=201
-		
-		
-		
-		// fake the color
 		// 150, 152, 199
-		//pointColor=new Color(150,152,199);
-
-		// let's create a threshold
-		
+//		pointColor=new Color(150,152,199);
 		
 		log.info("point color: " + pointColor);
 		
 		
-		workImage=selectColor(workImage,pointColor);
-		if(debug) saveImgToFile(workImage, "test/01_colorExtracted");
+		workImage=selectMarvinColor(workImage,pointColor);
+		if(debug) saveImgToFile(workImage, "colorExtracted");
 		
-		workImage=erodeAndDilate(workImage);
-		if(debug) saveImgToFile(workImage,"test/02_erodeDilate");
+//		workImage=erodeAndDilate(workImage);
+//		if(debug) saveImgToFile(workImage,"erodeDilate");
 		
 //		workImage=gaussian(workImage);
 //		if(debug) saveImgToFile(workImage, "test/gaus");
@@ -248,6 +241,31 @@ public class ImageAnalyzer {
 		log.info("done.");
 
 		return polygon;
+	}
+	
+	public BufferedImage selectMarvinColor(BufferedImage workImage, Color pointColor){
+
+		log.info("extracting marvin color");
+
+		int r = pointColor.getRed(), g = pointColor.getGreen(), b = pointColor.getBlue();
+
+		HashMap<String,Object> attributes=new HashMap<String,Object>();
+		attributes.put("range", colorThreshold);
+		attributes.put("r", r);
+		attributes.put("g", g);
+		attributes.put("b", b);
+		
+		log.info("Applying gaus filter");
+		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
+		if(debug) saveImgToFile(gaus,"gaussian");
+		
+		log.info("searching for the correct color");
+		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
+//		ImgUtils.imshow("selected color",colorSelected);
+		
+		colorSelected.update();
+		
+		return colorSelected.getBufferedImage();
 	}
 	
 	public BufferedImage erodeAndDilate(BufferedImage workImage){
@@ -410,7 +428,7 @@ public class ImageAnalyzer {
 			}
 		}
 		
-		if(debug) saveImgToFile(polygonImage, "test/10_polygons");
+		if(debug) saveImgToFile(polygonImage, "polygons");
 		
 		log.info("Found "+polygons.size()+" matching polygons");
 		
@@ -439,7 +457,7 @@ public class ImageAnalyzer {
 			g2.setStroke(new BasicStroke(2));
 			g2.drawPolygon(innerPolygon);
 			
-			if(debug) saveImgToFile(polygonImage,"test/11_polygon");
+			if(debug) saveImgToFile(polygonImage,"polygon");
 			
 			
 		}
@@ -518,7 +536,7 @@ public class ImageAnalyzer {
 	
 	public boolean saveImgToFile(BufferedImage buf,String filename){
 		try {
-			ImageIO.write(buf, IMG_TYPE, new File(filename+"."+IMG_TYPE.toLowerCase()));
+			ImageIO.write(buf, IMG_TYPE, new File("test/"+(fileCount<10?"0":"")+(fileCount++)+"_"+filename+"."+IMG_TYPE.toLowerCase()));
 			return true;
 		} catch (IOException e) {
 			log.warn("unable to save image",e);
