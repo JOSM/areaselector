@@ -12,7 +12,7 @@
 	<classpathentry kind="lib" path="lib/BoofCV-feature-0.17.jar" sourcepath="lib/BoofCV-feature-0.17-sources.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-geo-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-io-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-ip-0.17.jar"/>
+	<classpathentry kind="lib" path="lib/BoofCV-ip-0.17.jar" sourcepath="lib/BoofCV-ip-0.17-sources.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-openkinect-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-recognition-0.17.jar"/>
 	<classpathentry kind="lib" path="lib/BoofCV-sfm-0.17.jar"/>

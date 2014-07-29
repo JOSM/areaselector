@@ -179,7 +179,7 @@ public class ExampleFitPolygon {
 		ShowImages.showWindow(image,"Original");
 
 //		fitCannyEdges(input);
-		fitCannyBinary(input);
+//		fitCannyBinary(input);
 		fitBinaryImage(input);
 	}
 }

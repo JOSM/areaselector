@@ -6,16 +6,20 @@
 package org.openstreetmap.josm.plugins.areaselector;
 
 import georegression.struct.line.LineSegment2D_F32;
+import georegression.struct.point.Point2D_I32;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,10 +41,19 @@ import org.apache.log4j.Logger;
 import org.openstreetmap.josm.data.osm.Way;
 
 import boofcv.abst.feature.detect.line.DetectLineSegmentsGridRansac;
+import boofcv.alg.feature.shapes.ShapeFittingOps;
+import boofcv.alg.filter.binary.BinaryImageOps;
+import boofcv.alg.filter.binary.Contour;
+import boofcv.alg.filter.binary.ThresholdImageOps;
+import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
 import boofcv.gui.feature.ImageLinePanel;
+import boofcv.gui.feature.VisualizeShapes;
+import boofcv.struct.ConnectRule;
+import boofcv.struct.PointIndex_I32;
 import boofcv.struct.image.ImageFloat32;
+import boofcv.struct.image.ImageUInt8;
 
 /**
  * @author Paul Woelfel (paul@woelfel.at)
@@ -78,6 +91,10 @@ public class ImageAnalyzer {
 	protected List<LineSegment2D_F32> lines;
 	
 	
+	// Polynomial fitting tolerances
+	static double toleranceDist = 2;
+	static double toleranceAngle= Math.PI/10;
+	
 	
 	public ImageAnalyzer(String filename) {
 		log.info("Loading from " + filename);
@@ -113,7 +130,7 @@ public class ImageAnalyzer {
 		
 		final ImageLinePanel gui = new ImageLinePanel();
 		gui.setBackground(workImage);
-		gui.setLineSegments(lines);
+//		gui.setLineSegments(lines);
 		gui.setPreferredSize(new Dimension(baseImage.getWidth(),baseImage.getHeight()));
 
 		mainWindow.getContentPane().add(gui);
@@ -161,7 +178,7 @@ public class ImageAnalyzer {
 
 				getArea(colorPoint);
 				gui.setBackground(workImage);
-				gui.setLineSegments(lines);
+//				gui.setLineSegments(lines);
 				mainWindow.repaint();
 			}
 		});
@@ -242,25 +259,27 @@ public class ImageAnalyzer {
 //		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
 //		saveImgToFile(erosion,"test/dilation");
 		
-		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
+//		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
 //		saveImgToFile(roberts,"test/roberts");
 		
 //		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
 //		saveImgToFile(prewitt,"test/prewitt");
 		
-		log.info("detecting boundaries");
+//		log.info("detecting boundaries");
 //		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
-		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", roberts);
+//		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", roberts);
 //		saveImgToFile(boundary,"test/boundary");
 		
-		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
+//		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
 //		saveImgToFile(boundaryInverted,"test/boundary_inverted");
 		
-		workMarvin=boundaryInverted;
+		workMarvin=erosion;
 		workMarvin.update();
 		workImage=workMarvin.getBufferedImage();
 		
-		lines=detectLines(workImage);
+//		lines=detectLines(workImage);
+		
+		detectAreas(workImage);
 		
 		
 //		Mat canny= applyCanny(gaus);
@@ -292,6 +311,56 @@ public class ImageAnalyzer {
 //		gui.setPreferredSize(new Dimension(image.getWidth(),image.getHeight()));
 //
 //		ShowImages.showWindow(gui,"Found Line Segments");
+	}
+	
+	
+	public List<List<PointIndex_I32>> detectAreas(BufferedImage image){
+		
+		List <List<PointIndex_I32>> polygons=new ArrayList<List<PointIndex_I32>>();
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class);
+		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
+		BufferedImage polygon = new BufferedImage(input.width,input.height,BufferedImage.TYPE_INT_RGB);
+
+		// the mean pixel value is often a reasonable threshold when creating a binary image
+		double mean = ImageStatistics.mean(input);
+
+		// create a binary image by thresholding
+		ThresholdImageOps.threshold(input, binary, (float) mean, true);
+
+		// reduce noise with some filtering
+		ImageUInt8 filtered = BinaryImageOps.erode8(binary, 1, null);
+		filtered = BinaryImageOps.dilate8(filtered, 1, null);
+
+		// Find the contour around the shapes
+		List<Contour> contours = BinaryImageOps.contour(filtered, ConnectRule.EIGHT,null);
+
+		// Fit a polygon to each shape and draw the results
+		Graphics2D g2 = polygon.createGraphics();
+		g2.setStroke(new BasicStroke(2));
+
+		for( Contour c : contours ) {
+			// Fit the polygon to the found external contour.  Note loop = true
+			List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(c.external,true,
+					toleranceDist,toleranceAngle,100);
+			polygons.add(vertexes);
+
+			g2.setColor(Color.RED);
+			VisualizeShapes.drawPolygon(vertexes,true,g2);
+
+			// handle internal contours now
+			g2.setColor(Color.BLUE);
+			for( List<Point2D_I32> internal : c.internal ) {
+				vertexes = ShapeFittingOps.fitPolygon(internal,true,toleranceDist,toleranceAngle,100);
+				polygons.add(vertexes);
+				VisualizeShapes.drawPolygon(vertexes,true,g2);
+			}
+		}
+		
+		saveImgToFile(polygon, "test/polygon");
+		
+		workImage=polygon;
+		
+		return polygons;
 	}
 
 
