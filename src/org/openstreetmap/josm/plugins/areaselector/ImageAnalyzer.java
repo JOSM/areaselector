@@ -383,12 +383,10 @@ public class ImageAnalyzer {
 			log.info("Best matching polygon is: "+polygonToString(innerPolygon));
 		
 		
-			polygonImage=new BufferedImage(polygonImage.getWidth(), polygonImage.getHeight(), polygonImage.getType());
+			polygonImage=deepCopy(baseImage);
 			g2=polygonImage.createGraphics();
-			g2.setColor(Color.WHITE);
-			g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
-			
-			
+//			g2.setColor(Color.WHITE);
+//			g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
 			
 			g2.setColor(Color.RED);
 			g2.setStroke(new BasicStroke(2));
