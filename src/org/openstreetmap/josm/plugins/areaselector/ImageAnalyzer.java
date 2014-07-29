@@ -114,10 +114,11 @@ public class ImageAnalyzer {
 	}
 
 	protected void init() {
+		if(debug) saveImgToFile(baseImage,"test/baseimage");
 		src=new MarvinImage(baseImage);
 		
-		log.info("creating grey");
-		greyImage=applyPlugin("org.marvinproject.image.color.grayScale", src);
+//		log.info("creating grey");
+//		greyImage=applyPlugin("org.marvinproject.image.color.grayScale", src);
 		
 	}
 
@@ -223,6 +224,7 @@ public class ImageAnalyzer {
 		
 		log.info("Applying gaus filter");
 		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
+		if(debug) saveImgToFile(gaus,"test/gaus");
 		
 		log.info("searching for the correct color");
 		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
@@ -258,8 +260,8 @@ public class ImageAnalyzer {
 //		}
 		if(debug) saveImgToFile(erosion,"test/erosion");
 		
-//		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
-//		if(debug) saveImgToFile(dilation,"test/dilation");
+		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
+		if(debug) saveImgToFile(dilation,"test/dilation");
 		
 //		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
 //		if(debug) saveImgToFile(roberts,"test/roberts");
@@ -275,7 +277,7 @@ public class ImageAnalyzer {
 //		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
 //		if(debug) saveImgToFile(boundaryInverted,"test/boundary_inverted");
 		
-		workMarvin=erosion;
+		workMarvin=dilation;
 		workMarvin.update();
 		workImage=workMarvin.getBufferedImage();
 		
