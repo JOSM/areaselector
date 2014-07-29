@@ -24,13 +24,13 @@ import org.openstreetmap.josm.tools.GBC;
 @SuppressWarnings("serial")
 public class AddressDialog extends ExtendedDialog {
 	
-	protected static String lastHouseNum="",lastStreetName="", lastCity="", lastPostCode="",lastCountry="";
+	protected static String lastHouseNum="",lastStreetName="", lastCity="", lastPostCode="",lastCountry="",lastBuilding="yes";
 	
-	public static final String TAG_HOUSENAME="addr:housename",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postCode",TAG_COUNTRY="addr:country";
+	public static final String TAG_HOUSENAME="addr:housename",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postCode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
 	
 	
-    protected String houseNum, streetName, city, postCode, country, houseName;
-    protected JTextField houseNumField, streetNameField, cityField, postCodeField, countryField, houseNameField;
+    protected String houseNum, streetName, city, postCode, country, houseName,building;
+    protected JTextField houseNumField, streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField;
     
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
     protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
@@ -65,6 +65,7 @@ public class AddressDialog extends ExtendedDialog {
         cityField=new JTextField(lastCity);
         postCodeField=new JTextField(lastPostCode);
         countryField=new JTextField(lastCountry);
+        buildingField=new JTextField(lastBuilding);
 
         addLabelled(tr("House name:"), houseNameField);
         addLabelled(tr("House number:"), houseNumField);
@@ -72,6 +73,7 @@ public class AddressDialog extends ExtendedDialog {
         addLabelled(tr("City:"), cityField);
         addLabelled(tr("Post code:"), postCodeField);
         addLabelled(tr("Country:"), countryField);
+        addLabelled(tr("Building:"), buildingField);
         
         setContent(panel);
         setupDialog();
@@ -87,6 +89,7 @@ public class AddressDialog extends ExtendedDialog {
         lastCity = city = cityField.getText();
         lastPostCode = postCode = postCodeField.getText();
         lastCountry = country = countryField.getText();
+        lastBuilding = building = buildingField.getText();
         
         way.put(TAG_HOUSENAME, houseName);
         way.put(TAG_HOUSENUM, houseNum);
@@ -94,7 +97,7 @@ public class AddressDialog extends ExtendedDialog {
         way.put(TAG_CITY, city);
         way.put(TAG_POSTCODE, postCode);
         way.put(TAG_COUNTRY, country);
-        
+        way.put(TAG_BUILDING, building);
         
     }
 
