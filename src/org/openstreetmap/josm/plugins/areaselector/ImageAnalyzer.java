@@ -50,11 +50,15 @@ import boofcv.alg.feature.shapes.ShapeFittingOps;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
 import boofcv.alg.filter.binary.ThresholdImageOps;
+import boofcv.alg.filter.blur.GBlurImageOps;
 import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
+import boofcv.core.image.GeneralizedImageOps;
 import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
+import boofcv.gui.binary.VisualizeBinaryData;
 import boofcv.gui.feature.ImageLinePanel;
 import boofcv.gui.feature.VisualizeShapes;
+import boofcv.gui.image.VisualizeImageData;
 import boofcv.struct.ConnectRule;
 import boofcv.struct.PointIndex_I32;
 import boofcv.struct.image.ImageFloat32;
@@ -98,12 +102,12 @@ public class ImageAnalyzer {
 	// angle default is 2.38
 	protected double thresholdEdge=30, thresholdAngle=1.1;
 	
-	protected List<LineSegment2D_F32> lines;
-	
 	
 	// Polynomial fitting tolerances
 	static double toleranceDist = 2;
 	static double toleranceAngle= Math.PI/10;
+	
+	protected int blurRadius = 10;
 	
 	
 	public ImageAnalyzer(String filename, Point point) {
@@ -204,9 +208,9 @@ public class ImageAnalyzer {
 	public Polygon getArea() {
 
 		// get color at that point
-		BufferedImage bufImg = deepCopy(baseImage);
+		workImage = deepCopy(baseImage);
 
-		Color pointColor = new Color(bufImg.getRGB(point.x, point.y));
+		Color pointColor = new Color(workImage.getRGB(point.x, point.y));
 		// orignal color at point is
 		// r=236,g=202,b=201
 		
@@ -222,28 +226,18 @@ public class ImageAnalyzer {
 		log.info("point color: " + pointColor);
 		
 		
+		workImage=selectColor(workImage,pointColor);
+		if(debug) saveImgToFile(workImage, "test/01_colorExtracted");
 		
-		workImage=selectColor(bufImg,pointColor);
-		if(debug) saveImgToFile(workImage, "test/colorExtracted");
+		workImage=erodeAndDilate(workImage);
+		if(debug) saveImgToFile(workImage,"test/02_erodeDilate");
+		
+//		workImage=gaussian(workImage);
+//		if(debug) saveImgToFile(workImage, "test/gaus");
 		
 		
-//		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
-//		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
-////		ImageSInt32 label = new ImageSInt32(input.width,input.height);
-//
-//		// the mean pixel value is often a reasonable threshold when creating a binary image
-//		double mean = ImageStatistics.mean(input);
-//
-//		// create a binary image by thresholding
-//		ThresholdImageOps.threshold(input,binary,(float)mean,true);
-//
-//		// remove small blobs through erosion and dilation
-//		// The null in the input indicates that it should internally declare the work image it needs
-//		// this is less efficient, but easier to code.
-//		ImageUInt8 filtered = BinaryImageOps.erode4(binary, 1, null);
-//		filtered = BinaryImageOps.dilate4(filtered, 1, null);
-//		
-//		workImage=VisualizeBinaryData.renderBinary(filtered, null);
+		
+
 		
 //		lines=detectLines(workImage);
 		
@@ -256,6 +250,41 @@ public class ImageAnalyzer {
 		return polygon;
 	}
 	
+	public BufferedImage erodeAndDilate(BufferedImage workImage){
+		log.info("Erode and Dilate");
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
+		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
+//		ImageSInt32 label = new ImageSInt32(input.width,input.height);
+
+		// the mean pixel value is often a reasonable threshold when creating a binary image
+		double mean = ImageStatistics.mean(input);
+
+		// create a binary image by thresholding
+		ThresholdImageOps.threshold(input,binary,(float)mean,true);
+
+		// remove small blobs through erosion and dilation
+		// The null in the input indicates that it should internally declare the work image it needs
+		// this is less efficient, but easier to code.
+		ImageUInt8 filtered = BinaryImageOps.erode4(binary, 1, null);
+		filtered = BinaryImageOps.dilate4(filtered, 1, null);
+		
+		return VisualizeBinaryData.renderBinary(filtered, null);
+	}
+	
+	public BufferedImage gaussian(BufferedImage image){
+		log.info("gaussian filter");
+		ImageFloat32 input=null;
+		input = ConvertBufferedImage.convertFrom(image, (ImageFloat32)null);
+		
+		ImageFloat32 output=GeneralizedImageOps.createSingleBand(ImageFloat32.class, input.width, input.height);
+		
+//		BlurImageOps.gaussian(input, output, -1, blurRadius, null);
+		GBlurImageOps.gaussian(input, output, -1, blurRadius, null);
+		
+		return VisualizeImageData.colorizeSign(output,null,-1);
+//		return VisualizeImageData.colorizeGradient(derivX, derivY, maxAbsValue)
+	}
+	
 	
 	/**
 	 * Selectively displays only pixels which have a similar hue and saturation values to what is provided.
@@ -265,6 +294,7 @@ public class ImageAnalyzer {
 	 * @return 
 	 */
 	public BufferedImage selectColor( BufferedImage image , Color rgbColor) {
+		log.info("selecting color");
 		float[] color = new float[3];
 		ColorHsv.rgbToHsv(rgbColor.getRed(),rgbColor.getGreen(),rgbColor.getBlue(), color);
 
@@ -380,7 +410,7 @@ public class ImageAnalyzer {
 			}
 		}
 		
-		if(debug) saveImgToFile(polygonImage, "test/polygons");
+		if(debug) saveImgToFile(polygonImage, "test/10_polygons");
 		
 		log.info("Found "+polygons.size()+" matching polygons");
 		
@@ -409,7 +439,7 @@ public class ImageAnalyzer {
 			g2.setStroke(new BasicStroke(2));
 			g2.drawPolygon(innerPolygon);
 			
-			if(debug) saveImgToFile(polygonImage,"test/polygon");
+			if(debug) saveImgToFile(polygonImage,"test/11_polygon");
 			
 			
 		}
