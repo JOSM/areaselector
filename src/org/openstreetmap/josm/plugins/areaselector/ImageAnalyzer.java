@@ -14,6 +14,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -80,6 +82,8 @@ public class ImageAnalyzer {
 	
 	protected static final int colorMin = 0, colorMax=50;
 	
+	protected Point point;
+	
 	
 	// default is 40
 	protected int regionSize=35;
@@ -96,14 +100,16 @@ public class ImageAnalyzer {
 	static double toleranceAngle= Math.PI/10;
 	
 	
-	public ImageAnalyzer(String filename) {
+	public ImageAnalyzer(String filename, Point point) {
 		log.info("Loading from " + filename);
 		baseImage = getImgFromFile(filename);
+		this.point=point;
 		init();
 	}
 
-	public ImageAnalyzer(BufferedImage bufImg) throws IOException {
+	public ImageAnalyzer(BufferedImage bufImg, Point point) throws IOException {
 		baseImage=bufImg;
+		this.point=point;
 		init();
 	}
 
@@ -115,17 +121,13 @@ public class ImageAnalyzer {
 		
 	}
 
-	public void initUI(Point point) {
-		
-		final Point colorPoint=point;
-		
-		
+	public void initUI() {
 		
 		final JFrame mainWindow = new JFrame("Image Analyzer");
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		mainWindow.setLayout(new BorderLayout());
-		getArea(colorPoint);
+		getArea();
 
 		
 		final ImageLinePanel gui = new ImageLinePanel();
@@ -176,7 +178,7 @@ public class ImageAnalyzer {
 				thresholdAngle=Double.parseDouble(thresholdAngleTextArea.getText());
 				
 
-				getArea(colorPoint);
+				getArea();
 				gui.setBackground(workImage);
 //				gui.setLineSegments(lines);
 				mainWindow.repaint();
@@ -192,7 +194,7 @@ public class ImageAnalyzer {
 	}
 
 
-	public Way getArea(Point point) {
+	public Way getArea() {
 
 		// get color at that point
 		BufferedImage bufImg = src.getBufferedImage();
@@ -279,7 +281,7 @@ public class ImageAnalyzer {
 		
 //		lines=detectLines(workImage);
 		
-		detectAreas(workImage);
+		detectArea(workImage,point);
 		
 		
 //		Mat canny= applyCanny(gaus);
@@ -314,12 +316,12 @@ public class ImageAnalyzer {
 	}
 	
 	
-	public List<List<PointIndex_I32>> detectAreas(BufferedImage image){
+	public List<Polygon> detectArea(BufferedImage image,Point point){
 		
-		List <List<PointIndex_I32>> polygons=new ArrayList<List<PointIndex_I32>>();
+		List <Polygon> polygons=new ArrayList<Polygon>();
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class);
 		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
-		BufferedImage polygon = new BufferedImage(input.width,input.height,BufferedImage.TYPE_INT_RGB);
+		BufferedImage polygonImage = new BufferedImage(input.width,input.height,BufferedImage.TYPE_INT_RGB);
 
 		// the mean pixel value is often a reasonable threshold when creating a binary image
 		double mean = ImageStatistics.mean(input);
@@ -335,32 +337,62 @@ public class ImageAnalyzer {
 		List<Contour> contours = BinaryImageOps.contour(filtered, ConnectRule.EIGHT,null);
 
 		// Fit a polygon to each shape and draw the results
-		Graphics2D g2 = polygon.createGraphics();
+		Graphics2D g2 = polygonImage.createGraphics();
 		g2.setStroke(new BasicStroke(2));
 
 		for( Contour c : contours ) {
 			// Fit the polygon to the found external contour.  Note loop = true
 			List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(c.external,true,
 					toleranceDist,toleranceAngle,100);
-			polygons.add(vertexes);
-
-			g2.setColor(Color.RED);
-			VisualizeShapes.drawPolygon(vertexes,true,g2);
-
-			// handle internal contours now
-			g2.setColor(Color.BLUE);
-			for( List<Point2D_I32> internal : c.internal ) {
-				vertexes = ShapeFittingOps.fitPolygon(internal,true,toleranceDist,toleranceAngle,100);
-				polygons.add(vertexes);
+			
+			Polygon poly=toPolygon(vertexes);
+			if(poly.contains(point)){
+				
+				polygons.add(poly);
+	
+				g2.setColor(Color.RED);
 				VisualizeShapes.drawPolygon(vertexes,true,g2);
+	
+				// handle internal contours now
+				g2.setColor(Color.BLUE);
+				for( List<Point2D_I32> internal : c.internal ) {
+					vertexes = ShapeFittingOps.fitPolygon(internal,true,toleranceDist,toleranceAngle,100);
+					poly=toPolygon(vertexes);
+					if(poly.contains(point)){
+						polygons.add(poly);
+						VisualizeShapes.drawPolygon(vertexes,true,g2);
+					}
+				}
 			}
 		}
 		
-		saveImgToFile(polygon, "test/polygon");
+		saveImgToFile(polygonImage, "test/polygon");
 		
-		workImage=polygon;
+		workImage=polygonImage;
 		
 		return polygons;
+	}
+	
+	public Polygon toPolygon(List<PointIndex_I32> points){
+		int npoints=points.size();
+		int [] xpoints = new int[npoints], ypoints = new int [npoints];
+		int i=0;
+		for(PointIndex_I32 point : points){
+			xpoints[i]=point.x;
+			ypoints[i]=point.y;
+			i++;
+		}
+		
+		return new Polygon(xpoints,ypoints,npoints);
+	}
+	
+	public boolean polygonContains(Polygon p1,Polygon p2){
+		
+		Rectangle r1=p1.getBounds(),r2=p2.getBounds();
+		
+		if(r1.contains(r2)) return true;
+		
+		return false;
 	}
 
 
@@ -501,9 +533,9 @@ public class ImageAnalyzer {
 			log.warn("Usage: ImageAnalyzer basefile x y");
 		} else {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
-			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0]);
-			imgAnalyzer.initUI(point);
-//			imgAnalyzer.getArea(point);
+			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0],point);
+			imgAnalyzer.initUI();
+//			imgAnalyzer.getArea();
 			// Mat mat = imgAnalyzer.applyInRange();
 			// ImgUtils.imshow("in range", mat);
 			
