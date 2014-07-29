@@ -91,14 +91,25 @@ public class AddressDialog extends ExtendedDialog {
         lastCountry = country = countryField.getText();
         lastBuilding = building = buildingField.getText();
         
-        way.put(TAG_HOUSENAME, houseName);
-        way.put(TAG_HOUSENUM, houseNum);
-        way.put(TAG_STREETNAME, streetName);
-        way.put(TAG_CITY, city);
-        way.put(TAG_POSTCODE, postCode);
-        way.put(TAG_COUNTRY, country);
-        way.put(TAG_BUILDING, building);
+       
+        updateTag(TAG_HOUSENAME, houseName);
+        updateTag(TAG_HOUSENUM, houseNum);
+        updateTag(TAG_STREETNAME, streetName);
+        updateTag(TAG_CITY, city);
+        updateTag(TAG_POSTCODE, postCode);
+        updateTag(TAG_COUNTRY, country);
+        updateTag(TAG_BUILDING, building);
         
+    }
+    
+    public void updateTag(String tag,String value){
+    	if(tag==null||tag.isEmpty()){
+    		if(way.keySet().contains(tag)){
+    			way.remove(tag);
+    		}
+    	}else {
+    		way.put(tag, value);
+    	}
     }
 
     public final String getHouseNum() {
