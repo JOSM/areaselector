@@ -6,14 +6,10 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.text.NumberFormat;
-import java.text.ParseException;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.osm.Way;
@@ -27,11 +23,14 @@ import org.openstreetmap.josm.tools.GBC;
  */
 @SuppressWarnings("serial")
 public class AddressDialog extends ExtendedDialog {
-    protected static String lhousenum, lstreetname;
-    protected static int inc = 0;
-    protected JTextField housenum = new JTextField();
-    protected JTextField streetname = new JTextField();
-    protected JSpinner incSpinner;
+	
+	protected static String lastHouseNum="",lastStreetName="", lastCity="", lastPostCode="",lastCountry="";
+	
+	public static final String TAG_HOUSENAME="addr:housename",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postCode",TAG_COUNTRY="addr:country";
+	
+	
+    protected String houseNum, streetName, city, postCode, country, houseName;
+    protected JTextField houseNumField, streetNameField, cityField, postCodeField, countryField, houseNameField;
     
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
     protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
@@ -60,47 +59,49 @@ public class AddressDialog extends ExtendedDialog {
         setContent(panel);
         setDefaultButton(1);
        
+        houseNameField=new JTextField();
+        houseNumField=new JTextField(lastHouseNum);
+        streetNameField=new JTextField(lastStreetName);
+        cityField=new JTextField(lastCity);
+        postCodeField=new JTextField(lastPostCode);
+        countryField=new JTextField(lastCountry);
 
-        addLabelled(tr("House number:"), housenum);
-        addLabelled(tr("Street Name:"), streetname);
-        housenum.setText(nextHouseNum());
-        streetname.setText(lstreetname);
-
-        SpinnerNumberModel inc_model = new SpinnerNumberModel(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
-        incSpinner = new JSpinner(inc_model);
-        incSpinner.setValue(inc);
-        addLabelled(tr("House number increment:"), incSpinner);
-
+        addLabelled(tr("House name:"), houseNameField);
+        addLabelled(tr("House number:"), houseNumField);
+        addLabelled(tr("Street:"), streetNameField);
+        addLabelled(tr("City:"), cityField);
+        addLabelled(tr("Post code:"), postCodeField);
+        addLabelled(tr("Country:"), countryField);
+        
         setContent(panel);
         setupDialog();
     }
 
-    protected static String nextHouseNum() {
-        if (lhousenum == null)
-            return "";
-        try {
-            Integer num = NumberFormat.getInstance().parse(lhousenum).intValue() + inc;
-            return num.toString();
-        } catch (ParseException e) {
-            return lhousenum;
-        }
-    }
+
 
     public final void saveValues() {
-        lhousenum = housenum.getText();
-        lstreetname = streetname.getText();
-        inc = (Integer) incSpinner.getValue();
+    	houseName = houseNameField.getText();
+    	houseNum = houseNumField.getText();
+        streetName = streetNameField.getText();
+        city = cityField.getText();
+        postCode = postCodeField.getText();
+        country = countryField.getText();
         
-        way.put("addr:housenumber", lhousenum);
-        way.put("street", lstreetname);
+        way.put(TAG_HOUSENAME, houseName);
+        way.put(TAG_HOUSENUM, houseNum);
+        way.put(TAG_STREETNAME, streetName);
+        way.put(TAG_CITY, city);
+        way.put(TAG_POSTCODE, postCode);
+        way.put(TAG_COUNTRY, country);
+        
         
     }
 
     public final String getHouseNum() {
-        return housenum.getText();
+        return houseNumField.getText();
     }
 
     public final String getStreetName() {
-        return streetname.getText();
+        return streetNameField.getText();
     }
 }
