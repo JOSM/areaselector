@@ -158,7 +158,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 			Command c = new SequenceCommand(tr("Created area"), cmds);
 			Main.main.undoRedo.add(c);
-			
+			Main.main.getCurrentDataSet().setSelected(way);
 			showAddressDialog(way);
 		}
 
@@ -174,6 +174,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			cmds.add(new ChangeCommand(way, way));
 			Command c = new SequenceCommand(tr("updated building info"), cmds);
 			Main.main.undoRedo.add(c);
+			Main.main.getCurrentDataSet().setSelected(way);
 		}
 		return way;
 	}
