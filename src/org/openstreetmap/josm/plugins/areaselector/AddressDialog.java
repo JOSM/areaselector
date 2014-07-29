@@ -103,7 +103,7 @@ public class AddressDialog extends ExtendedDialog {
     }
     
     public void updateTag(String tag,String value){
-    	if(tag==null||tag.isEmpty()){
+    	if(value==null||value.isEmpty()){
     		if(way.get(tag)!=null){
     			way.remove(tag);
     		}
