@@ -18,6 +18,8 @@ import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ import boofcv.alg.filter.binary.ThresholdImageOps;
 import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
+import boofcv.gui.binary.VisualizeBinaryData;
 import boofcv.gui.feature.ImageLinePanel;
 import boofcv.gui.feature.VisualizeShapes;
 import boofcv.struct.ConnectRule;
@@ -229,58 +232,33 @@ public class ImageAnalyzer {
 		
 		log.info("searching for the correct color");
 		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
-//		ImgUtils.imshow("selected color",colorSelected);
+
 		if(debug) saveImgToFile(colorSelected,"test/colorExtracted");
 		
 		log.info("trying Edge detection");
 //		
-		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
-//		if(debug) saveImgToFile(blackAndWhite,"test/blackAndWhite");
-		
-		
-		
-		
-//		MarvinImage sobel=applyPlugin("org.marvinproject.image.edge.sobel", blackAndWhite);
-//		if(debug) saveImgToFile(sobel,"test/sobel");
-		boolean [][] erosionMatrix = new boolean[][]
-				{
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-				};
-		
-		HashMap<String,Object> erosionAttributes=new HashMap<>();
-		erosionAttributes.put("matrix", erosionMatrix);
-		
-		MarvinImage erosion=blackAndWhite;
-		
-//		for(int i =0 ; i < 10; i++){
-			erosion=applyPlugin("org.marvinproject.image.morphological.erosion",erosion,erosionAttributes);
-//		}
-		if(debug) saveImgToFile(erosion,"test/erosion");
-		
-		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
-		if(debug) saveImgToFile(dilation,"test/dilation");
-		
-//		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
-//		if(debug) saveImgToFile(roberts,"test/roberts");
-		
-//		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
-//		if(debug) saveImgToFile(prewitt,"test/prewitt");
-		
-//		log.info("detecting boundaries");
-//		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
-//		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", roberts);
-//		if(debug) saveImgToFile(boundary,"test/boundary");
-		
-//		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
-//		if(debug) saveImgToFile(boundaryInverted,"test/boundary_inverted");
-		
-		workMarvin=dilation;
+		workMarvin=colorSelected;
 		workMarvin.update();
 		workImage=workMarvin.getBufferedImage();
+		
+		
+//		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
+//		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
+////		ImageSInt32 label = new ImageSInt32(input.width,input.height);
+//
+//		// the mean pixel value is often a reasonable threshold when creating a binary image
+//		double mean = ImageStatistics.mean(input);
+//
+//		// create a binary image by thresholding
+//		ThresholdImageOps.threshold(input,binary,(float)mean,true);
+//
+//		// remove small blobs through erosion and dilation
+//		// The null in the input indicates that it should internally declare the work image it needs
+//		// this is less efficient, but easier to code.
+//		ImageUInt8 filtered = BinaryImageOps.erode4(binary, 1, null);
+//		filtered = BinaryImageOps.dilate4(filtered, 1, null);
+//		
+//		workImage=VisualizeBinaryData.renderBinary(filtered, null);
 		
 //		lines=detectLines(workImage);
 		
