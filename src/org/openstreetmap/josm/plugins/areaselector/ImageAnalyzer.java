@@ -369,7 +369,7 @@ public class ImageAnalyzer {
 			}
 		}
 		
-		saveImgToFile(polygonImage, "test/polygons");
+//		saveImgToFile(polygonImage, "test/polygons");
 		
 		log.info("Found "+polygons.size()+" matching polygons");
 		

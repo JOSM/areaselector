@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -94,7 +95,11 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
         requestFocusInMapView();
         updateKeyModifiers(e);
         if (e.getButton() == MouseEvent.BUTTON1) {
+        	try{
             createArea(e.getPoint());
+        	}catch(Throwable th){
+        		log.error("failed to add area",th);
+        	}
 
         }
 	}
@@ -137,11 +142,23 @@ public class AreaSelectorAction extends MapMode implements MouseListener  {
 		ImageAnalyzer imgAnalyzer=new ImageAnalyzer(bufImage,clickPoint);
 		Polygon polygon=imgAnalyzer.getArea();
 		
-		Way way=createWayFromPolygon(mapView, polygon);
+		if(polygon!=null){
+			Way way=createWayFromPolygon(mapView, polygon);
+			
+			way.put("building", "yes");
+			
+	//		Layer mapLayer=mapView.getActiveLayer();
+			
+			DataSet currentDataSet=Main.main.getCurrentDataSet();
+	//		for(Node n:way.getNodes()){
+	//			currentDataSet.addPrimitive(n);
+	//		}
+			
+//			currentDataSet.addPrimitive(way);
+			currentDataSet.addSelected(way);
+		}
 		
-		way.put("building", "yes");
-		
-		Main.main.getCurrentDataSet().addSelected(way);
+
 		
 	}
 	
