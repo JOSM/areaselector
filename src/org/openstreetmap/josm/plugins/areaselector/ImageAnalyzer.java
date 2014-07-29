@@ -316,7 +316,7 @@ public class ImageAnalyzer {
 	}
 	
 	
-	public List<Polygon> detectArea(BufferedImage image,Point point){
+	public Polygon detectArea(BufferedImage image,Point point){
 		
 		List <Polygon> polygons=new ArrayList<Polygon>();
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class);
@@ -348,6 +348,7 @@ public class ImageAnalyzer {
 			Polygon poly=toPolygon(vertexes);
 			if(poly.contains(point)){
 				
+				
 				polygons.add(poly);
 	
 				g2.setColor(Color.RED);
@@ -366,11 +367,38 @@ public class ImageAnalyzer {
 			}
 		}
 		
-		saveImgToFile(polygonImage, "test/polygon");
+		saveImgToFile(polygonImage, "test/polygons");
+		
+		log.info("Found "+polygons.size()+" matching polygons");
+		
+		
+		Polygon innerPolygon=null;
+		// let's see if we have outer polygons
+		// if so, remove them, we only want inner shapes
+		for(Polygon p: polygons){
+			if(innerPolygon==null||innerPolygon.getBounds().contains(p.getBounds())){
+				// found a inner polygon which contains the point
+				innerPolygon=p;
+			}
+		}
+		
+		polygonImage=new BufferedImage(polygonImage.getWidth(), polygonImage.getHeight(), polygonImage.getType());
+		g2=polygonImage.createGraphics();
+		g2.setColor(Color.WHITE);
+		g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
+		
+		if(innerPolygon!=null){
+			
+			log.info("Best matching polygon is: "+polygonToString(innerPolygon));
+			
+			g2.setColor(Color.RED);
+			g2.setStroke(new BasicStroke(2));
+			g2.drawPolygon(innerPolygon);
+		}
 		
 		workImage=polygonImage;
 		
-		return polygons;
+		return innerPolygon;
 	}
 	
 	public Polygon toPolygon(List<PointIndex_I32> points){
@@ -386,15 +414,23 @@ public class ImageAnalyzer {
 		return new Polygon(xpoints,ypoints,npoints);
 	}
 	
-	public boolean polygonContains(Polygon p1,Polygon p2){
+	public static String polygonToString(Polygon p){
+		StringBuilder sb=new StringBuilder();
+		sb.append("Polygon (");
+		sb.append(p.npoints);
+		sb.append(" points) [");
+		for (int i=0;i<p.npoints;i++){
+			sb.append(" (");
+			sb.append(p.xpoints[i]);
+			sb.append(",");
+			sb.append(p.ypoints[i]);
+			sb.append(")");
+		}
+		sb.append("]");
 		
-		Rectangle r1=p1.getBounds(),r2=p2.getBounds();
-		
-		if(r1.contains(r2)) return true;
-		
-		return false;
+		return sb.toString();
 	}
-
+	
 
 
 	/*
