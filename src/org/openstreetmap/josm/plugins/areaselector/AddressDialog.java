@@ -75,17 +75,18 @@ public class AddressDialog extends ExtendedDialog {
         
         setContent(panel);
         setupDialog();
+        this.setSize(400, 300);
     }
 
 
 
     public final void saveValues() {
     	houseName = houseNameField.getText();
-    	houseNum = houseNumField.getText();
-        streetName = streetNameField.getText();
-        city = cityField.getText();
-        postCode = postCodeField.getText();
-        country = countryField.getText();
+    	lastHouseNum = houseNum = houseNumField.getText();
+        lastStreetName = streetName = streetNameField.getText();
+        lastCity = city = cityField.getText();
+        lastPostCode = postCode = postCodeField.getText();
+        lastCountry = country = countryField.getText();
         
         way.put(TAG_HOUSENAME, houseName);
         way.put(TAG_HOUSENUM, houseNum);
