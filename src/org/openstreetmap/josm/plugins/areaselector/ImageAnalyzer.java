@@ -207,9 +207,11 @@ public class ImageAnalyzer {
 //		saveImgToFile(sobel.getBufferedImage(),"test/sobel");
 		boolean [][] erosionMatrix = new boolean[][]
 				{
-					{false,false,false},
-					{false,true,false},
-					{false,false,false},
+					{true,true,true,true,true},
+					{true,true,true,true,true},
+					{true,true,true,true,true},
+					{true,true,true,true,true},
+					{true,true,true,true,true},
 				};
 		
 		HashMap<String,Object> erosionAttributes=new HashMap<>();
@@ -217,12 +219,15 @@ public class ImageAnalyzer {
 		
 		MarvinImage erosion=blackAndWhite;
 		
-		for(int i =0 ; i < 10; i++){
+//		for(int i =0 ; i < 10; i++){
 			erosion=applyPlugin("org.marvinproject.image.morphological.erosion",erosion,erosionAttributes);
-		}
+//		}
 		saveImgToFile(erosion.getBufferedImage(),"test/erosion");
 		
-		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
+		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
+		saveImgToFile(erosion.getBufferedImage(),"test/dilation");
+		
+		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", dilation);
 		saveImgToFile(roberts.getBufferedImage(),"test/roberts");
 		
 //		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
@@ -230,8 +235,11 @@ public class ImageAnalyzer {
 		
 		log.info("detecting boundaries");
 //		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
-		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", blackAndWhite);
+		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", roberts);
 		saveImgToFile(boundary.getBufferedImage(),"test/boundary");
+		
+		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
+		saveImgToFile(boundaryInverted.getBufferedImage(),"test/boundary_inverted");
 		
 		
 		
