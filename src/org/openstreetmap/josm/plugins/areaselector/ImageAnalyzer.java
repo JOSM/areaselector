@@ -82,6 +82,8 @@ public class ImageAnalyzer {
 	
 	protected Point point;
 	
+	protected boolean debug=false;
+	
 	
 	// default is 40
 	protected int regionSize=35;
@@ -225,18 +227,18 @@ public class ImageAnalyzer {
 		log.info("searching for the correct color");
 		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
 //		ImgUtils.imshow("selected color",colorSelected);
-//		saveImgToFile(colorSelected,"test/colorExtracted");
+		if(debug) saveImgToFile(colorSelected,"test/colorExtracted");
 		
 		log.info("trying Edge detection");
 //		
 		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
-//		saveImgToFile(blackAndWhite,"test/blackAndWhite");
+//		if(debug) saveImgToFile(blackAndWhite,"test/blackAndWhite");
 		
 		
 		
 		
 //		MarvinImage sobel=applyPlugin("org.marvinproject.image.edge.sobel", blackAndWhite);
-//		saveImgToFile(sobel,"test/sobel");
+//		if(debug) saveImgToFile(sobel,"test/sobel");
 		boolean [][] erosionMatrix = new boolean[][]
 				{
 					{true,true,true,true,true},
@@ -254,24 +256,24 @@ public class ImageAnalyzer {
 //		for(int i =0 ; i < 10; i++){
 			erosion=applyPlugin("org.marvinproject.image.morphological.erosion",erosion,erosionAttributes);
 //		}
-//		saveImgToFile(erosion,"test/erosion");
+		if(debug) saveImgToFile(erosion,"test/erosion");
 		
 //		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
-//		saveImgToFile(erosion,"test/dilation");
+//		if(debug) saveImgToFile(dilation,"test/dilation");
 		
 //		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
-//		saveImgToFile(roberts,"test/roberts");
+//		if(debug) saveImgToFile(roberts,"test/roberts");
 		
 //		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
-//		saveImgToFile(prewitt,"test/prewitt");
+//		if(debug) saveImgToFile(prewitt,"test/prewitt");
 		
 //		log.info("detecting boundaries");
 //		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
 //		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", roberts);
-//		saveImgToFile(boundary,"test/boundary");
+//		if(debug) saveImgToFile(boundary,"test/boundary");
 		
 //		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
-//		saveImgToFile(boundaryInverted,"test/boundary_inverted");
+//		if(debug) saveImgToFile(boundaryInverted,"test/boundary_inverted");
 		
 		workMarvin=erosion;
 		workMarvin.update();
@@ -281,16 +283,7 @@ public class ImageAnalyzer {
 		
 		Polygon polygon=detectArea(workImage,point);
 		
-		
-		
-		
-//		Mat canny= applyCanny(gaus);
-//		
-//		saveImgToFile(canny,"test/colorPlusCanny");
-//		
-//		detectLines(canny);
-//		
-////		ImgUtils.imshow("canny on InRange", canny);
+
 
 		log.info("done.");
 
@@ -367,7 +360,7 @@ public class ImageAnalyzer {
 			}
 		}
 		
-//		saveImgToFile(polygonImage, "test/polygons");
+		if(debug) saveImgToFile(polygonImage, "test/polygons");
 		
 		log.info("Found "+polygons.size()+" matching polygons");
 		
@@ -381,22 +374,31 @@ public class ImageAnalyzer {
 				innerPolygon=p;
 			}
 		}
-		
-		polygonImage=new BufferedImage(polygonImage.getWidth(), polygonImage.getHeight(), polygonImage.getType());
-		g2=polygonImage.createGraphics();
-		g2.setColor(Color.WHITE);
-		g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
-		
 		if(innerPolygon!=null){
 			
+		
 			log.info("Best matching polygon is: "+polygonToString(innerPolygon));
+		
+		
+			polygonImage=new BufferedImage(polygonImage.getWidth(), polygonImage.getHeight(), polygonImage.getType());
+			g2=polygonImage.createGraphics();
+			g2.setColor(Color.WHITE);
+			g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
+			
+			
 			
 			g2.setColor(Color.RED);
 			g2.setStroke(new BasicStroke(2));
 			g2.drawPolygon(innerPolygon);
+			
+			if(debug) saveImgToFile(polygonImage,"test/polygon");
+			
+			
 		}
 		
 		workImage=polygonImage;
+		
+		
 		
 		return innerPolygon;
 	}
