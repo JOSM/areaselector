@@ -442,6 +442,18 @@ public class ImageAnalyzer {
 		return sb.toString();
 	}
 	
+	/**
+	 * make a deep copy of buffered image
+	 * @param bi buffered image
+	 * @return copy of the original
+	 */
+	static BufferedImage deepCopy(BufferedImage bi) {
+		 ColorModel cm = bi.getColorModel();
+		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		 WritableRaster raster = bi.copyData(null);
+		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+		}
+	
 
 
 	/*
