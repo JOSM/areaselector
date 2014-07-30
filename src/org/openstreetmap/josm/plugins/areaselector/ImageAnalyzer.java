@@ -110,7 +110,7 @@ public class ImageAnalyzer {
 	
 	protected int blurRadius = 10;
 	
-	protected int fileCount=0;
+	protected static int fileCount=0;
 	
 	
 	public ImageAnalyzer(String filename, Point point) {
