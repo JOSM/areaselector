@@ -46,6 +46,7 @@ import org.apache.log4j.Logger;
 
 import boofcv.abst.feature.detect.line.DetectLineSegmentsGridRansac;
 import boofcv.alg.color.ColorHsv;
+import boofcv.alg.enhance.EnhanceImageOps;
 import boofcv.alg.feature.shapes.ShapeFittingOps;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
@@ -222,6 +223,16 @@ public class ImageAnalyzer {
 		workImage=selectMarvinColor(workImage,pointColor);
 		if(debug) saveImgToFile(workImage, "colorExtracted");
 		
+//		workImage=histogram(workImage);
+//		if(debug) saveImgToFile(workImage,"histogram");
+
+//		workImage=sharpen(workImage);
+//		if(debug) saveImgToFile(workImage,"sharpen");
+//
+//		workImage=binarize(workImage);
+//		if(debug) saveImgToFile(workImage,"binarize");
+
+		
 //		workImage=erodeAndDilate(workImage);
 //		if(debug) saveImgToFile(workImage,"erodeDilate");
 		
@@ -243,6 +254,12 @@ public class ImageAnalyzer {
 		return polygon;
 	}
 	
+	/**
+	 * select a color from a image
+	 * @param workImage image to work with
+	 * @param pointColor color to select
+	 * @return BufferedImage with selected color as white and the rest as black
+	 */
 	public BufferedImage selectMarvinColor(BufferedImage workImage, Color pointColor){
 
 		log.info("extracting marvin color");
@@ -268,6 +285,11 @@ public class ImageAnalyzer {
 		return colorSelected.getBufferedImage();
 	}
 	
+	/**
+	 * erode and dilate an image
+	 * @param workImage image to transform
+	 * @return transformed image
+	 */
 	public BufferedImage erodeAndDilate(BufferedImage workImage){
 		log.info("Erode and Dilate");
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
@@ -289,6 +311,27 @@ public class ImageAnalyzer {
 		return VisualizeBinaryData.renderBinary(filtered, null);
 	}
 	
+	public BufferedImage binarize(BufferedImage workImage){
+		log.info("Binarize");
+		
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
+		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
+//		ImageSInt32 label = new ImageSInt32(input.width,input.height);
+
+		// the mean pixel value is often a reasonable threshold when creating a binary image
+		double mean = ImageStatistics.mean(input);
+
+		// create a binary image by thresholding
+		ThresholdImageOps.threshold(input,binary,(float)mean,true);
+
+		return VisualizeBinaryData.renderBinary(binary, null);
+	}
+	
+	/**
+	 * apply gaussian filter
+	 * @param image image to filter
+	 * @return filtered image
+	 */
 	public BufferedImage gaussian(BufferedImage image){
 		log.info("gaussian filter");
 		ImageFloat32 input=null;
@@ -358,6 +401,56 @@ public class ImageAnalyzer {
 		return output;
 	}
 	
+	
+	/**
+	 * histogram adjustment
+	 * @param image buffered image to adjust histogram
+	 * @return adjusted image
+	 */
+	public BufferedImage histogram(BufferedImage image) {
+		log.info("Histogram adjustment");
+		
+		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
+//		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"gray");
+ 
+		int histogram[] = new int[256];
+		int transform[] = new int[256];
+ 
+ 
+		ImageStatistics.histogram(gray,histogram);
+		EnhanceImageOps.equalize(histogram, transform);
+		EnhanceImageOps.applyTransform(gray, transform, adjusted);
+
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"histogram_global");
+ 
+//		EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
+//
+//		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"histogram_local");
+ 
+		return ConvertBufferedImage.convertTo(adjusted,null);
+	}
+ 
+	/**
+	 * When an image is sharpened the intensity of edges are made more extreme while flat regions remain unchanged.
+	 * @return 
+	 */
+	public BufferedImage sharpen(BufferedImage image) {	
+		log.info("sharpen");
+		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(gray,null),"gray");
+		
+		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
+ 
+		EnhanceImageOps.sharpen4(gray, adjusted);
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"sharpen4");
+ 
+//		EnhanceImageOps.sharpen8(gray, adjusted);
+//		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"sharpen8");
+ 
+		return ConvertBufferedImage.convertTo(adjusted,null);
+	}
+ 
 	
 	public List<LineSegment2D_F32> detectLines(BufferedImage image){
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class );
