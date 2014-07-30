@@ -39,6 +39,8 @@ import org.openstreetmap.josm.tools.Shortcut;
 public class AreaSelectorAction extends MapMode implements MouseListener {
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
+	
+	protected Point clickPoint=null;
 
 	/**
 	 * 
@@ -90,16 +92,17 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		updateKeyModifiers(e);
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			try {
-				createArea(e.getPoint());
+				clickPoint=e.getPoint();
+				createArea();
 			} catch (Throwable th) {
 				log.error("failed to add area", th);
 			}
 
 		}
 	}
-
-	public void createArea(Point clickPoint) {
-
+	
+	
+	public BufferedImage getLayeredImage(){
 		MapView mapView = Main.map.mapView;
 		// Collection<Layer> layers=mapView.getAllLayers();
 		// Layer activeLayer=mapView.getActiveLayer();
@@ -110,24 +113,16 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		for (Layer layer : mapView.getAllLayers()) {
 			layer.paint(imgGraphics, mapView, mapView.getRealBounds());
 		}
+		
+		return bufImage;
+	}
+	
 
-		// write image for further processing to file
-		// try {
-		// ImageIO.write(bufImage, "PNG", new File("baseimage.png"));
-		// } catch (IOException e) {
-		//
-		// log.error("could not write image",e);
-		// }
+	public void createArea() {
 
-		// X marks the spot
-		// imgGraphics.setColor(Color.RED);
-		// imgGraphics.setFont(new Font("Arial", Font.BOLD, 12));
-		// imgGraphics.drawString("X", clickPoint.x, clickPoint.y);
-		//
-		// ImageIcon icon = new ImageIcon(bufImage);
-		//
-		//
-		// JOptionPane.showMessageDialog(Main.parent, "You clicked on "+clickPoint.x+" "+clickPoint.y, "AreaSelection", JOptionPane.INFORMATION_MESSAGE, icon);
+		MapView mapView = Main.map.mapView;
+		
+		BufferedImage bufImage = getLayeredImage();
 
 		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
 		Polygon polygon = imgAnalyzer.getArea();
@@ -135,17 +130,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		if (polygon != null) {
 			Way way = createWayFromPolygon(mapView, polygon);
 
-			way.put("building", "yes");
+			way.put(AddressDialog.TAG_BUILDING, "yes");
 
-			// Layer mapLayer=mapView.getActiveLayer();
-
-			// DataSet currentDataSet=Main.main.getCurrentDataSet();
-			// for(Node n:way.getNodes()){
-			// currentDataSet.addPrimitive(n);
-			// }
-
-			// currentDataSet.addPrimitive(way);
-			// currentDataSet.addSelected(way);
 
 			Collection<Command> cmds = new LinkedList<Command>();
 			List<Node> nodes = way.getNodes();
