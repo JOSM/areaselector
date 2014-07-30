@@ -105,8 +105,8 @@ public class ImageAnalyzer {
 	
 	
 	// Polynomial fitting tolerances
-	static double toleranceDist = 2;
-	static double toleranceAngle= Math.PI/10;
+	double toleranceDist = 3; // original: 2
+	double toleranceAngle= Math.PI/8; // original Math.PI/10
 	
 	protected int blurRadius = 10;
 	
