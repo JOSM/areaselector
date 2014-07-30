@@ -48,7 +48,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	private static final long serialVersionUID = 1L;
 
 	public AreaSelectorAction(MapFrame mapFrame) {
-		super(tr("Area Selection"), "tracer-sml", tr("Select an area from an underlying image."), Shortcut.registerShortcut("tools:areaselector",
+		super(tr("Area Selection"), "tracer-sml", tr("Select an area i.e. building from an underlying image."), Shortcut.registerShortcut("tools:areaselector",
 				tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A, Shortcut.ALT_CTRL), mapFrame, getCursor());
 	}
 
