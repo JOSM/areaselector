@@ -26,8 +26,8 @@ public class ServerParam {
     private String m_strDescription = "";
     private String m_strUrl = "";
     private String m_strColorThreshold = "15";
-    private String m_strToleranceDist = "2";
-    private String m_strToleranceAngle = "0.3";
+    private String m_strToleranceDist = "3";
+    private String m_strToleranceAngle = Double.toString(Math.PI/8);
     
     protected JMenuItem m_oMenuItem;
     

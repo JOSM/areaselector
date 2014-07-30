@@ -21,7 +21,7 @@ public class ServerParamPreference extends DefaultTabPreferenceSetting {
 	AreaSelectorPlugin m_oPlugin;
 	
     public ServerParamPreference(AreaSelectorPlugin plugin) {
-    	super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Modify list of parameter for server request."));
+    	super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Select tile map service or imagery preferences."));
 
         m_oPlugin = plugin;
     }
