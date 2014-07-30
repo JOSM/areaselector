@@ -81,7 +81,7 @@ public class ServerParamSelectDialog extends JPanel {
     }
 	public void checkComboBox() {
      	int nSel = m_oComboBox.getSelectedIndex();
-        AreaSelectorPlugin.s_oPlugin.m_oParamList.setActivParam(m_listServerParam.get(nSel));
+//        AreaSelectorPlugin.s_oPlugin.m_oParamList.setActivParam(m_listServerParam.get(nSel));
     }
 	
 }

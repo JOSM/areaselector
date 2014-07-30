@@ -29,7 +29,7 @@ public class ServerParamPreference extends DefaultTabPreferenceSetting {
     @Override
     public void addGui(PreferenceTabbedPane gui) {
         JPanel p = gui.createPreferenceTab(this);
-        ServerParamPanel spp = new ServerParamPanel(m_oPlugin.m_oParamList);
+        ServerParamPanel spp = new ServerParamPanel(null);
         spp.refresh();
         JScrollPane sp = new JScrollPane(spp);
         p.add(sp, GBC.eol().fill(GridBagConstraints.BOTH));
@@ -37,7 +37,7 @@ public class ServerParamPreference extends DefaultTabPreferenceSetting {
     
     @Override
     public boolean ok() {
-        m_oPlugin.m_oParamList.save();
+//        m_oPlugin.m_oParamList.save();
         return false;
     }
 
