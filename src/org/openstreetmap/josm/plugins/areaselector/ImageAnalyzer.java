@@ -165,17 +165,17 @@ public class ImageAnalyzer {
 		textAreaPanel.add(regionSizeLabel);
 		textAreaPanel.add(regionSizeTextArea);
 		
-		final JTextArea thresholdEdgeTextArea=new JTextArea(1,5);
-		thresholdEdgeTextArea.setText(""+thresholdEdge);
-		final JLabel thresholdEdgeLabel = new JLabel("Threshold Edge: ");
-		textAreaPanel.add(thresholdEdgeLabel);
-		textAreaPanel.add(thresholdEdgeTextArea);
+		final JTextArea toleranceDistTextArea=new JTextArea(1,5);
+		toleranceDistTextArea.setText(""+toleranceDist);
+		final JLabel toleranceDistLabel = new JLabel("Tolerance Dist: ");
+		textAreaPanel.add(toleranceDistLabel);
+		textAreaPanel.add(toleranceDistTextArea);
 		
-		final JTextArea thresholdAngleTextArea=new JTextArea(1,5);
-		thresholdAngleTextArea.setText(""+(thresholdAngle));
-		final JLabel thresholdAngleLabel = new JLabel("Threshold Angle: ");
-		textAreaPanel.add(thresholdAngleLabel);
-		textAreaPanel.add(thresholdAngleTextArea);
+		final JTextArea toleranceAngleTextArea=new JTextArea(1,5);
+		toleranceAngleTextArea.setText(""+(toleranceAngle));
+		final JLabel toleranceAngleLabel = new JLabel("Tolerance Angle: ");
+		textAreaPanel.add(toleranceAngleLabel);
+		textAreaPanel.add(toleranceAngleTextArea);
 		
 		
 		JButton refreshButton=new JButton("Refresh");
@@ -187,9 +187,9 @@ public class ImageAnalyzer {
 				
 				regionSize=Integer.parseInt(regionSizeTextArea.getText());
 				
-				thresholdEdge=Double.parseDouble(thresholdEdgeTextArea.getText());
+				toleranceDist=Double.parseDouble(toleranceDistTextArea.getText());
 				
-				thresholdAngle=Double.parseDouble(thresholdAngleTextArea.getText());
+				toleranceAngle=Double.parseDouble(toleranceAngleTextArea.getText());
 				
 
 				getArea();
@@ -470,6 +470,12 @@ public class ImageAnalyzer {
 	}
 	
 	
+	/**
+	 * detect a Polygon around a point
+	 * @param image Image to analyze for polygons
+	 * @param point point to search the polygon
+	 * @return Polygon if found
+	 */
 	public Polygon detectArea(BufferedImage image,Point point){
 		
 		List <Polygon> polygons=new ArrayList<Polygon>();
@@ -751,13 +757,11 @@ public class ImageAnalyzer {
 		} else {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0],point);
-//			imgAnalyzer.initUI();
-//			imgAnalyzer.getArea();
-			// Mat mat = imgAnalyzer.applyInRange();
-			// ImgUtils.imshow("in range", mat);
+			imgAnalyzer.initUI();
+
 			Polygon polygon=imgAnalyzer.getArea();
 			log.info("got polygon "+polygonToString(polygon));
-//			imgAnalyzer.testMarvin();
+
 		}
 
 	}
