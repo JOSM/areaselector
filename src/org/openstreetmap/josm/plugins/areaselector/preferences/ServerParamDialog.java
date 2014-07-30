@@ -30,7 +30,9 @@ public class ServerParamDialog extends ExtendedDialog {
 	 */
 	private static final long serialVersionUID = -3229680217088662218L;
 	
-	private String[] m_astrCannyThreshold = new String[] {"20", "25", "30", "35", "40"};
+	private String[] m_astrColorThreshold = new String[] {"5", "10", "15", "20", "25"};
+	private String[] m_astrToleranceDist = new String[] {"1", "2", "3", "4", "5"};
+	private String[] m_astrToleranceAngle = new String[] {"0.1", "0.2", "0.3", "0.4", "0.5"};
 	
 	private ServerParam m_oParam;
 	
@@ -38,7 +40,9 @@ public class ServerParamDialog extends ExtendedDialog {
     private JTextField m_oName = new JTextField();
     private JTextField m_oDescription = new JTextField();
     private JTextArea m_oUrl = new JTextArea(5,5);
-    private JComboBox<String> m_oCannyThreshold;
+    private JComboBox<String> m_oColorThreshold;
+    private JComboBox<String> m_oToleranceDist;
+    private JComboBox<String> m_oToleranceAngle;
     
     
     private JScrollPane m_oScrollpaneUrl;
@@ -64,14 +68,18 @@ public class ServerParamDialog extends ExtendedDialog {
         m_oName.setText(m_oParam.getName());
         m_oDescription.setText(m_oParam.getDescription());
         m_oUrl.setText(m_oParam.getUrl());
-        loadComboBox( m_oCannyThreshold, m_oParam.getCannyThreshold(), m_astrCannyThreshold);
+        loadComboBox( m_oColorThreshold, m_oParam.getColorThreshold(), m_astrColorThreshold);
+        loadComboBox( m_oToleranceDist,  m_oParam.getToleranceDist(), m_astrToleranceDist);
+        loadComboBox( m_oToleranceAngle, m_oParam.getToleranceAngle(), m_astrToleranceAngle);
     }
     
     private void save() {
     	m_oParam.setName(m_oName.getText());
     	m_oParam.setDescription(m_oDescription.getText());
     	m_oParam.setUrl(m_oUrl.getText());
-    	m_oParam.setCannyThreshold(saveComboBox(m_oCannyThreshold, m_astrCannyThreshold));
+    	m_oParam.setColorThreshold(saveComboBox(m_oColorThreshold, m_astrColorThreshold));
+    	m_oParam.setToleranceDist(saveComboBox(m_oToleranceDist,  m_astrToleranceDist));
+    	m_oParam.setToleranceAngle(saveComboBox(m_oToleranceAngle, m_astrToleranceAngle));
     	
     }
     
@@ -103,7 +111,9 @@ public class ServerParamDialog extends ExtendedDialog {
         contentInsets = new Insets(15, 15, 5, 15);
         setButtonIcons(new String[] { "ok.png", "cancel.png" });
         
-        m_oCannyThreshold = new JComboBox<>(m_astrCannyThreshold);
+        m_oColorThreshold = new JComboBox<>(m_astrColorThreshold);
+        m_oToleranceDist = new JComboBox<>(m_astrToleranceDist);
+        m_oToleranceAngle = new JComboBox<>(m_astrToleranceAngle);    	
                 
         load();
         
@@ -114,7 +124,9 @@ public class ServerParamDialog extends ExtendedDialog {
         m_oScrollpaneUrl = new JScrollPane(m_oUrl);
         addLabelled(tr("URL:"), m_oScrollpaneUrl);
         addGap();
-        addLabelled(tr("Canny Threshold:"), m_oCannyThreshold);
+        addLabelled(tr("Color Threshold:"), m_oColorThreshold);
+        addLabelled(tr("Tolerance Distance:"), m_oToleranceDist);
+        addLabelled(tr("Tolerance Angle:"), m_oToleranceAngle);
                
         
         setMinimumSize(new Dimension(500, 0));

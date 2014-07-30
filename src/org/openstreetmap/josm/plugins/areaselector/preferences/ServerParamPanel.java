@@ -125,7 +125,7 @@ public class ServerParamPanel extends JPanel {
             	
                 if (dialog.getShow()) {
                     JOptionPane pane = new JOptionPane(dialog, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-                    JDialog dlg = pane.createDialog(Main.parent, tr("Tracer2") + " - " + tr("Select predefined parameter"));
+                    JDialog dlg = pane.createDialog(Main.parent, tr("Area Selector") + " - " + tr("Select predefined parameter"));
                 	dlg.setVisible(true);
                 	Object obj = pane.getValue();
                     dlg.dispose();

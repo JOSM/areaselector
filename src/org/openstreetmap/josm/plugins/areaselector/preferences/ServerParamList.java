@@ -73,7 +73,7 @@ public class ServerParamList {
             }
             oWriter.close();
         } catch (Exception e) {
-        	System.err.println("Tracer2 warning: can't save file " + m_strFilename);
+        	System.err.println("Area Selector warning: can't save file " + m_strFilename);
             //e.printStackTrace();
         }
     }

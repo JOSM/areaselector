@@ -25,7 +25,9 @@ public class ServerParam {
     private String m_strName = "Name";
     private String m_strDescription = "";
     private String m_strUrl = "";
-    private String m_strCannyThreshold = "30";
+    private String m_strColorThreshold = "15";
+    private String m_strToleranceDist = "2";
+    private String m_strToleranceAngle = "0.3";
     
     protected JMenuItem m_oMenuItem;
     
@@ -59,15 +61,25 @@ public class ServerParam {
         m_strUrl = url;
     }
     
-    public String getCannyThreshold() {
-    	return m_strCannyThreshold;
-    }
-    
-    public void setCannyThreshold(String cannyThreshold) {
-        m_strCannyThreshold = cannyThreshold;
-    }
-    
-    public ServerParam() {
+    public String getColorThreshold() {
+		return m_strColorThreshold;
+	}
+	public void setColorThreshold(String colorThreshold) {
+		this.m_strColorThreshold = colorThreshold;
+	}
+	public String getToleranceDist() {
+		return m_strToleranceDist;
+	}
+	public void setToleranceDist(String toleranceDist) {
+		this.m_strToleranceDist = toleranceDist;
+	}
+	public String getToleranceAngle() {
+		return m_strToleranceAngle;
+	}
+	public void setToleranceAngle(String toleranceAngle) {
+		this.m_strToleranceAngle = toleranceAngle;
+	}
+	public ServerParam() {
         m_bEnabled = false;
     }
     
@@ -81,7 +93,9 @@ public class ServerParam {
         oBuilder.append("name=").append(m_strName).append('\n');
         oBuilder.append("description=").append(m_strDescription).append('\n');
         oBuilder.append("url=").append(m_strUrl).append('\n');
-        oBuilder.append("cannyThreshold=").append(m_strCannyThreshold).append('\n');
+        oBuilder.append("colorThreshold=").append(m_strColorThreshold).append('\n');
+        oBuilder.append("toleranceDist=").append(m_strToleranceDist).append('\n');
+        oBuilder.append("toleranceAngle=").append(m_strToleranceAngle).append('\n');
         oBuilder.append("enabled=").append(m_bEnabled).append('\n');
         oBuilder.append('\n');
         return oBuilder.toString();
@@ -98,8 +112,12 @@ public class ServerParam {
                 oParam.m_strDescription = parts[1];
             else if (parts[0].equals("url"))
                 oParam.m_strUrl = parts[1];
-            else if (parts[0].equals("cannyThreshold"))
-                oParam.m_strCannyThreshold = parts[1];
+            else if (parts[0].equals("colorThreshold"))
+                oParam.m_strColorThreshold = parts[1];
+            else if (parts[0].equals("toleranceDist"))
+                oParam.m_strToleranceDist = parts[1];
+            else if (parts[0].equals("toleranceAngle"))
+                oParam.m_strToleranceAngle = parts[1];
             else if (parts[0].equals("enabled"))
                 oParam.m_bEnabled = parts[1].equalsIgnoreCase("true");
         }
