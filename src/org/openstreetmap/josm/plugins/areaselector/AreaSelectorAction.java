@@ -5,6 +5,8 @@ package org.openstreetmap.josm.plugins.areaselector;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -110,8 +112,15 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		BufferedImage bufImage = new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D imgGraphics = bufImage.createGraphics();
 
-		for (Layer layer : mapView.getAllLayers()) {
-			layer.paint(imgGraphics, mapView, mapView.getRealBounds());
+		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
+		
+		for (int i=layers.length-1;i>=0;i--) {
+			Layer layer=layers[i];
+			if(layer.isVisible() && layer.isBackgroundLayer()){
+				Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) layer.getOpacity());
+				imgGraphics.setComposite(translucent);
+				layer.paint(imgGraphics, mapView, mapView.getRealBounds());
+			}
 		}
 		
 		return bufImage;
