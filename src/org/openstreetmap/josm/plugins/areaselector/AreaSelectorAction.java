@@ -5,6 +5,8 @@ package org.openstreetmap.josm.plugins.areaselector;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.AlphaComposite;
+import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -39,6 +41,8 @@ import org.openstreetmap.josm.tools.Shortcut;
 public class AreaSelectorAction extends MapMode implements MouseListener {
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
+	
+	protected Point clickPoint=null;
 
 	/**
 	 * 
@@ -46,7 +50,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	private static final long serialVersionUID = 1L;
 
 	public AreaSelectorAction(MapFrame mapFrame) {
-		super(tr("Area Selection"), "tracer-sml", tr("Select an area from an underlying image."), Shortcut.registerShortcut("tools:areaselector",
+		super(tr("Area Selection"), "tracer-sml", tr("Select an area i.e. building from an underlying image."), Shortcut.registerShortcut("tools:areaselector",
 				tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A, Shortcut.ALT_CTRL), mapFrame, getCursor());
 	}
 
@@ -90,16 +94,17 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		updateKeyModifiers(e);
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			try {
-				createArea(e.getPoint());
+				clickPoint=e.getPoint();
+				createArea();
 			} catch (Throwable th) {
 				log.error("failed to add area", th);
 			}
 
 		}
 	}
-
-	public void createArea(Point clickPoint) {
-
+	
+	
+	public BufferedImage getLayeredImage(){
 		MapView mapView = Main.map.mapView;
 		// Collection<Layer> layers=mapView.getAllLayers();
 		// Layer activeLayer=mapView.getActiveLayer();
@@ -107,27 +112,26 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		BufferedImage bufImage = new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D imgGraphics = bufImage.createGraphics();
 
-		for (Layer layer : mapView.getAllLayers()) {
-			layer.paint(imgGraphics, mapView, mapView.getRealBounds());
+		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
+		
+		for (int i=layers.length-1;i>=0;i--) {
+			Layer layer=layers[i];
+			if(layer.isVisible() && layer.isBackgroundLayer()){
+				Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) layer.getOpacity());
+				imgGraphics.setComposite(translucent);
+				layer.paint(imgGraphics, mapView, mapView.getRealBounds());
+			}
 		}
+		
+		return bufImage;
+	}
+	
 
-		// write image for further processing to file
-		// try {
-		// ImageIO.write(bufImage, "PNG", new File("baseimage.png"));
-		// } catch (IOException e) {
-		//
-		// log.error("could not write image",e);
-		// }
+	public void createArea() {
 
-		// X marks the spot
-		// imgGraphics.setColor(Color.RED);
-		// imgGraphics.setFont(new Font("Arial", Font.BOLD, 12));
-		// imgGraphics.drawString("X", clickPoint.x, clickPoint.y);
-		//
-		// ImageIcon icon = new ImageIcon(bufImage);
-		//
-		//
-		// JOptionPane.showMessageDialog(Main.parent, "You clicked on "+clickPoint.x+" "+clickPoint.y, "AreaSelection", JOptionPane.INFORMATION_MESSAGE, icon);
+		MapView mapView = Main.map.mapView;
+		
+		BufferedImage bufImage = getLayeredImage();
 
 		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
 		Polygon polygon = imgAnalyzer.getArea();
@@ -135,17 +139,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		if (polygon != null) {
 			Way way = createWayFromPolygon(mapView, polygon);
 
-			way.put("building", "yes");
+			way.put(AddressDialog.TAG_BUILDING, "yes");
 
-			// Layer mapLayer=mapView.getActiveLayer();
-
-			// DataSet currentDataSet=Main.main.getCurrentDataSet();
-			// for(Node n:way.getNodes()){
-			// currentDataSet.addPrimitive(n);
-			// }
-
-			// currentDataSet.addPrimitive(way);
-			// currentDataSet.addSelected(way);
 
 			Collection<Command> cmds = new LinkedList<Command>();
 			List<Node> nodes = way.getNodes();

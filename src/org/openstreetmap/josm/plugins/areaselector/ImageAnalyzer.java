@@ -5,6 +5,7 @@
  */
 package org.openstreetmap.josm.plugins.areaselector;
 
+import georegression.metric.UtilAngle;
 import georegression.struct.line.LineSegment2D_F32;
 import georegression.struct.point.Point2D_I32;
 
@@ -18,6 +19,8 @@ import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,24 +40,32 @@ import marvin.plugin.MarvinAbstractImagePlugin;
 import marvin.plugin.MarvinImagePlugin;
 import marvin.util.MarvinPluginLoader;
 
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import boofcv.abst.feature.detect.line.DetectLineSegmentsGridRansac;
+import boofcv.alg.color.ColorHsv;
+import boofcv.alg.enhance.EnhanceImageOps;
 import boofcv.alg.feature.shapes.ShapeFittingOps;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
 import boofcv.alg.filter.binary.ThresholdImageOps;
+import boofcv.alg.filter.blur.GBlurImageOps;
 import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
+import boofcv.core.image.GeneralizedImageOps;
 import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
+import boofcv.gui.binary.VisualizeBinaryData;
 import boofcv.gui.feature.ImageLinePanel;
 import boofcv.gui.feature.VisualizeShapes;
+import boofcv.gui.image.VisualizeImageData;
 import boofcv.struct.ConnectRule;
 import boofcv.struct.PointIndex_I32;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageUInt8;
+import boofcv.struct.image.MultiSpectral;
 
 /**
  * @author Paul Woelfel (paul@woelfel.at)
@@ -93,12 +104,14 @@ public class ImageAnalyzer {
 	// angle default is 2.38
 	protected double thresholdEdge=30, thresholdAngle=1.1;
 	
-	protected List<LineSegment2D_F32> lines;
-	
 	
 	// Polynomial fitting tolerances
-	static double toleranceDist = 2;
-	static double toleranceAngle= Math.PI/10;
+	double toleranceDist = 3; // original: 2
+	double toleranceAngle= Math.PI/8; // original Math.PI/10
+	
+	protected int blurRadius = 10;
+	
+	protected static int fileCount=0;
 	
 	
 	public ImageAnalyzer(String filename, Point point) {
@@ -115,7 +128,7 @@ public class ImageAnalyzer {
 	}
 
 	protected void init() {
-		if(debug) saveImgToFile(baseImage,"test/00baseimage");
+		if(debug) saveImgToFile(baseImage,"baseimage");
 		src=new MarvinImage(baseImage);
 		
 //		log.info("creating grey");
@@ -153,17 +166,17 @@ public class ImageAnalyzer {
 		textAreaPanel.add(regionSizeLabel);
 		textAreaPanel.add(regionSizeTextArea);
 		
-		final JTextArea thresholdEdgeTextArea=new JTextArea(1,5);
-		thresholdEdgeTextArea.setText(""+thresholdEdge);
-		final JLabel thresholdEdgeLabel = new JLabel("Threshold Edge: ");
-		textAreaPanel.add(thresholdEdgeLabel);
-		textAreaPanel.add(thresholdEdgeTextArea);
+		final JTextArea toleranceDistTextArea=new JTextArea(1,5);
+		toleranceDistTextArea.setText(""+toleranceDist);
+		final JLabel toleranceDistLabel = new JLabel("Tolerance Dist: ");
+		textAreaPanel.add(toleranceDistLabel);
+		textAreaPanel.add(toleranceDistTextArea);
 		
-		final JTextArea thresholdAngleTextArea=new JTextArea(1,5);
-		thresholdAngleTextArea.setText(""+(thresholdAngle));
-		final JLabel thresholdAngleLabel = new JLabel("Threshold Angle: ");
-		textAreaPanel.add(thresholdAngleLabel);
-		textAreaPanel.add(thresholdAngleTextArea);
+		final JTextArea toleranceAngleTextArea=new JTextArea(1,5);
+		toleranceAngleTextArea.setText(""+(toleranceAngle));
+		final JLabel toleranceAngleLabel = new JLabel("Tolerance Angle: ");
+		textAreaPanel.add(toleranceAngleLabel);
+		textAreaPanel.add(toleranceAngleTextArea);
 		
 		
 		JButton refreshButton=new JButton("Refresh");
@@ -175,9 +188,9 @@ public class ImageAnalyzer {
 				
 				regionSize=Integer.parseInt(regionSizeTextArea.getText());
 				
-				thresholdEdge=Double.parseDouble(thresholdEdgeTextArea.getText());
+				toleranceDist=Double.parseDouble(toleranceDistTextArea.getText());
 				
-				thresholdAngle=Double.parseDouble(thresholdAngleTextArea.getText());
+				toleranceAngle=Double.parseDouble(toleranceAngleTextArea.getText());
 				
 
 				getArea();
@@ -199,88 +212,37 @@ public class ImageAnalyzer {
 	public Polygon getArea() {
 
 		// get color at that point
-		BufferedImage bufImg = src.getBufferedImage();
+		workImage = deepCopy(baseImage);
 
-		Color pointColor = new Color(bufImg.getRGB(point.x, point.y));
-		// orignal color at point is
-		// r=236,g=202,b=201
-		
-		
-		
-		// fake the color
+		Color pointColor = new Color(workImage.getRGB(point.x, point.y));
 		// 150, 152, 199
-		//pointColor=new Color(150,152,199);
-
-		// let's create a threshold
-
+//		pointColor=new Color(150,152,199);
+		
 		log.info("point color: " + pointColor);
+		
+		
+		workImage=selectMarvinColor(workImage,pointColor);
+		if(debug) saveImgToFile(workImage, "colorExtracted");
+		
+//		workImage=histogram(workImage);
+//		if(debug) saveImgToFile(workImage,"histogram");
 
-		int r = pointColor.getRed(), g = pointColor.getGreen(), b = pointColor.getBlue();
+//		workImage=sharpen(workImage);
+//		if(debug) saveImgToFile(workImage,"sharpen");
+//
+//		workImage=binarize(workImage);
+//		if(debug) saveImgToFile(workImage,"binarize");
 
-		HashMap<String,Object> attributes=new HashMap<String,Object>();
-		attributes.put("range", colorThreshold);
-		attributes.put("r", r);
-		attributes.put("g", g);
-		attributes.put("b", b);
 		
-		log.info("Applying gaus filter");
-		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
-		if(debug) saveImgToFile(gaus,"test/01gaus");
+//		workImage=erodeAndDilate(workImage);
+//		if(debug) saveImgToFile(workImage,"erodeDilate");
 		
-		log.info("searching for the correct color");
-		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
-//		ImgUtils.imshow("selected color",colorSelected);
-		if(debug) saveImgToFile(colorSelected,"test/02colorExtracted");
-		
-		log.info("trying Edge detection");
-//		
-		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(colorSelected, 127);
-//		if(debug) saveImgToFile(blackAndWhite,"test/blackAndWhite");
+//		workImage=gaussian(workImage);
+//		if(debug) saveImgToFile(workImage, "test/gaus");
 		
 		
 		
-		
-//		MarvinImage sobel=applyPlugin("org.marvinproject.image.edge.sobel", blackAndWhite);
-//		if(debug) saveImgToFile(sobel,"test/sobel");
-		boolean [][] erosionMatrix = new boolean[][]
-				{
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-					{true,true,true,true,true},
-				};
-		
-		HashMap<String,Object> erosionAttributes=new HashMap<>();
-		erosionAttributes.put("matrix", erosionMatrix);
-		
-		MarvinImage erosion=blackAndWhite;
-		
-//		for(int i =0 ; i < 10; i++){
-			erosion=applyPlugin("org.marvinproject.image.morphological.erosion",erosion,erosionAttributes);
-//		}
-		if(debug) saveImgToFile(erosion,"test/03erosion");
-		
-		MarvinImage dilation = applyPlugin("org.marvinproject.image.morphological.dilation",erosion,erosionAttributes);
-		if(debug) saveImgToFile(dilation,"test/04dilation");
-		
-//		MarvinImage roberts=applyPlugin("org.marvinproject.image.edge.roberts", erosion);
-//		if(debug) saveImgToFile(roberts,"test/roberts");
-		
-//		MarvinImage prewitt=applyPlugin("org.marvinproject.image.edge.prewitt", colorSelected);
-//		if(debug) saveImgToFile(prewitt,"test/prewitt");
-		
-//		log.info("detecting boundaries");
-//		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", colorSelected);
-//		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", roberts);
-//		if(debug) saveImgToFile(boundary,"test/boundary");
-		
-//		MarvinImage boundaryInverted=applyPlugin("org.marvinproject.image.color.invert",MarvinColorModelConverter.binaryToRgb(boundary));
-//		if(debug) saveImgToFile(boundaryInverted,"test/boundary_inverted");
-		
-		workMarvin=dilation;
-		workMarvin.update();
-		workImage=workMarvin.getBufferedImage();
+
 		
 //		lines=detectLines(workImage);
 		
@@ -293,6 +255,203 @@ public class ImageAnalyzer {
 		return polygon;
 	}
 	
+	/**
+	 * select a color from a image
+	 * @param workImage image to work with
+	 * @param pointColor color to select
+	 * @return BufferedImage with selected color as white and the rest as black
+	 */
+	public BufferedImage selectMarvinColor(BufferedImage workImage, Color pointColor){
+
+		log.info("extracting marvin color");
+
+		int r = pointColor.getRed(), g = pointColor.getGreen(), b = pointColor.getBlue();
+
+		HashMap<String,Object> attributes=new HashMap<String,Object>();
+		attributes.put("range", colorThreshold);
+		attributes.put("r", r);
+		attributes.put("g", g);
+		attributes.put("b", b);
+		
+		log.info("Applying gaus filter");
+		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
+		if(debug) saveImgToFile(gaus,"gaussian");
+		
+		log.info("searching for the correct color");
+		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
+//		ImgUtils.imshow("selected color",colorSelected);
+		
+		colorSelected.update();
+		
+		return colorSelected.getBufferedImage();
+	}
+	
+	/**
+	 * erode and dilate an image
+	 * @param workImage image to transform
+	 * @return transformed image
+	 */
+	public BufferedImage erodeAndDilate(BufferedImage workImage){
+		log.info("Erode and Dilate");
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
+		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
+//		ImageSInt32 label = new ImageSInt32(input.width,input.height);
+
+		// the mean pixel value is often a reasonable threshold when creating a binary image
+		double mean = ImageStatistics.mean(input);
+
+		// create a binary image by thresholding
+		ThresholdImageOps.threshold(input,binary,(float)mean,true);
+
+		// remove small blobs through erosion and dilation
+		// The null in the input indicates that it should internally declare the work image it needs
+		// this is less efficient, but easier to code.
+		ImageUInt8 filtered = BinaryImageOps.erode4(binary, 1, null);
+		filtered = BinaryImageOps.dilate4(filtered, 1, null);
+		
+		return VisualizeBinaryData.renderBinary(filtered, null);
+	}
+	
+	public BufferedImage binarize(BufferedImage workImage){
+		log.info("Binarize");
+		
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
+		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
+//		ImageSInt32 label = new ImageSInt32(input.width,input.height);
+
+		// the mean pixel value is often a reasonable threshold when creating a binary image
+		double mean = ImageStatistics.mean(input);
+
+		// create a binary image by thresholding
+		ThresholdImageOps.threshold(input,binary,(float)mean,true);
+
+		return VisualizeBinaryData.renderBinary(binary, null);
+	}
+	
+	/**
+	 * apply gaussian filter
+	 * @param image image to filter
+	 * @return filtered image
+	 */
+	public BufferedImage gaussian(BufferedImage image){
+		log.info("gaussian filter");
+		ImageFloat32 input=null;
+		input = ConvertBufferedImage.convertFrom(image, (ImageFloat32)null);
+		
+		ImageFloat32 output=GeneralizedImageOps.createSingleBand(ImageFloat32.class, input.width, input.height);
+		
+//		BlurImageOps.gaussian(input, output, -1, blurRadius, null);
+		GBlurImageOps.gaussian(input, output, -1, blurRadius, null);
+		
+		return VisualizeImageData.colorizeSign(output,null,-1);
+//		return VisualizeImageData.colorizeGradient(derivX, derivY, maxAbsValue)
+	}
+	
+	
+	/**
+	 * Selectively displays only pixels which have a similar hue and saturation values to what is provided.
+	 * This is intended to be a simple example of color based segmentation.  Color based segmentation can be done
+	 * in RGB color, but is more problematic due to it not being intensity invariant.  More robust techniques
+	 * can use Gaussian models instead of a uniform distribution, as is done below.
+	 * @return 
+	 */
+	public BufferedImage selectColor( BufferedImage image , Color rgbColor) {
+		log.info("selecting color");
+		float[] color = new float[3];
+		ColorHsv.rgbToHsv(rgbColor.getRed(),rgbColor.getGreen(),rgbColor.getBlue(), color);
+
+
+		log.info("HSV color: H = " + color[0]+" S = "+color[1]+" V = "+color[2]);
+		float hue=color[0];
+		float saturation=color[1];
+		
+		
+		MultiSpectral<ImageFloat32> input = ConvertBufferedImage.convertFromMulti(image,null,true,ImageFloat32.class);
+		MultiSpectral<ImageFloat32> hsv = new MultiSpectral<ImageFloat32>(ImageFloat32.class,input.width,input.height,3);
+
+		// Convert into HSV
+		ColorHsv.rgbToHsv_F32(input,hsv);
+
+		// Euclidean distance squared threshold for deciding which pixels are members of the selected set
+		float maxDist2 = 0.4f*0.4f;
+
+		// Extract hue and saturation bands which are independent of intensity
+		ImageFloat32 H = hsv.getBand(0);
+		ImageFloat32 S = hsv.getBand(1);
+
+		// Adjust the relative importance of Hue and Saturation.
+		// Hue has a range of 0 to 2*PI and Saturation from 0 to 1.
+		float adjustUnits = (float)(Math.PI/2.0);
+
+		// step through each pixel and mark how close it is to the selected color
+		BufferedImage output = new BufferedImage(input.width,input.height,BufferedImage.TYPE_INT_RGB);
+		for( int y = 0; y < hsv.height; y++ ) {
+			for( int x = 0; x < hsv.width; x++ ) {
+				// Hue is an angle in radians, so simple subtraction doesn't work
+				float dh = UtilAngle.dist(H.unsafe_get(x,y),hue);
+				float ds = (S.unsafe_get(x,y)-saturation)*adjustUnits;
+
+				// this distance measure is a bit naive, but good enough for to demonstrate the concept
+				float dist2 = dh*dh + ds*ds;
+				if( dist2 <= maxDist2 ) {
+					output.setRGB(x,y,image.getRGB(x,y));
+				}
+			}
+		}
+
+		return output;
+	}
+	
+	
+	/**
+	 * histogram adjustment
+	 * @param image buffered image to adjust histogram
+	 * @return adjusted image
+	 */
+	public BufferedImage histogram(BufferedImage image) {
+		log.info("Histogram adjustment");
+		
+		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
+//		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"gray");
+ 
+		int histogram[] = new int[256];
+		int transform[] = new int[256];
+ 
+ 
+		ImageStatistics.histogram(gray,histogram);
+		EnhanceImageOps.equalize(histogram, transform);
+		EnhanceImageOps.applyTransform(gray, transform, adjusted);
+
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"histogram_global");
+ 
+//		EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
+//
+//		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"histogram_local");
+ 
+		return ConvertBufferedImage.convertTo(adjusted,null);
+	}
+ 
+	/**
+	 * When an image is sharpened the intensity of edges are made more extreme while flat regions remain unchanged.
+	 * @return 
+	 */
+	public BufferedImage sharpen(BufferedImage image) {	
+		log.info("sharpen");
+		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(gray,null),"gray");
+		
+		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
+ 
+		EnhanceImageOps.sharpen4(gray, adjusted);
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"sharpen4");
+ 
+//		EnhanceImageOps.sharpen8(gray, adjusted);
+//		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"sharpen8");
+ 
+		return ConvertBufferedImage.convertTo(adjusted,null);
+	}
+ 
 	
 	public List<LineSegment2D_F32> detectLines(BufferedImage image){
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class );
@@ -312,6 +471,12 @@ public class ImageAnalyzer {
 	}
 	
 	
+	/**
+	 * detect a Polygon around a point
+	 * @param image Image to analyze for polygons
+	 * @param point point to search the polygon
+	 * @return Polygon if found
+	 */
 	public Polygon detectArea(BufferedImage image,Point point){
 		
 		List <Polygon> polygons=new ArrayList<Polygon>();
@@ -363,7 +528,7 @@ public class ImageAnalyzer {
 			}
 		}
 		
-		if(debug) saveImgToFile(polygonImage, "test/polygons");
+		if(debug) saveImgToFile(polygonImage, "polygons");
 		
 		log.info("Found "+polygons.size()+" matching polygons");
 		
@@ -383,18 +548,16 @@ public class ImageAnalyzer {
 			log.info("Best matching polygon is: "+polygonToString(innerPolygon));
 		
 		
-			polygonImage=new BufferedImage(polygonImage.getWidth(), polygonImage.getHeight(), polygonImage.getType());
+			polygonImage=deepCopy(baseImage);
 			g2=polygonImage.createGraphics();
-			g2.setColor(Color.WHITE);
-			g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
-			
-			
+//			g2.setColor(Color.WHITE);
+//			g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
 			
 			g2.setColor(Color.RED);
 			g2.setStroke(new BasicStroke(2));
 			g2.drawPolygon(innerPolygon);
 			
-			if(debug) saveImgToFile(polygonImage,"test/polygon");
+			if(debug) saveImgToFile(polygonImage,"polygon");
 			
 			
 		}
@@ -442,6 +605,18 @@ public class ImageAnalyzer {
 		return sb.toString();
 	}
 	
+	/**
+	 * make a deep copy of buffered image
+	 * @param bi buffered image
+	 * @return copy of the original
+	 */
+	static BufferedImage deepCopy(BufferedImage bi) {
+		 ColorModel cm = bi.getColorModel();
+		 boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		 WritableRaster raster = bi.copyData(null);
+		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+		}
+	
 
 
 	/*
@@ -461,7 +636,7 @@ public class ImageAnalyzer {
 	
 	public boolean saveImgToFile(BufferedImage buf,String filename){
 		try {
-			ImageIO.write(buf, IMG_TYPE, new File(filename+"."+IMG_TYPE.toLowerCase()));
+			ImageIO.write(buf, IMG_TYPE, new File("test/"+(fileCount<10?"0":"")+(fileCount++)+"_"+filename+"."+IMG_TYPE.toLowerCase()));
 			return true;
 		} catch (IOException e) {
 			log.warn("unable to save image",e);
@@ -573,7 +748,12 @@ public class ImageAnalyzer {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		BasicConfigurator.configure();
+		ConsoleAppender console = new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n"),
+				ConsoleAppender.SYSTEM_OUT);
+
+		// BasicConfigurator.configure(console);
+		Logger.getRootLogger().addAppender(console);
+
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 		
 
@@ -583,13 +763,11 @@ public class ImageAnalyzer {
 		} else {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0],point);
-//			imgAnalyzer.initUI();
-//			imgAnalyzer.getArea();
-			// Mat mat = imgAnalyzer.applyInRange();
-			// ImgUtils.imshow("in range", mat);
+			imgAnalyzer.initUI();
+
 			Polygon polygon=imgAnalyzer.getArea();
 			log.info("got polygon "+polygonToString(polygon));
-//			imgAnalyzer.testMarvin();
+
 		}
 
 	}
