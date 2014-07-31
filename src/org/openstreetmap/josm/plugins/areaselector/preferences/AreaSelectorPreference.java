@@ -8,11 +8,9 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import org.openstreetmap.josm.gui.preferences.DefaultTabPreferenceSetting;
 import org.openstreetmap.josm.gui.preferences.PreferenceTabbedPane;
@@ -23,9 +21,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
 	
 	AreaSelectorPlugin areaSelectorPlugin;
 	
-	JTextArea colorThresholdTextArea, toleranceDistTextArea, toleranceAngleTextArea;
-	
-    public AreaSelectorPreference(AreaSelectorPlugin plugin) {
+	public AreaSelectorPreference(AreaSelectorPlugin plugin) {
     	super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Select tile map service or imagery preferences."));
 
         areaSelectorPlugin = plugin;
@@ -33,23 +29,18 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     
     @Override
     public void addGui(PreferenceTabbedPane gui) {
-        JPanel prefPanel = new JPanel(new GridBagLayout());
+        JPanel prefPanel = new PreferencesPanel();
         
-        colorThresholdTextArea= new JTextArea();
-        addLabelled(prefPanel,"Color Threshold",colorThresholdTextArea);
-        
-        toleranceDistTextArea= new JTextArea();
-        addLabelled(prefPanel,"Tolerance Dist",toleranceDistTextArea);
-        
-        toleranceAngleTextArea= new JTextArea();
-        addLabelled(prefPanel,"Tolerance Angle",toleranceAngleTextArea);
         
         createPreferenceTabWithScrollPane(gui, prefPanel);
     }
     
     protected void addLabelled(JPanel panel, String str, Component c) {
         JLabel label = new JLabel(str);
-        panel.add(label, GBC.std().insets(5,10,0,0));
+        
+        GBC gbc=GBC.std();
+        gbc.gridwidth = GridBagConstraints.RELATIVE;
+        panel.add(label, gbc);
         label.setLabelFor(c);
         panel.add(c, GBC.eol().fill(GridBagConstraints.HORIZONTAL));
     }
