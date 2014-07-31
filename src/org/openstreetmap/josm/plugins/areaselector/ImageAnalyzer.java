@@ -6,7 +6,6 @@
 package org.openstreetmap.josm.plugins.areaselector;
 
 import georegression.metric.UtilAngle;
-import georegression.struct.line.LineSegment2D_F32;
 import georegression.struct.point.Point2D_I32;
 
 import java.awt.BasicStroke;
@@ -45,7 +44,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
-import boofcv.abst.feature.detect.line.DetectLineSegmentsGridRansac;
 import boofcv.alg.color.ColorHsv;
 import boofcv.alg.enhance.EnhanceImageOps;
 import boofcv.alg.feature.shapes.ShapeFittingOps;
@@ -56,7 +54,6 @@ import boofcv.alg.filter.blur.GBlurImageOps;
 import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.core.image.GeneralizedImageOps;
-import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
 import boofcv.gui.binary.VisualizeBinaryData;
 import boofcv.gui.feature.ImageLinePanel;
 import boofcv.gui.feature.VisualizeShapes;
@@ -73,45 +70,33 @@ import boofcv.struct.image.MultiSpectral;
 public class ImageAnalyzer {
 
 	protected static Logger log = Logger.getLogger(ImageAnalyzer.class);
+	
+	public static final String IMG_TYPE="PNG";
+	
+	protected static int fileCount=0;
 
 	protected BufferedImage baseImage,workImage;
 	
-	protected MarvinImage src, greyImage,workMarvin;
+	protected MarvinImage workMarvin;
 
-	public static final String IMG_TYPE="PNG";
-	
-	protected int cannyThreshold = 30;
-
-	protected static final int cannyMin = 10, cannyMax = 200;
-
-	protected double ratio = 3;
-
-	protected static final int ratioMin = 100, ratioMax = 500;
-
-	protected int colorThreshold = 15;
-	
-	protected static final int colorMin = 0, colorMax=50;
-	
 	protected Point point;
 	
 	protected boolean debug=false;
 	
 	
-	// default is 40
-	protected int regionSize=35;
+	// Algorithm params
 	
-	// edge default is 30, but not used in the detector
-	// angle default is 2.38
-	protected double thresholdEdge=30, thresholdAngle=1.1;
+	protected int colorThreshold = 15;
 	
 	
 	// Polynomial fitting tolerances
 	double toleranceDist = 3; // original: 2
 	double toleranceAngle= Math.PI/8; // original Math.PI/10
 	
+	// gaussian blur radius
 	protected int blurRadius = 10;
 	
-	protected static int fileCount=0;
+	
 	
 	
 	public ImageAnalyzer(String filename, Point point) {
@@ -129,10 +114,6 @@ public class ImageAnalyzer {
 
 	protected void init() {
 		if(debug) saveImgToFile(baseImage,"baseimage");
-		src=new MarvinImage(baseImage);
-		
-//		log.info("creating grey");
-//		greyImage=applyPlugin("org.marvinproject.image.color.grayScale", src);
 		
 	}
 
@@ -160,11 +141,6 @@ public class ImageAnalyzer {
 		textAreaPanel.add(colorLabel);
 		textAreaPanel.add(colorThresholdTextArea);
 		
-		final JTextArea regionSizeTextArea=new JTextArea(1,5);
-		regionSizeTextArea.setText(""+regionSize);
-		final JLabel regionSizeLabel = new JLabel("Region Size: ");
-		textAreaPanel.add(regionSizeLabel);
-		textAreaPanel.add(regionSizeTextArea);
 		
 		final JTextArea toleranceDistTextArea=new JTextArea(1,5);
 		toleranceDistTextArea.setText(""+toleranceDist);
@@ -186,7 +162,6 @@ public class ImageAnalyzer {
 			public void actionPerformed(ActionEvent e) {
 				colorThreshold=Integer.parseInt(colorThresholdTextArea.getText());
 				
-				regionSize=Integer.parseInt(regionSizeTextArea.getText());
 				
 				toleranceDist=Double.parseDouble(toleranceDistTextArea.getText());
 				
@@ -272,6 +247,8 @@ public class ImageAnalyzer {
 		attributes.put("r", r);
 		attributes.put("g", g);
 		attributes.put("b", b);
+		
+		MarvinImage src=new MarvinImage(workImage);
 		
 		log.info("Applying gaus filter");
 		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
@@ -452,23 +429,6 @@ public class ImageAnalyzer {
 		return ConvertBufferedImage.convertTo(adjusted,null);
 	}
  
-	
-	public List<LineSegment2D_F32> detectLines(BufferedImage image){
-		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class );
-
-		// Comment/uncomment to try a different type of line detector
-		DetectLineSegmentsGridRansac<ImageFloat32,ImageFloat32> detector = FactoryDetectLineAlgs.lineRansac(regionSize, thresholdEdge, thresholdAngle, true, ImageFloat32.class, ImageFloat32.class);
-
-		List<LineSegment2D_F32> found = detector.detect(input);
-		return found;
-		// display the results
-//		ImageLinePanel gui = new ImageLinePanel();
-//		gui.setBackground(image);
-//		gui.setLineSegments(found);
-//		gui.setPreferredSize(new Dimension(image.getWidth(),image.getHeight()));
-//
-//		ShowImages.showWindow(gui,"Found Line Segments");
-	}
 	
 	
 	/**
@@ -744,6 +704,62 @@ public class ImageAnalyzer {
 		return plugin;
 	}
 
+	/**
+	 * @return the colorThreshold
+	 */
+	public int getColorThreshold() {
+		return colorThreshold;
+	}
+
+	/**
+	 * @param colorThreshold the colorThreshold to set
+	 */
+	public void setColorThreshold(int colorThreshold) {
+		this.colorThreshold = colorThreshold;
+	}
+
+	/**
+	 * @return the toleranceDist
+	 */
+	public double getToleranceDist() {
+		return toleranceDist;
+	}
+
+	/**
+	 * @param toleranceDist the toleranceDist to set
+	 */
+	public void setToleranceDist(double toleranceDist) {
+		this.toleranceDist = toleranceDist;
+	}
+
+	/**
+	 * @return the toleranceAngle
+	 */
+	public double getToleranceAngle() {
+		return toleranceAngle;
+	}
+
+	/**
+	 * @param toleranceAngle the toleranceAngle to set
+	 */
+	public void setToleranceAngle(double toleranceAngle) {
+		this.toleranceAngle = toleranceAngle;
+	}
+
+	/**
+	 * @return the blurRadius
+	 */
+	public int getBlurRadius() {
+		return blurRadius;
+	}
+
+	/**
+	 * @param blurRadius the blurRadius to set
+	 */
+	public void setBlurRadius(int blurRadius) {
+		this.blurRadius = blurRadius;
+	}
+	
 	/**
 	 * @param args
 	 */
