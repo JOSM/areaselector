@@ -56,7 +56,7 @@ public class PreferencesPanel extends JPanel {
 //		this.add(lblSourceSelection);
 		
 		JLabel lblAlgorithmSettings = new JLabel("<html><p><b>Algorithm Settings</b></p></html>");
-		sl_panel.putConstraint(SpringLayout.NORTH, lblAlgorithmSettings, 60, SpringLayout.NORTH, this);
+		sl_panel.putConstraint(SpringLayout.NORTH, lblAlgorithmSettings, 40, SpringLayout.NORTH, this);
 		sl_panel.putConstraint(SpringLayout.WEST, lblAlgorithmSettings, 40, SpringLayout.WEST, this);
 		this.add(lblAlgorithmSettings);
 		
