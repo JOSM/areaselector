@@ -5,7 +5,8 @@
  */
 package org.openstreetmap.josm.plugins.areaselector.preferences;
 
-import javax.swing.JComboBox;
+import static org.openstreetmap.josm.tools.I18n.tr;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -14,6 +15,7 @@ import javax.swing.SpringLayout;
 import org.openstreetmap.josm.plugins.areaselector.ImageAnalyzer;
 
 /**
+ * Area Selector Preferences JPanel
  * @author Paul Woelfel (paul@woelfel.at)
  */
 public class PreferencesPanel extends JPanel {
@@ -55,18 +57,18 @@ public class PreferencesPanel extends JPanel {
 //		lblSourceSelection.setLabelFor(boxSourceSelection);
 //		this.add(lblSourceSelection);
 		
-		JLabel lblAlgorithmSettings = new JLabel("<html><p><b>Algorithm Settings</b></p></html>");
+		JLabel lblAlgorithmSettings = new JLabel("<html><p><b>"+tr("Algorithm Settings")+"</b></p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblAlgorithmSettings, 40, SpringLayout.NORTH, this);
 		sl_panel.putConstraint(SpringLayout.WEST, lblAlgorithmSettings, 40, SpringLayout.WEST, this);
 		this.add(lblAlgorithmSettings);
 		
-		JLabel lblColorThresholdExplanation = new JLabel("<html><p>The color threshold defines how far the color can be of the original color to be selected (Default: 15).</p></html>");
+		JLabel lblColorThresholdExplanation = new JLabel("<html><p>"+tr("The color threshold defines how far the color can be of the original color to be selected (Default: 15).")+"</p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblColorThresholdExplanation, 17, SpringLayout.SOUTH, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.WEST, lblColorThresholdExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblColorThresholdExplanation, -40, SpringLayout.EAST, this);
 		this.add(lblColorThresholdExplanation);
 		
-		JLabel lblColorThreshold = new JLabel("Color Threshold");
+		JLabel lblColorThreshold = new JLabel(tr("Color Threshold"));
 		sl_panel.putConstraint(SpringLayout.NORTH, lblColorThreshold, 10, SpringLayout.SOUTH, lblColorThresholdExplanation);
 		sl_panel.putConstraint(SpringLayout.WEST, lblColorThreshold, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		this.add(lblColorThreshold);
@@ -78,13 +80,13 @@ public class PreferencesPanel extends JPanel {
 		this.add(txtColorThreshold);
 		txtColorThreshold.setColumns(10);
 		
-		JLabel lblToleranceDistExplanation = new JLabel("<html><p>Maximum distance away each point in the sequence can be from a line, in pixels (Default: 3).</p></html>");
+		JLabel lblToleranceDistExplanation = new JLabel("<html><p>"+tr("Maximum distance away each point in the sequence can be from a line, in pixels (Default: 3).")+"</p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceDistExplanation, 25, SpringLayout.SOUTH, lblColorThreshold);
 		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceDistExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblToleranceDistExplanation, -40, SpringLayout.EAST, this);
 		this.add(lblToleranceDistExplanation);
 		
-		JLabel lblToleranceDistance = new JLabel("Tolerance Distance");
+		JLabel lblToleranceDistance = new JLabel(tr("Tolerance Distance"));
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceDistance, 15, SpringLayout.SOUTH, lblToleranceDistExplanation);
 		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceDistance, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		this.add(lblToleranceDistance);
@@ -96,13 +98,13 @@ public class PreferencesPanel extends JPanel {
 		this.add(txtToleranceDist);
 		txtToleranceDist.setColumns(10);
 		
-		JLabel lblToleranceAngleExplanation = new JLabel("<html><p>Tolerance for fitting angles, in radians (Default 0.392).</p></html>");
+		JLabel lblToleranceAngleExplanation = new JLabel("<html><p>"+tr("Tolerance for fitting angles, in radians (Default 0.392).")+"</p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceAngleExplanation, 40, SpringLayout.NORTH, lblToleranceDistance);
 		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceAngleExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblToleranceAngleExplanation, -40, SpringLayout.EAST, this);
 		this.add(lblToleranceAngleExplanation);
 		
-		JLabel lblToleranceAngle = new JLabel("Tolerance Angle");
+		JLabel lblToleranceAngle = new JLabel(tr("Tolerance Angle"));
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceAngle, 10, SpringLayout.SOUTH, lblToleranceAngleExplanation);
 		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceAngle, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		this.add(lblToleranceAngle);

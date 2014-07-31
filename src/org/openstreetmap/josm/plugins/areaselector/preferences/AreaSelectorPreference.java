@@ -56,7 +56,6 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     
     @Override
     public boolean ok() {
-        // TODO save params to file
     	AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
     	areaSelectorAction.setColorThreshold(prefPanel.getColorThreshold());
     	areaSelectorAction.setToleranceDist(prefPanel.getToleranceDist());
