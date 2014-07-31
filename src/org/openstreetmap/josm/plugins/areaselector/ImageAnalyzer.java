@@ -190,6 +190,8 @@ public class ImageAnalyzer {
 
 
 	public Polygon getArea() {
+		
+		log.info("Using following params for algorithm: colorThreshold="+colorThreshold+" toleranceDist="+toleranceDist+" toleranceAngle="+toleranceAngle);
 
 		// get color at that point
 		workImage = deepCopy(baseImage);
