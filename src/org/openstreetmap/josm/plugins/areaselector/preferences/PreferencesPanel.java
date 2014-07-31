@@ -44,20 +44,20 @@ public class PreferencesPanel extends JPanel {
 		SpringLayout sl_panel = new SpringLayout();
 		this.setLayout(sl_panel);
 		
-		JComboBox<String> boxSourceSelection = new JComboBox<String>();
-		sl_panel.putConstraint(SpringLayout.NORTH, boxSourceSelection, 10, SpringLayout.NORTH, this);
-		sl_panel.putConstraint(SpringLayout.WEST, boxSourceSelection, 267, SpringLayout.WEST, this);
-		this.add(boxSourceSelection);
-		
-		JLabel lblSourceSelection = new JLabel("Image Source");
-		sl_panel.putConstraint(SpringLayout.NORTH, lblSourceSelection, 4, SpringLayout.NORTH, boxSourceSelection);
-		sl_panel.putConstraint(SpringLayout.WEST, lblSourceSelection, 40, SpringLayout.WEST, this);
-		lblSourceSelection.setLabelFor(boxSourceSelection);
-		this.add(lblSourceSelection);
+//		JComboBox<String> boxSourceSelection = new JComboBox<String>();
+//		sl_panel.putConstraint(SpringLayout.NORTH, boxSourceSelection, 10, SpringLayout.NORTH, this);
+//		sl_panel.putConstraint(SpringLayout.WEST, boxSourceSelection, 267, SpringLayout.WEST, this);
+//		this.add(boxSourceSelection);
+//		
+//		JLabel lblSourceSelection = new JLabel("Image Source");
+//		sl_panel.putConstraint(SpringLayout.NORTH, lblSourceSelection, 4, SpringLayout.NORTH, boxSourceSelection);
+//		sl_panel.putConstraint(SpringLayout.WEST, lblSourceSelection, 40, SpringLayout.WEST, this);
+//		lblSourceSelection.setLabelFor(boxSourceSelection);
+//		this.add(lblSourceSelection);
 		
 		JLabel lblAlgorithmSettings = new JLabel("<html><p><b>Algorithm Settings</b></p></html>");
-		sl_panel.putConstraint(SpringLayout.NORTH, lblAlgorithmSettings, 60, SpringLayout.NORTH, lblSourceSelection);
-		sl_panel.putConstraint(SpringLayout.WEST, lblAlgorithmSettings, 0, SpringLayout.WEST, lblSourceSelection);
+		sl_panel.putConstraint(SpringLayout.NORTH, lblAlgorithmSettings, 60, SpringLayout.NORTH, this);
+		sl_panel.putConstraint(SpringLayout.WEST, lblAlgorithmSettings, 40, SpringLayout.WEST, this);
 		this.add(lblAlgorithmSettings);
 		
 		JLabel lblColorThresholdExplanation = new JLabel("<html><p>The color threshold defines how far the color can be of the original color to be selected (Default: 15).</p></html>");
@@ -68,7 +68,7 @@ public class PreferencesPanel extends JPanel {
 		
 		JLabel lblColorThreshold = new JLabel("Color Threshold");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblColorThreshold, 10, SpringLayout.SOUTH, lblColorThresholdExplanation);
-		sl_panel.putConstraint(SpringLayout.WEST, lblColorThreshold, 0, SpringLayout.WEST, lblSourceSelection);
+		sl_panel.putConstraint(SpringLayout.WEST, lblColorThreshold, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		this.add(lblColorThreshold);
 		
 		txtColorThreshold = new JTextField();
@@ -80,13 +80,13 @@ public class PreferencesPanel extends JPanel {
 		
 		JLabel lblToleranceDistExplanation = new JLabel("<html><p>Maximum distance away each point in the sequence can be from a line, in pixels (Default: 3).</p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceDistExplanation, 25, SpringLayout.SOUTH, lblColorThreshold);
-		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceDistExplanation, 0, SpringLayout.WEST, lblSourceSelection);
+		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceDistExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblToleranceDistExplanation, -40, SpringLayout.EAST, this);
 		this.add(lblToleranceDistExplanation);
 		
 		JLabel lblToleranceDistance = new JLabel("Tolerance Distance");
-		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceDistance, 10, SpringLayout.SOUTH, lblToleranceDistExplanation);
-		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceDistance, 0, SpringLayout.WEST, lblSourceSelection);
+		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceDistance, 15, SpringLayout.SOUTH, lblToleranceDistExplanation);
+		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceDistance, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		this.add(lblToleranceDistance);
 		
 		txtToleranceDist = new JTextField();
@@ -97,14 +97,14 @@ public class PreferencesPanel extends JPanel {
 		txtToleranceDist.setColumns(10);
 		
 		JLabel lblToleranceAngleExplanation = new JLabel("<html><p>Tolerance for fitting angles, in radians (Default 0.392).</p></html>");
-		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceAngleExplanation, 29, SpringLayout.SOUTH, lblToleranceDistance);
-		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceAngleExplanation, 0, SpringLayout.WEST, lblSourceSelection);
+		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceAngleExplanation, 40, SpringLayout.NORTH, lblToleranceDistance);
+		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceAngleExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblToleranceAngleExplanation, -40, SpringLayout.EAST, this);
 		this.add(lblToleranceAngleExplanation);
 		
 		JLabel lblToleranceAngle = new JLabel("Tolerance Angle");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceAngle, 10, SpringLayout.SOUTH, lblToleranceAngleExplanation);
-		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceAngle, 0, SpringLayout.WEST, lblSourceSelection);
+		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceAngle, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		this.add(lblToleranceAngle);
 		
 		txtToleranceAngle = new JTextField();
