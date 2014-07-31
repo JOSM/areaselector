@@ -85,7 +85,6 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	}
 
 	public void updateMapFrame(MapFrame oldFrame, MapFrame newFrame) {
-		// TODO something should change now?!?
 		// or not, we just use Main to get the current mapFrame
 	}
 
@@ -169,6 +168,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Command c = new SequenceCommand(tr("Created area"), cmds);
 			Main.main.undoRedo.add(c);
 			Main.main.getCurrentDataSet().setSelected(way);
+			
+//			ConnectWays.connect(way, mapView.getLatLon(clickPoint.x, clickPoint.y));
+			
 			showAddressDialog(way);
 		}
 
