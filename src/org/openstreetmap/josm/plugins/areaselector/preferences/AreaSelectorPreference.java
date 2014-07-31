@@ -14,12 +14,14 @@ import javax.swing.JPanel;
 
 import org.openstreetmap.josm.gui.preferences.DefaultTabPreferenceSetting;
 import org.openstreetmap.josm.gui.preferences.PreferenceTabbedPane;
+import org.openstreetmap.josm.plugins.areaselector.AreaSelectorAction;
 import org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin;
 import org.openstreetmap.josm.tools.GBC;
 
 public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
 	
 	AreaSelectorPlugin areaSelectorPlugin;
+	PreferencesPanel prefPanel;
 	
 	public AreaSelectorPreference(AreaSelectorPlugin plugin) {
     	super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Select tile map service or imagery preferences."));
@@ -29,8 +31,13 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     
     @Override
     public void addGui(PreferenceTabbedPane gui) {
-        JPanel prefPanel = new PreferencesPanel();
+    	prefPanel = new PreferencesPanel();
         
+    	AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
+    	prefPanel.setColorThreshold(areaSelectorAction.getColorThreshold());
+    	prefPanel.setToleranceDist(areaSelectorAction.getToleranceDist());
+    	prefPanel.setToleranceAngle(areaSelectorAction.getToleranceAngle());
+    	
         
         createPreferenceTabWithScrollPane(gui, prefPanel);
     }
@@ -49,7 +56,11 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     
     @Override
     public boolean ok() {
-        // TODO save params
+        // TODO save params to file
+    	AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
+    	areaSelectorAction.setColorThreshold(prefPanel.getColorThreshold());
+    	areaSelectorAction.setToleranceDist(prefPanel.getToleranceDist());
+    	areaSelectorAction.setToleranceAngle(prefPanel.getToleranceAngle());
         return false;
     }
 

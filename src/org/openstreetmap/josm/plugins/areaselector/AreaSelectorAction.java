@@ -39,6 +39,10 @@ import org.openstreetmap.josm.tools.Shortcut;
  * 
  */
 public class AreaSelectorAction extends MapMode implements MouseListener {
+	
+	protected int colorThreshold=ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
+	protected double toleranceDist=ImageAnalyzer.DEFAULT_TOLERANCEDIST,toleranceAngle=ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
+	
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
 	
@@ -134,6 +138,11 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		BufferedImage bufImage = getLayeredImage();
 
 		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
+		
+		imgAnalyzer.setColorThreshold(colorThreshold);
+		imgAnalyzer.setToleranceDist(toleranceDist);
+		imgAnalyzer.setToleranceAngle(toleranceAngle);
+		
 		Polygon polygon = imgAnalyzer.getArea();
 
 		if (polygon != null) {
@@ -190,6 +199,48 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			way.addNode(firstNode);
 		}
 		return way;
+	}
+
+	/**
+	 * @return the colorThreshold
+	 */
+	public int getColorThreshold() {
+		return colorThreshold;
+	}
+
+	/**
+	 * @param colorThreshold the colorThreshold to set
+	 */
+	public void setColorThreshold(int colorThreshold) {
+		this.colorThreshold = colorThreshold;
+	}
+
+	/**
+	 * @return the toleranceDist
+	 */
+	public double getToleranceDist() {
+		return toleranceDist;
+	}
+
+	/**
+	 * @param toleranceDist the toleranceDist to set
+	 */
+	public void setToleranceDist(double toleranceDist) {
+		this.toleranceDist = toleranceDist;
+	}
+
+	/**
+	 * @return the toleranceAngle
+	 */
+	public double getToleranceAngle() {
+		return toleranceAngle;
+	}
+
+	/**
+	 * @param toleranceAngle the toleranceAngle to set
+	 */
+	public void setToleranceAngle(double toleranceAngle) {
+		this.toleranceAngle = toleranceAngle;
 	}
 
 }

@@ -49,4 +49,13 @@ public class AreaSelectorPlugin extends Plugin{
     public PreferenceSetting getPreferenceSetting() {
         return new AreaSelectorPreference(this);
     }
+
+	/**
+	 * @return the areaSelectorAction
+	 */
+	public AreaSelectorAction getAreaSelectorAction() {
+		return areaSelectorAction;
+	}
+
+
 }

@@ -86,15 +86,20 @@ public class ImageAnalyzer {
 	
 	// Algorithm params
 	
-	protected int colorThreshold = 15;
+	public static final int DEFAULT_COLORTHRESHOLD= 15;
+	protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 	
 	
 	// Polynomial fitting tolerances
-	double toleranceDist = 3; // original: 2
-	double toleranceAngle= Math.PI/8; // original Math.PI/10
+	public static final double DEFAULT_TOLERANCEDIST=3;
+	double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
+	
+	public static final double DEFAULT_TOLERANCEANGLE = Math.PI / 8;
+	double toleranceAngle= DEFAULT_TOLERANCEANGLE; // original Math.PI/10
 	
 	// gaussian blur radius
-	protected int blurRadius = 10;
+	public static final int DEFAULT_BLURRADIUS = 10;
+	protected int blurRadius = DEFAULT_BLURRADIUS;
 	
 	
 	

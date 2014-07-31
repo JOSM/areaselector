@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.openstreetmap.josm.plugins.areaselector.ImageAnalyzer;
+
 /**
  * @author Paul Woelfel (paul@woelfel.at)
  */
@@ -112,5 +114,67 @@ public class PreferencesPanel extends JPanel {
 		this.add(txtToleranceAngle);
 		txtToleranceAngle.setColumns(10);
 	}
+	
+	/**
+	 * get the current color threshold from the text field
+	 * @return the color threshold
+	 */
+	public int getColorThreshold(){
+		try {
+			return Integer.parseInt(txtColorThreshold.getText());
+		}catch (Throwable th){
+			return ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
+		}
+	}
+	
+	/**
+	 * Set the color threshold
+	 * @param ct color threshold
+	 */
+	public void setColorThreshold(int ct){
+		txtColorThreshold.setText(Integer.toString(ct));
+	}
+	
+	
+	/**
+	 * get the current tolerance distance from the text field
+	 * @return the tolerance distance
+	 */
+	public double getToleranceDist(){
+		try {
+			return Double.parseDouble(txtToleranceDist.getText());
+		}catch (Throwable th){
+			return ImageAnalyzer.DEFAULT_TOLERANCEDIST;
+		}
+	}
+	
+	/**
+	 * Set the tolerance distance
+	 * @param ct tolerance distance
+	 */
+	public void setToleranceDist(double ct){
+		txtToleranceDist.setText(Double.toString(ct));
+	}
+	
+	/**
+	 * get the current tolerance angle from the text field
+	 * @return the tolerance angle
+	 */
+	public double getToleranceAngle(){
+		try {
+			return Double.parseDouble(txtToleranceAngle.getText());
+		}catch (Throwable th){
+			return ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
+		}
+	}
+	
+	/**
+	 * Set the tolerance angle
+	 * @param ct tolerance angle
+	 */
+	public void setToleranceAngle(double ct){
+		txtToleranceAngle.setText(Double.toString(ct));
+	}
+	
 
 }
