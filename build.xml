@@ -24,7 +24,7 @@
 
          See http://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
     -->
-	<property name="plugin.author" value="Paul Woelfel" />
+	<property name="plugin.author" value="Paul Woelfel, Thomas Konrad" />
 	<property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin" />
 	<property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at." />
 	<property name="plugin.icon" value="images/mapmode/tracer-sml.png" />
