@@ -43,6 +43,12 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected int colorThreshold=ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
 	protected double toleranceDist=ImageAnalyzer.DEFAULT_TOLERANCEDIST,toleranceAngle=ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
 	
+	public static final String PLUGIN_NAME="areaselector";
+	
+	public static final String PREF_COLORTHRESHOLD=PLUGIN_NAME+".colorthreshold",
+			PREF_TOLERANCEDIST=PLUGIN_NAME+".tolerancedist",
+			PREF_TOLERANCEANGLE=PLUGIN_NAME+".toleranceangle";
+	
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
 	
@@ -205,6 +211,10 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @return the colorThreshold
 	 */
 	public int getColorThreshold() {
+		// refresh from prefs
+		try{
+		this.colorThreshold=Integer.parseInt(Main.pref.get(PREF_COLORTHRESHOLD, Integer.toString(ImageAnalyzer.DEFAULT_COLORTHRESHOLD)));
+		}catch(Throwable th){}
 		return colorThreshold;
 	}
 
@@ -212,6 +222,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @param colorThreshold the colorThreshold to set
 	 */
 	public void setColorThreshold(int colorThreshold) {
+		Main.pref.put(PREF_COLORTHRESHOLD, Integer.toString(colorThreshold));
 		this.colorThreshold = colorThreshold;
 	}
 
@@ -219,6 +230,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @return the toleranceDist
 	 */
 	public double getToleranceDist() {
+		try{
+			this.toleranceDist=Integer.parseInt(Main.pref.get(PREF_TOLERANCEDIST, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEDIST)));
+		}catch(Throwable th){}
 		return toleranceDist;
 	}
 
@@ -226,6 +240,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @param toleranceDist the toleranceDist to set
 	 */
 	public void setToleranceDist(double toleranceDist) {
+		Main.pref.put(PREF_TOLERANCEDIST, Double.toString(toleranceDist));
 		this.toleranceDist = toleranceDist;
 	}
 
@@ -233,6 +248,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @return the toleranceAngle
 	 */
 	public double getToleranceAngle() {
+		try{
+			this.toleranceAngle=Integer.parseInt(Main.pref.get(PREF_TOLERANCEANGLE, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEANGLE)));
+		}catch(Throwable th){}
 		return toleranceAngle;
 	}
 
@@ -240,6 +258,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @param toleranceAngle the toleranceAngle to set
 	 */
 	public void setToleranceAngle(double toleranceAngle) {
+		Main.pref.put(PREF_TOLERANCEANGLE, Double.toString(toleranceAngle));
 		this.toleranceAngle = toleranceAngle;
 	}
 
