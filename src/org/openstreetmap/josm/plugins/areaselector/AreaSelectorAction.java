@@ -15,9 +15,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
@@ -26,10 +29,16 @@ import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
+import org.openstreetmap.josm.data.ViewportData;
+import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.imagery.ImageryInfo;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
+import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.layer.ImageryLayer;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
@@ -53,6 +62,14 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
 	
 	protected Point clickPoint=null;
+	
+	protected ImageryLayer background;
+	
+	protected MapView backgroundView;
+	protected JPanel backgroundPanel;
+	
+	
+	public static final double MIN_OPACITY=0.5;
 
 	/**
 	 * 
@@ -113,6 +130,10 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	}
 	
 	
+	/**
+	 * create a image from all background layers
+	 * @return
+	 */
 	public BufferedImage getLayeredImage(){
 		MapView mapView = Main.map.mapView;
 		// Collection<Layer> layers=mapView.getAllLayers();
@@ -135,12 +156,87 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		return bufImage;
 	}
 	
+	/**
+	 * try to get the background image from the most upper background.<br>
+	 * If no layer which works is found, all layers are imaged.
+	 * @return background image to analyze
+	 */
+	public BufferedImage getOptimizedImage(){
+		log.info("Searching for optimized image");
+		BufferedImage bgImage=null;
+		
+		MapView mapView = Main.map.mapView;
+		// Collection<Layer> layers=mapView.getAllLayers();
+		// Layer activeLayer=mapView.getActiveLayer();
 
+		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
+		
+		for (int i=layers.length-1;i>=0;i--) {
+			Layer layer=layers[i];
+			if(layer.isVisible() && layer.isBackgroundLayer()&&layer.getOpacity()>MIN_OPACITY && layer instanceof ImageryLayer){
+				// found a layer which is visible and and imagery background layer
+				ImageryLayer bLayer=(ImageryLayer)layer;
+				ImageryInfo info=bLayer.getInfo();
+				
+				if(background==null || !info.equalsBaseValues(background.getInfo())){
+					try {
+						log.info("found layer! "+info.getName());
+						
+						background=bLayer.getClass().getConstructor(ImageryInfo.class).newInstance(info);
+						backgroundPanel=new JPanel();
+						backgroundPanel.setSize(Main.map.mapView.getSize());
+						backgroundView=new MapView(backgroundPanel, null);
+						break;
+					} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+						log.warn("could not create Background Layer from existing layer",e);
+					}
+				}
+				
+			}
+		}
+		
+		if(background!=null){
+			log.info("zooming in");
+			backgroundPanel.setSize(Main.map.mapView.getSize());
+			backgroundView.setSize(Main.map.mapView.getSize());
+			
+			// zoom to corect position
+			int maxZoom=background.getInfo().getMaxZoom();
+			// TODO zoom to max zoom level
+			// currently we are at the same view as the Main mapview
+			
+			BoundingXYVisitor bbox = new BoundingXYVisitor();
+			LatLon latlon=Main.map.mapView.getLatLon(clickPoint.x, clickPoint.y);
+			
+			bbox.visit(latlon);
+			backgroundView.recalculateCenterScale(bbox);
+			
+			
+			
+			Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) background.getOpacity());
+			bgImage = new BufferedImage(backgroundView.getWidth(), backgroundView.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			Graphics2D imgGraphics = bgImage.createGraphics();
+			imgGraphics.setComposite(translucent);
+			background.paint(imgGraphics, mapView, mapView.getRealBounds());
+		}
+		
+		
+		// if no optimized image could be produced, use all layers
+		if(bgImage==null){
+			bgImage=getLayeredImage();
+		}
+		return bgImage;
+	}
+	
+
+	/**
+	 * search for the polygon, where the mouse clicked
+	 */
 	public void createArea() {
 
 		MapView mapView = Main.map.mapView;
 		
-		BufferedImage bufImage = getLayeredImage();
+		BufferedImage bufImage = getOptimizedImage();
 
 		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
 		

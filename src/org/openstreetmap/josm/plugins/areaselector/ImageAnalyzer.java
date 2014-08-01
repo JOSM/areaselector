@@ -81,7 +81,7 @@ public class ImageAnalyzer {
 
 	protected Point point;
 	
-	protected boolean debug=false;
+	protected boolean debug=true;
 	
 	
 	// Algorithm params
