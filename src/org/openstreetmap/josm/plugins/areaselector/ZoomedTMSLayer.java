@@ -39,6 +39,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
+import org.apache.log4j.Logger;
 import org.openstreetmap.gui.jmapviewer.AttributionSupport;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JobDispatcher;
@@ -97,6 +98,8 @@ import org.xml.sax.SAXException;
  *
  */
 public class ZoomedTMSLayer extends ImageryLayer implements ImageObserver, TileLoaderListener {
+	static final Logger log=Logger.getLogger(ZoomedTMSLayer.class);
+	
     public static final String PREFERENCE_PREFIX   = "imagery.tms";
 
     public static final int MAX_ZOOM = 30;
@@ -160,6 +163,7 @@ public class ZoomedTMSLayer extends ImageryLayer implements ImageObserver, TileL
 
     @Override
     public synchronized void tileLoadingFinished(Tile tile, boolean success) {
+    	log.info("tile "+tile+"loaded.");
         if (tile.hasError()) {
             success = false;
             tile.setImage(null);

@@ -211,8 +211,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				ZoomedTMSLayer tms=(ZoomedTMSLayer) background;
 				tms.setZoomLevel(maxZoom);
 				// TODO wait for all tiles to be loaded. currently no tiles will be loaded
+				log.info("loading tiles");
+				tms.loadAllTiles(true);
 				
-				tms.loadAllTiles(false);
 			}
 			
 			
