@@ -169,6 +169,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Main.main.undoRedo.add(c);
 			Main.main.getCurrentDataSet().setSelected(way);
 			
+			// TODO not sure if x,y is the correct coordindate, it's just a point in the polygon
 //			ConnectWays.connect(way, mapView.getLatLon(clickPoint.x, clickPoint.y));
 			
 			showAddressDialog(way);

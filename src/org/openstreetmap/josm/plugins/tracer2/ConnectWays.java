@@ -94,25 +94,7 @@ public class ConnectWays {
     private static void calcDistance()
     {
     	
-    	Layer background=null;
-    	
-    	for (Layer layer : Main.map.mapView.getAllLayers()){
-    		if(layer.isBackgroundLayer()&&layer.isVisible()&& layer.getOpacity()>0.6f){
-    			background = layer;
-    			break;
-    		}
-    	}
-    	
-    	if(background==null){
-    		for (Layer layer : Main.map.mapView.getAllLayers()){
-        		if(layer.isBackgroundLayer()){
-        			background = layer;
-        			break;
-        		}
-        	}
-    	}
-    	
-    	
+    	// TODO what is the correct tilesize and Resolution?!?
     	double dTileSize = 0.0004;
     	double dResolution = 2048;
     	
