@@ -19,6 +19,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
@@ -173,6 +175,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 //			ConnectWays.connect(way, mapView.getLatLon(clickPoint.x, clickPoint.y));
 			
 			showAddressDialog(way);
+		}else {
+			JOptionPane.showMessageDialog(Main.map, tr("Unable to detect a polygon where you clicked."), tr("Area Selector"), JOptionPane.WARNING_MESSAGE);
 		}
 
 	}
