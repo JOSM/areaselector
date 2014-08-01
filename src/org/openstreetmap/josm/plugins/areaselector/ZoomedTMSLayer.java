@@ -842,7 +842,7 @@ public class ZoomedTMSLayer extends ImageryLayer implements ImageObserver, TileL
     }
 
     synchronized boolean loadTile(Tile tile, boolean force) {
-        if (tile == null)
+    	if (tile == null)
             return false;
         if (!force && (tile.hasError() || tile.isLoaded()))
             return false;
@@ -850,6 +850,7 @@ public class ZoomedTMSLayer extends ImageryLayer implements ImageObserver, TileL
             return false;
         if (tileRequestsOutstanding.contains(tile))
             return false;
+        log.info("start loading tile : "+tile);
         tileRequestsOutstanding.add(tile);
         JobDispatcher.getInstance().addJob(tileLoader.createTileLoaderJob(tile));
         return true;
@@ -864,10 +865,10 @@ public class ZoomedTMSLayer extends ImageryLayer implements ImageObserver, TileL
 
         // if there is more than 18 tiles on screen in any direction, do not
         // load all tiles!
-        if (ts.tooLarge()) {
-            Main.warn("Not downloading all tiles because there is more than 18 tiles on an axis!");
-            return;
-        }
+//        if (ts.tooLarge()) {
+//            Main.warn("Not downloading all tiles because there is more than 18 tiles on an axis!");
+//            return;
+//        }
         ts.loadAllTiles(force);
     }
 

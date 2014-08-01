@@ -182,8 +182,11 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 						backgroundPanel.setSize(Main.map.mapView.getSize());
 						backgroundView=new MapView(backgroundPanel, null);
 						
-						if(background instanceof TMSLayer){
-							background= new ZoomedTMSLayer(background.getInfo(),backgroundView);
+						mapView.zoomTo(Main.map.mapView.getEastNorth(clickPoint.x, clickPoint.y), bLayer.getInfo().getMaxZoom());
+						
+						if(layer instanceof TMSLayer){
+							background= new ZoomedTMSLayer(bLayer.getInfo(),backgroundView);
+							
 						}else {
 							background=bLayer.getClass().getConstructor(ImageryInfo.class).newInstance(info);
 						}
