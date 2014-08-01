@@ -29,11 +29,9 @@ import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
-import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.imagery.ImageryInfo;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.Way;
-import org.openstreetmap.josm.data.osm.visitor.BoundingXYVisitor;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.ImageryLayer;
@@ -180,11 +178,16 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				if(background==null || !info.equalsBaseValues(background.getInfo())){
 					try {
 						log.info("found layer! "+info.getName());
-						
-						background=bLayer.getClass().getConstructor(ImageryInfo.class).newInstance(info);
 						backgroundPanel=new JPanel();
 						backgroundPanel.setSize(Main.map.mapView.getSize());
 						backgroundView=new MapView(backgroundPanel, null);
+						
+						if(background instanceof TMSLayer){
+							background= new ZoomedTMSLayer(background.getInfo(),backgroundView);
+						}else {
+							background=bLayer.getClass().getConstructor(ImageryInfo.class).newInstance(info);
+						}
+						
 						break;
 					} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 						log.warn("could not create Background Layer from existing layer",e);
@@ -201,25 +204,16 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			
 			// zoom to corect position
 			int maxZoom=background.getInfo().getMaxZoom();
+			backgroundView.zoomTo(Main.map.mapView.getEastNorth(clickPoint.x, clickPoint.y), maxZoom);
+			
 						
-			if(background instanceof TMSLayer){
-				TMSLayer tms=(TMSLayer) background;
+			if(background instanceof ZoomedTMSLayer){
+				ZoomedTMSLayer tms=(ZoomedTMSLayer) background;
 				tms.setZoomLevel(maxZoom);
+				// TODO wait for all tiles to be loaded. currently no tiles will be loaded
 				
-				// not sure if this will work, because TMSLayer acceses Main.map.mapView.
+				tms.loadAllTiles(false);
 			}
-			
-			// TODO zoom to max zoom level
-			// currently we are at the same view as the Main mapview
-			
-			// TODO wait for all tiles to be loaded. currently no tiles will be loaded
-			
-			BoundingXYVisitor bbox = new BoundingXYVisitor();
-			LatLon latlon=Main.map.mapView.getLatLon(clickPoint.x, clickPoint.y);
-			
-			bbox.visit(latlon);
-			backgroundView.recalculateCenterScale(bbox);
-			
 			
 			
 			Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) background.getOpacity());
