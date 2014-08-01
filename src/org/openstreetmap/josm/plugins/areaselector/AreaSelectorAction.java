@@ -29,8 +29,6 @@ import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
-import org.openstreetmap.josm.data.ViewportData;
-import org.openstreetmap.josm.data.coor.EastNorth;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.imagery.ImageryInfo;
 import org.openstreetmap.josm.data.osm.Node;
@@ -40,6 +38,7 @@ import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.ImageryLayer;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.TMSLayer;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
 
@@ -202,8 +201,18 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			
 			// zoom to corect position
 			int maxZoom=background.getInfo().getMaxZoom();
+						
+			if(background instanceof TMSLayer){
+				TMSLayer tms=(TMSLayer) background;
+				tms.setZoomLevel(maxZoom);
+				
+				// not sure if this will work, because TMSLayer acceses Main.map.mapView.
+			}
+			
 			// TODO zoom to max zoom level
 			// currently we are at the same view as the Main mapview
+			
+			// TODO wait for all tiles to be loaded. currently no tiles will be loaded
 			
 			BoundingXYVisitor bbox = new BoundingXYVisitor();
 			LatLon latlon=Main.map.mapView.getLatLon(clickPoint.x, clickPoint.y);
