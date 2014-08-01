@@ -94,24 +94,24 @@ public class ConnectWays {
     private static void calcDistance()
     {
     	
-    	// TODO what is the correct tilesize and Resolution?!?
-    	double dTileSize = 0.0004;
-    	double dResolution = 2048;
-    	
-    	if(background!=null && background instanceof ImageryLayer){
-    		ImageryLayer imgLayer=(ImageryLayer)background;
-    		ImageryInfo info=imgLayer.getInfo();
-    		dResolution=info.getPixelPerDegree();
-    		log.info("dResolution "+dResolution);
-    		// TODO get tile size !??
-    	}
-    	
-    	double dMin = dTileSize / dResolution;
-    	
-    	s_dMinDistance = dMin * 30;
-    	s_dMinDistanceN2N = dMin * 2.5;
-    	s_dMinDistanceN2oW = dMin * 5;
-    	s_dMinDistanceN2tW = dMin * 5;
+//    	// TODO what is the correct tilesize and Resolution?!?
+//    	double dTileSize = 0.0004;
+//    	double dResolution = 2048;
+//    	
+//    	if(background!=null && background instanceof ImageryLayer){
+//    		ImageryLayer imgLayer=(ImageryLayer)background;
+//    		ImageryInfo info=imgLayer.getInfo();
+//    		dResolution=info.getPixelPerDegree();
+//    		log.info("dResolution "+dResolution);
+//    		// TODO get tile size !??
+//    	}
+//    	
+//    	double dMin = dTileSize / dResolution;
+//    	
+//    	s_dMinDistance = dMin * 30;
+//    	s_dMinDistanceN2N = dMin * 2.5;
+//    	s_dMinDistanceN2oW = dMin * 5;
+//    	s_dMinDistanceN2tW = dMin * 5;
     }
     
     private static void getWays(Way way) {

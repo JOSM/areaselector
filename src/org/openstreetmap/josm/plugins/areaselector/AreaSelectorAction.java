@@ -33,6 +33,7 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.plugins.tracer2.ConnectWays;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
 
@@ -171,7 +172,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Main.main.undoRedo.add(c);
 			Main.main.getCurrentDataSet().setSelected(way);
 			
-			// TODO not sure if x,y is the correct coordindate, it's just a point in the polygon
+			// TODO ConnectWays extends an area instead of snaping it togeter
 //			ConnectWays.connect(way, mapView.getLatLon(clickPoint.x, clickPoint.y));
 			
 			showAddressDialog(way);
