@@ -79,7 +79,7 @@ public class AddressDialog extends ExtendedDialog {
         
         setContent(panel);
         setupDialog();
-        this.setSize(400, 300);
+        this.setSize(400, 350);
     }
 
 
