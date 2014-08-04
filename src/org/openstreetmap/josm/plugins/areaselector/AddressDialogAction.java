@@ -39,12 +39,12 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 	public static final String PLUGIN_NAME = "areaselector";
 
 	public AddressDialogAction(MapFrame mapFrame) {
-		super(tr("Tag Element"), "areaselector", tr("Select an item to tag."), Shortcut.registerShortcut("tools:tagbuilding",
+		super(tr("Tag Element"), "addressdialog", tr("Select an item to tag."), Shortcut.registerShortcut("tools:tagbuilding",
 				tr("Tools: {0}", tr("Tag Building")), KeyEvent.VK_B, Shortcut.ALT_CTRL), mapFrame, getCursor());
 	}
 
 	private static Cursor getCursor() {
-		return ImageProvider.getCursor("crosshair", "areaselector");
+		return ImageProvider.getCursor("crosshair", "addressdialog");
 	}
 
 	/*
