@@ -25,15 +25,14 @@ import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.command.AddCommand;
-import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.Node;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.plugins.tracer2.ConnectWays;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
 
@@ -182,19 +181,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 	}
 
-	public Way showAddressDialog(Way way) {
-		
-		AddressDialog dialog = new AddressDialog(way);
-		dialog.showDialog();
-		if (dialog.getValue() == 1){
-			dialog.saveValues();
-			Collection<Command> cmds = new LinkedList<Command>();
-			cmds.add(new ChangeCommand(way, way));
-			Command c = new SequenceCommand(tr("updated building info"), cmds);
-			Main.main.undoRedo.add(c);
-			Main.main.getCurrentDataSet().setSelected(way);
-		}
-		return way;
+	public OsmPrimitive showAddressDialog(Way way) {
+		return new AddressDialog(way).showAndSave();
 	}
 
 	public Way createWayFromPolygon(MapView mapView, Polygon polygon) {

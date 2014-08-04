@@ -21,6 +21,8 @@ public class AreaSelectorPlugin extends Plugin{
 	
 	AreaSelectorAction areaSelectorAction;
 	
+	AddressDialogAction addressDialogAction;
+	
 	public AreaSelectorPlugin(PluginInformation info) {
         super(info);
         
@@ -35,6 +37,8 @@ public class AreaSelectorPlugin extends Plugin{
         areaSelectorAction=new AreaSelectorAction(Main.map);
         MainMenu.add(Main.main.menu.moreToolsMenu, areaSelectorAction);
         
+        addressDialogAction=new AddressDialogAction(Main.map);
+        MainMenu.add(Main.main.menu.moreToolsMenu, addressDialogAction);
     }
     
     /**

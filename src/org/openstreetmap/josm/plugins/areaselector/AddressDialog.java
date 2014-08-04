@@ -6,13 +6,18 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.openstreetmap.josm.Main;
-import org.openstreetmap.josm.data.osm.Way;
+import org.openstreetmap.josm.command.ChangeCommand;
+import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.SequenceCommand;
+import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ExtendedDialog;
 import org.openstreetmap.josm.tools.GBC;
 
@@ -37,7 +42,7 @@ public class AddressDialog extends ExtendedDialog {
 
     protected final JPanel panel = new JPanel(new GridBagLayout());
     
-    protected Way way;
+    protected OsmPrimitive way;
 
     protected final void addLabelled(String str, Component c) {
         JLabel label = new JLabel(str);
@@ -48,7 +53,7 @@ public class AddressDialog extends ExtendedDialog {
 
 
 
-    public AddressDialog(Way way) {
+    public AddressDialog(OsmPrimitive way) {
     	super(Main.parent, tr("Building address"), BUTTON_TEXTS, true);
     	
     	this.way=way;
@@ -131,5 +136,18 @@ public class AddressDialog extends ExtendedDialog {
 
     public final String getStreetName() {
         return streetNameField.getText();
+    }
+    
+    public OsmPrimitive showAndSave(){
+    	this.showDialog();
+		if (this.getValue() == 1){
+			this.saveValues();
+			Collection<Command> cmds = new LinkedList<Command>();
+			cmds.add(new ChangeCommand(way, way));
+			Command c = new SequenceCommand(tr("updated building info"), cmds);
+			Main.main.undoRedo.add(c);
+			Main.main.getCurrentDataSet().setSelected(way);
+		}
+		return way;
     }
 }
