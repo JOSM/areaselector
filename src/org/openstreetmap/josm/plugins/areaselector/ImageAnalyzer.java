@@ -86,7 +86,7 @@ public class ImageAnalyzer {
 	
 	// Algorithm params
 	
-	public static final int DEFAULT_COLORTHRESHOLD= 20;
+	public static final int DEFAULT_COLORTHRESHOLD= 17;
 	protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 	
 	
