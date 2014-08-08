@@ -62,7 +62,7 @@ public class PreferencesPanel extends JPanel {
 		sl_panel.putConstraint(SpringLayout.WEST, lblAlgorithmSettings, 40, SpringLayout.WEST, this);
 		this.add(lblAlgorithmSettings);
 		
-		JLabel lblColorThresholdExplanation = new JLabel("<html><p>"+tr("The color threshold defines how far the color can be of the original color to be selected (Default: 15).")+"</p></html>");
+		JLabel lblColorThresholdExplanation = new JLabel("<html><p>"+tr("The color threshold defines how far the color can be of the original color to be selected (Default: {0}).",ImageAnalyzer.DEFAULT_COLORTHRESHOLD)+"</p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblColorThresholdExplanation, 17, SpringLayout.SOUTH, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.WEST, lblColorThresholdExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblColorThresholdExplanation, -40, SpringLayout.EAST, this);
@@ -80,7 +80,7 @@ public class PreferencesPanel extends JPanel {
 		this.add(txtColorThreshold);
 		txtColorThreshold.setColumns(10);
 		
-		JLabel lblToleranceDistExplanation = new JLabel("<html><p>"+tr("Maximum distance away each point in the sequence can be from a line, in pixels (Default: 3).")+"</p></html>");
+		JLabel lblToleranceDistExplanation = new JLabel("<html><p>"+tr("Maximum distance away each point in the sequence can be from a line, in pixels (Default: {0}).",ImageAnalyzer.DEFAULT_TOLERANCEDIST)+"</p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceDistExplanation, 25, SpringLayout.SOUTH, lblColorThreshold);
 		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceDistExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblToleranceDistExplanation, -40, SpringLayout.EAST, this);
@@ -98,7 +98,7 @@ public class PreferencesPanel extends JPanel {
 		this.add(txtToleranceDist);
 		txtToleranceDist.setColumns(10);
 		
-		JLabel lblToleranceAngleExplanation = new JLabel("<html><p>"+tr("Tolerance for fitting angles, in radians (Default 0.392).")+"</p></html>");
+		JLabel lblToleranceAngleExplanation = new JLabel("<html><p>"+tr("Tolerance for fitting angles, in radians (Default {0}).",ImageAnalyzer.DEFAULT_TOLERANCEANGLE)+"</p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lblToleranceAngleExplanation, 40, SpringLayout.NORTH, lblToleranceDistance);
 		sl_panel.putConstraint(SpringLayout.WEST, lblToleranceAngleExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		sl_panel.putConstraint(SpringLayout.EAST, lblToleranceAngleExplanation, -40, SpringLayout.EAST, this);
