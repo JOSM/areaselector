@@ -86,12 +86,12 @@ public class ImageAnalyzer {
 	
 	// Algorithm params
 	
-	public static final int DEFAULT_COLORTHRESHOLD= 15;
+	public static final int DEFAULT_COLORTHRESHOLD= 20;
 	protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 	
 	
 	// Polynomial fitting tolerances
-	public static final double DEFAULT_TOLERANCEDIST=3;
+	public static final double DEFAULT_TOLERANCEDIST=4;
 	double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 	
 	public static final double DEFAULT_TOLERANCEANGLE = Math.PI / 8;
