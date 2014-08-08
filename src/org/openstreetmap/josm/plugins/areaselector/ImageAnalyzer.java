@@ -223,7 +223,8 @@ public class ImageAnalyzer {
 //		if(debug) saveImgToFile(workImage, "test/gaus");
 		
 		
-		
+//		workImage = dilate(workImage);
+//		if(debug) saveImgToFile(workImage,"dilate");
 
 		
 //		lines=detectLines(workImage);
