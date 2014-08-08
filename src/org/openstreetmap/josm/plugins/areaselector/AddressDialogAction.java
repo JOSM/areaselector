@@ -79,6 +79,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 		if (elements.size() > 0) {
 			element = elements.get(0);
 			log.info("Found object " + element);
+			Main.main.getCurrentDataSet().setSelected(element);
 			new AddressDialog(element).showAndSave();
 
 		} else {
