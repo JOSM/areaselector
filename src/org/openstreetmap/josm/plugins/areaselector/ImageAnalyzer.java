@@ -297,6 +297,36 @@ public class ImageAnalyzer {
 		return VisualizeBinaryData.renderBinary(filtered, null);
 	}
 	
+	
+	/**
+	 * dilate an image
+	 * @param workImage image to transform
+	 * @return transformed image
+	 */
+	public BufferedImage dilate(BufferedImage workImage){
+		log.info("Dilate");
+		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
+		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
+//		ImageSInt32 label = new ImageSInt32(input.width,input.height);
+
+		// the mean pixel value is often a reasonable threshold when creating a binary image
+		double mean = ImageStatistics.mean(input);
+
+		// create a binary image by thresholding
+		ThresholdImageOps.threshold(input,binary,(float)mean,true);
+
+		// remove small blobs through erosion and dilation
+		// The null in the input indicates that it should internally declare the work image it needs
+		// this is less efficient, but easier to code.
+		ImageUInt8 filtered;
+		filtered = BinaryImageOps.dilate4(binary, 1, null);
+		
+		return VisualizeBinaryData.renderBinary(filtered, null);
+	}
+	
+	
+	
+	
 	public BufferedImage binarize(BufferedImage workImage){
 		log.info("Binarize");
 		
