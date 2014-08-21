@@ -6,6 +6,7 @@ import static org.openstreetmap.josm.tools.I18n.tr;
 import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -19,6 +20,9 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ExtendedDialog;
+import org.openstreetmap.josm.gui.tagging.ac.AutoCompletingComboBox;
+import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionListItem;
+import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionManager;
 import org.openstreetmap.josm.tools.GBC;
 
 /**
@@ -35,7 +39,9 @@ public class AddressDialog extends ExtendedDialog {
 	
 	
     protected String houseNum, streetName, city, postCode, country, houseName,building,tags;
-    protected JTextField houseNumField, streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField,tagsField;
+    
+    protected JTextField houseNumField;
+    protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField,tagsField;
     
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
     protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
@@ -43,6 +49,8 @@ public class AddressDialog extends ExtendedDialog {
     protected final JPanel panel = new JPanel(new GridBagLayout());
     
     protected OsmPrimitive way;
+    
+    protected static Collection<AutoCompletionListItem> aciTags;
 
     protected final void addLabelled(String str, Component c) {
         JLabel label = new JLabel(str);
@@ -63,15 +71,59 @@ public class AddressDialog extends ExtendedDialog {
 
         setContent(panel);
         setDefaultButton(1);
+        
+        AutoCompletionManager acm = Main.main.getCurrentDataSet().getAutoCompletionManager();
+
        
-        houseNameField=new JTextField();
+        houseNameField = new AutoCompletingComboBox();
+        houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
+        houseNameField.setEditable(true);
+        
+        
         houseNumField=new JTextField(lastHouseNum);
-        streetNameField=new JTextField(lastStreetName);
-        cityField=new JTextField(lastCity);
-        postCodeField=new JTextField(lastPostCode);
-        countryField=new JTextField(lastCountry);
-        buildingField=new JTextField(lastBuilding);
-        tagsField=new JTextField(lastTags);
+        
+        
+        streetNameField = new AutoCompletingComboBox();
+        streetNameField.setPossibleACItems(acm.getValues(TAG_STREETNAME));
+        streetNameField.setEditable(true);
+        streetNameField.setSelectedItem(lastStreetName);
+
+        
+        cityField = new AutoCompletingComboBox();
+        cityField.setPossibleACItems(acm.getValues(TAG_CITY));
+        cityField.setEditable(true);
+        cityField.setSelectedItem(lastCity);
+        
+        
+        
+        postCodeField = new AutoCompletingComboBox();
+        postCodeField.setPossibleACItems(acm.getValues(TAG_POSTCODE));
+        postCodeField.setEditable(true);
+        postCodeField.setSelectedItem(lastPostCode);
+        
+        countryField = new AutoCompletingComboBox();
+        countryField.setPossibleACItems(acm.getValues(TAG_COUNTRY));
+        countryField.setEditable(true);
+        countryField.setSelectedItem(lastCountry);
+        
+        
+        buildingField = new AutoCompletingComboBox();
+        buildingField.setPossibleACItems(acm.getValues(TAG_BUILDING));
+        buildingField.setEditable(true);
+        buildingField.setSelectedItem(lastBuilding);
+        
+        
+        if(aciTags==null){
+    		aciTags=new ArrayList<AutoCompletionListItem>();
+    	}
+        
+        tagsField = new AutoCompletingComboBox();
+        tagsField.setPossibleACItems(aciTags);
+        tagsField.setEditable(true);
+        tagsField.setSelectedItem(lastTags);
+        
+        
+
 
         addLabelled(tr("Name:"), houseNameField);
         addLabelled(tr("House number:"), houseNumField);
@@ -82,22 +134,39 @@ public class AddressDialog extends ExtendedDialog {
         addLabelled(tr("Building:"), buildingField);
         addLabelled(tr("Tags:"), tagsField);
         
+        
+        
         setContent(panel);
         setupDialog();
         this.setSize(400, 350);
     }
 
+    protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box)
+    {
+       Object item = box.getSelectedItem();
+       if (item != null) {
+          if (item instanceof String) {
+             return (String) item;
+          }
+          if (item instanceof AutoCompletionListItem) {
+             return ((AutoCompletionListItem) item).getValue();
+          }
+          return item.toString();
+       } else {
+          return "";
+       }
+    }
 
 
     public final void saveValues() {
-    	houseName = houseNameField.getText();
+    	houseName = getAutoCompletingComboBoxValue(houseNameField);
     	lastHouseNum = houseNum = houseNumField.getText();
-        lastStreetName = streetName = streetNameField.getText();
-        lastCity = city = cityField.getText();
-        lastPostCode = postCode = postCodeField.getText();
-        lastCountry = country = countryField.getText();
-        lastBuilding = building = buildingField.getText();
-        lastTags = tags = tagsField.getText();
+        lastStreetName = streetName = getAutoCompletingComboBoxValue(streetNameField);
+        lastCity = city = getAutoCompletingComboBoxValue(cityField);
+        lastPostCode = postCode = getAutoCompletingComboBoxValue(postCodeField);
+        lastCountry = country = getAutoCompletingComboBoxValue(countryField);
+        lastBuilding = building = getAutoCompletingComboBoxValue(buildingField);
+        lastTags = tags = getAutoCompletingComboBoxValue(tagsField);
         
        
         updateTag(TAG_HOUSENAME, houseName);
@@ -109,6 +178,11 @@ public class AddressDialog extends ExtendedDialog {
         updateTag(TAG_BUILDING, building);
         
         if(!tags.isEmpty()){
+        	AutoCompletionListItem aci=new AutoCompletionListItem(tags);
+        	if(!aciTags.contains(aci)){
+        		aciTags.add(aci);
+        	}
+        	
         	String[] alltags=tags.split(" *[,;] *");
         	for(int i=0;i<alltags.length;i++){
         		String[] kv=alltags[i].split(" *= *");
@@ -130,14 +204,6 @@ public class AddressDialog extends ExtendedDialog {
     	}
     }
 
-    public final String getHouseNum() {
-        return houseNumField.getText();
-    }
-
-    public final String getStreetName() {
-        return streetNameField.getText();
-    }
-    
     public OsmPrimitive showAndSave(){
     	this.showDialog();
 		if (this.getValue() == 1){
