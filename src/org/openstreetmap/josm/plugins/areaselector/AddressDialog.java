@@ -33,9 +33,17 @@ import org.openstreetmap.josm.tools.GBC;
 @SuppressWarnings("serial")
 public class AddressDialog extends ExtendedDialog {
 	
-	protected static String lastHouseNum="",lastStreetName="", lastCity="", lastPostCode="",lastCountry="",lastBuilding="yes",lastTags="";
-	
 	public static final String TAG_HOUSENAME="name",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postCode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
+
+    public static final String PREF=AreaSelectorAction.PLUGIN_NAME+".last.";
+
+    public static final String PREF_HOUSENUM=PREF+"housenum",
+        PREF_STREETNAME=PREF+"streetname",
+        PREF_CITY=PREF+"street",
+        PREF_POSTCODE=PREF+"postcode",
+        PREF_COUNTRY=PREF+"country",
+        PREF_BUILDING=PREF+"building",
+        PREF_TAGS=PREF+"tags";
 	
 	
     protected String houseNum, streetName, city, postCode, country, houseName,building,tags;
@@ -80,37 +88,37 @@ public class AddressDialog extends ExtendedDialog {
         houseNameField.setEditable(true);
         
         
-        houseNumField=new JTextField(lastHouseNum);
+        houseNumField=new JTextField(Main.pref.get(PREF_HOUSENUM));
         
         
         streetNameField = new AutoCompletingComboBox();
         streetNameField.setPossibleACItems(acm.getValues(TAG_STREETNAME));
         streetNameField.setEditable(true);
-        streetNameField.setSelectedItem(lastStreetName);
+        streetNameField.setSelectedItem(Main.pref.get(PREF_STREETNAME));
 
         
         cityField = new AutoCompletingComboBox();
         cityField.setPossibleACItems(acm.getValues(TAG_CITY));
         cityField.setEditable(true);
-        cityField.setSelectedItem(lastCity);
+        cityField.setSelectedItem(Main.pref.get(PREF_CITY));
         
         
         
         postCodeField = new AutoCompletingComboBox();
         postCodeField.setPossibleACItems(acm.getValues(TAG_POSTCODE));
         postCodeField.setEditable(true);
-        postCodeField.setSelectedItem(lastPostCode);
+        postCodeField.setSelectedItem(Main.pref.get(PREF_POSTCODE));
         
         countryField = new AutoCompletingComboBox();
         countryField.setPossibleACItems(acm.getValues(TAG_COUNTRY));
         countryField.setEditable(true);
-        countryField.setSelectedItem(lastCountry);
+        countryField.setSelectedItem(Main.pref.get(PREF_COUNTRY));
         
         
         buildingField = new AutoCompletingComboBox();
         buildingField.setPossibleACItems(acm.getValues(TAG_BUILDING));
         buildingField.setEditable(true);
-        buildingField.setSelectedItem(lastBuilding);
+        buildingField.setSelectedItem(Main.pref.get(PREF_BUILDING));
         
         
         if(aciTags==null){
@@ -120,7 +128,7 @@ public class AddressDialog extends ExtendedDialog {
         tagsField = new AutoCompletingComboBox();
         tagsField.setPossibleACItems(aciTags);
         tagsField.setEditable(true);
-        tagsField.setSelectedItem(lastTags);
+        tagsField.setSelectedItem(Main.pref.get(PREF_TAGS));
         
         
 
@@ -160,13 +168,22 @@ public class AddressDialog extends ExtendedDialog {
 
     public final void saveValues() {
     	houseName = getAutoCompletingComboBoxValue(houseNameField);
-    	lastHouseNum = houseNum = houseNumField.getText();
-        lastStreetName = streetName = getAutoCompletingComboBoxValue(streetNameField);
-        lastCity = city = getAutoCompletingComboBoxValue(cityField);
-        lastPostCode = postCode = getAutoCompletingComboBoxValue(postCodeField);
-        lastCountry = country = getAutoCompletingComboBoxValue(countryField);
-        lastBuilding = building = getAutoCompletingComboBoxValue(buildingField);
-        lastTags = tags = getAutoCompletingComboBoxValue(tagsField);
+    	houseNum = houseNumField.getText();
+        streetName = getAutoCompletingComboBoxValue(streetNameField);
+        city = getAutoCompletingComboBoxValue(cityField);
+        postCode = getAutoCompletingComboBoxValue(postCodeField);
+        country = getAutoCompletingComboBoxValue(countryField);
+        building = getAutoCompletingComboBoxValue(buildingField);
+        tags = getAutoCompletingComboBoxValue(tagsField);
+
+        Main.pref.put(PREF_HOUSENUM, houseNum);
+        Main.pref.put(PREF_STREETNAME, streetName);
+        Main.pref.put(PREF_CITY, city);
+        Main.pref.put(PREF_POSTCODE, postCode);
+        Main.pref.put(PREF_COUNTRY, country);
+        Main.pref.put(PREF_BUILDING, building);
+        Main.pref.put(PREF_TAGS, tags);
+
         
        
         updateTag(TAG_HOUSENAME, houseName);
