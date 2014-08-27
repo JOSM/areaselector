@@ -248,8 +248,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 					//((TMSLayer) layer).setZoomLevel(tileSource.getMaxZoom());
 					double new_factor = Math.sqrt(getScaleFactor(tileSource.getMaxZoom(), tileSource));
 					mapView.zoomToFactor(newCenter, new_factor);
-			        mapView.zoomToFactor(new_factor);
-			        
+			        clickPoint=mapView.getPoint(newCenter);
 			        mapView.repaint();
 			        
 					// For now we break at the first found TMS layer
