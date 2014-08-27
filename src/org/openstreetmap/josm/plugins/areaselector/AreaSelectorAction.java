@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
+import org.openstreetmap.gui.jmapviewer.tilesources.TMSTileSource;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.command.AddCommand;
@@ -59,7 +60,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
 	
-	protected Point clickPoint=null;
+	protected Point clickPoint = null;
+	protected LatLon clickCoordinates = null;
 	
 	protected ImageryLayer background;
 	
@@ -118,7 +120,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		updateKeyModifiers(e);
 		if (e.getButton() == MouseEvent.BUTTON1) {
 			try {
-				clickPoint=e.getPoint();
+				clickPoint = e.getPoint();
+				clickCoordinates = Main.map.mapView.getLatLon(clickPoint.x, clickPoint.y);
 				createArea();
 			} catch (Throwable th) {
 				log.error("failed to add area", th);
@@ -136,38 +139,21 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		MapView mapView = Main.map.mapView;
 		// Collection<Layer> layers=mapView.getAllLayers();
 		// Layer activeLayer=mapView.getActiveLayer();
-		
+
 		BufferedImage bufImage = new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D imgGraphics = bufImage.createGraphics();
 
 		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
-		
+
 		for (int i=layers.length-1;i>=0;i--) {
 			Layer layer=layers[i];
 			if(layer.isVisible() && layer.isBackgroundLayer()){
-				if (layer instanceof TMSLayer) {
-					// Only TMS supported for now
-					ImageryInfo info = ((TMSLayer) layer).getInfo();
-					TileSource tileSource = ((TMSLayer) layer).getTileSource(info);
-					
-					// Zoom to Maximum Zoom Level
-					((TMSLayer) layer).setZoomLevel(tileSource.getMaxZoom());
-					double new_factor = Math.sqrt(getScaleFactor(tileSource.getMaxZoom(), tileSource));
-			        Main.map.mapView.zoomToFactor(new_factor);
-			        Main.map.mapView.repaint();
-			        
-			        // FIXME: Set mouse click point to the new point
-			        
-			        Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) layer.getOpacity());
-					imgGraphics.setComposite(translucent);
-					layer.paint(imgGraphics, mapView, mapView.getRealBounds());
-			        
-					// For now we break at the first found TMS layer
-			        break;
-				}
+				Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) layer.getOpacity());
+				imgGraphics.setComposite(translucent);
+				layer.paint(imgGraphics, mapView, mapView.getRealBounds());
 			}
 		}
-		
+
 		return bufImage;
 	}
 	
@@ -197,79 +183,67 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		BufferedImage bgImage=null;
 		
 		MapView mapView = Main.map.mapView;
-		// Collection<Layer> layers=mapView.getAllLayers();
-		// Layer activeLayer=mapView.getActiveLayer();
-
-//		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
-//		
-//		for (int i=layers.length-1;i>=0;i--) {
-//			Layer layer=layers[i];
-//			if(layer.isVisible() && layer.isBackgroundLayer()&&layer.getOpacity()>MIN_OPACITY && layer instanceof ImageryLayer){
-//				// found a layer which is visible and and imagery background layer
-//				ImageryLayer bLayer=(ImageryLayer)layer;
-//				ImageryInfo info=bLayer.getInfo();
-//				
-//				if(background==null || !info.equalsBaseValues(background.getInfo())){
-////					try {
-//						log.info("found layer! "+info.getName());
-////						backgroundPanel=new JPanel();
-////						backgroundPanel.setSize(Main.map.mapView.getSize());
-////						backgroundView=new MapView(backgroundPanel, null);
-//						
-//						if(layer instanceof TMSLayer){
-//							TMSLayer tms=(TMSLayer)layer;
-//							log.info("Current zoom level:"+tms.currentZoomLevel
-//									+" max zoom: "+bLayer.getInfo().getMinZoom());
-//							
-//							
-//						}
-//						//min zoom is 0, which is way to zoomed
-////						mapView.zoomTo(Main.map.mapView.getEastNorth(clickPoint.x, clickPoint.y), bLayer.getInfo().getMinZoom());
-//						
-//						
-//						
-////						if(layer instanceof TMSLayer){
-////							background= new ZoomedTMSLayer(bLayer.getInfo(),backgroundView);
-////							
-////						}else {
-////							background=bLayer.getClass().getConstructor(ImageryInfo.class).newInstance(info);
-////						}
-////						
-//						break;
-////					} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-////						log.warn("could not create Background Layer from existing layer",e);
-////					}
-//				}
-//				
-//			}
-//		}
 		
-//		if(background!=null){
-//			log.info("zooming in");
-//			backgroundPanel.setSize(Main.map.mapView.getSize());
-//			backgroundView.setSize(Main.map.mapView.getSize());
-//			
-//			// zoom to corect position
-//			int maxZoom=background.getInfo().getMaxZoom();
-//			backgroundView.zoomTo(Main.map.mapView.getEastNorth(clickPoint.x, clickPoint.y), maxZoom);
-//			
-//						
-//			if(background instanceof ZoomedTMSLayer){
-//				ZoomedTMSLayer tms=(ZoomedTMSLayer) background;
-//				tms.setZoomLevel(maxZoom);
-//				// TODO wait for all tiles to be loaded. currently no tiles will be loaded
-//				log.info("loading tiles");
-//				tms.loadAllTiles(true);
-//				
-//			}
-//			
-//			
-//			Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) background.getOpacity());
-//			bgImage = new BufferedImage(backgroundView.getWidth(), backgroundView.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//			Graphics2D imgGraphics = bgImage.createGraphics();
-//			imgGraphics.setComposite(translucent);
-//			background.paint(imgGraphics, mapView, mapView.getRealBounds());
-//		}
+		// Convert click point
+		LatLon clickCoordinates = mapView.getLatLon(clickPoint.x, clickPoint.y);
+
+		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
+		
+		for (int i=layers.length-1;i>=0;i--) {
+			Layer layer=layers[i];
+			if(layer.isVisible() && layer.isBackgroundLayer() && layer.getOpacity() > MIN_OPACITY && layer instanceof ImageryLayer){
+				// found a layer which is visible and and imagery background layer
+				ImageryLayer bLayer=(ImageryLayer)layer;
+				ImageryInfo info=bLayer.getInfo();
+				
+				if(background == null || !info.equalsBaseValues(background.getInfo())){
+					try {
+						log.info("found layer! "+info.getName());
+						backgroundPanel = new JPanel();
+						backgroundPanel.setSize(Main.map.mapView.getSize());
+						backgroundView = new MapView(backgroundPanel, null);
+						
+						if(layer instanceof TMSLayer){
+							TMSLayer tms=(TMSLayer)layer;
+							log.info("Current zoom level: "+tms.currentZoomLevel
+									+", max zoom level: " + bLayer.getInfo().getMaxZoom());
+							background = new ZoomedTMSLayer(bLayer.getInfo(),backgroundView);	
+						} else {
+							background = bLayer.getClass().getConstructor(ImageryInfo.class).newInstance(info);
+						}
+						break;
+					} catch (Exception e) {
+						log.warn("could not create Background Layer from existing layer",e);
+					}
+				}
+				
+			}
+		}
+		
+		if (background != null) {
+			log.info("zooming in");
+			backgroundPanel.setSize(Main.map.mapView.getSize());
+			backgroundView.setSize(Main.map.mapView.getSize());
+			
+			// zoom to correct position
+			int maxZoom = background.getInfo().getMaxZoom();
+			Point clickPointNew = backgroundView.getPoint(clickCoordinates);
+			backgroundView.zoomTo(Main.map.mapView.getEastNorth(clickPointNew.x, clickPointNew.y), maxZoom);
+						
+			if (background instanceof ZoomedTMSLayer) {
+				ZoomedTMSLayer tms=(ZoomedTMSLayer) background;
+				tms.setZoomLevel(maxZoom);
+				// TODO wait for all tiles to be loaded. currently no tiles will be loaded
+				log.info("loading tiles");
+				tms.loadAllTiles(true);
+			}
+			
+			Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) background.getOpacity());
+			bgImage = new BufferedImage(backgroundView.getWidth(), backgroundView.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			Graphics2D imgGraphics = bgImage.createGraphics();
+			imgGraphics.setComposite(translucent);
+			background.paint(imgGraphics, mapView, mapView.getRealBounds());
+		}
 		
 		//mapView.zoomTo(Main.map.mapView.getEastNorth(clickPoint.x, clickPoint.y), 0.2);
 		
@@ -278,6 +252,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		if(bgImage==null){
 			bgImage=getLayeredImage();
 		}
+		
+		clickPoint = mapView.getPoint(clickCoordinates);
+		
 		return bgImage;
 	}
 	
@@ -289,7 +266,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 		MapView mapView = Main.map.mapView;
 		
-		BufferedImage bufImage = getLayeredImage();
+		BufferedImage bufImage = getOptimizedImage();
 
 		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
 		
