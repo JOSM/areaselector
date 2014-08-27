@@ -22,17 +22,22 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
+import org.openstreetmap.gui.jmapviewer.interfaces.TileSource;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
+import org.openstreetmap.josm.data.coor.EastNorth;
+import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.imagery.ImageryInfo;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.layer.TMSLayer;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
 
@@ -119,6 +124,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		MapView mapView = Main.map.mapView;
 		// Collection<Layer> layers=mapView.getAllLayers();
 		// Layer activeLayer=mapView.getActiveLayer();
+		
+		zoomToBestFactor();
 
 		BufferedImage bufImage = new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D imgGraphics = bufImage.createGraphics();
@@ -202,6 +209,57 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		}
 		return way;
 	}
+	
+	protected double getScaleFactor(int zoom, TileSource tileSource) {
+        if (!Main.isDisplayingMapView()) return 1;
+        MapView mv = Main.map.mapView;
+        LatLon topLeft = mv.getLatLon(0, 0);
+        LatLon botRight = mv.getLatLon(mv.getWidth(), mv.getHeight());
+        double x1 = tileSource.lonToTileX(topLeft.lon(), zoom);
+        double y1 = tileSource.latToTileY(topLeft.lat(), zoom);
+        double x2 = tileSource.lonToTileX(botRight.lon(), zoom);
+        double y2 = tileSource.latToTileY(botRight.lat(), zoom);
+
+        int screenPixels = mv.getWidth()*mv.getHeight();
+        double tilePixels = Math.abs((y2-y1)*(x2-x1)*tileSource.getTileSize()*tileSource.getTileSize());
+        if (screenPixels == 0 || tilePixels == 0) return 1;
+        return screenPixels/tilePixels;
+    }
+	
+	
+	protected void zoomToBestFactor(){
+		MapView mapView=Main.map.mapView;
+		
+		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
+		
+		EastNorth newCenter= mapView.getEastNorth(clickPoint.x, clickPoint.y);
+		
+		for (int i=layers.length-1;i>=0;i--) {
+			Layer layer=layers[i];
+			if(layer.isVisible() && layer.isBackgroundLayer()){
+		
+				if (layer instanceof TMSLayer) {
+					// Only TMS supported for now
+					TMSLayer tmslayer=((TMSLayer) layer);
+					ImageryInfo info = tmslayer.getInfo();
+					TileSource tileSource = TMSLayer.getTileSource(info);
+					
+					// Zoom to Maximum Zoom Level
+					//((TMSLayer) layer).setZoomLevel(tileSource.getMaxZoom());
+					double new_factor = Math.sqrt(getScaleFactor(tileSource.getMaxZoom(), tileSource));
+					mapView.zoomToFactor(newCenter, new_factor);
+			        mapView.zoomToFactor(new_factor);
+			        
+			        mapView.repaint();
+			        
+					// For now we break at the first found TMS layer
+			        break;
+				}
+			}
+		}
+
+	}
+
 
 	/**
 	 * @return the colorThreshold
