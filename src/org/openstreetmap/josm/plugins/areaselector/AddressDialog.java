@@ -33,7 +33,7 @@ import org.openstreetmap.josm.tools.GBC;
 @SuppressWarnings("serial")
 public class AddressDialog extends ExtendedDialog {
 	
-	public static final String TAG_HOUSENAME="name",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postCode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
+	public static final String TAG_HOUSENAME="name",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postcode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
 
     public static final String PREF=AreaSelectorAction.PLUGIN_NAME+".last.";
 
