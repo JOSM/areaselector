@@ -45,11 +45,14 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected int colorThreshold=ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
 	protected double toleranceDist=ImageAnalyzer.DEFAULT_TOLERANCEDIST,toleranceAngle=ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
 	
+	protected boolean showAddressDialog=true;
+	
 	public static final String PLUGIN_NAME="areaselector";
 	
 	public static final String PREF_COLORTHRESHOLD=PLUGIN_NAME+".colorthreshold",
 			PREF_TOLERANCEDIST=PLUGIN_NAME+".tolerancedist",
-			PREF_TOLERANCEANGLE=PLUGIN_NAME+".toleranceangle";
+			PREF_TOLERANCEANGLE=PLUGIN_NAME+".toleranceangle",
+			PREF_SHOWADDRESSDIALOG=PLUGIN_NAME+".showaddressdialog";
 	
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
@@ -174,7 +177,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			// TODO ConnectWays extends an area instead of snaping it togeter
 //			ConnectWays.connect(way, mapView.getLatLon(clickPoint.x, clickPoint.y));
 			
-			showAddressDialog(way);
+			if(showAddressDialog){
+				showAddressDialog(way);
+			}
 		}else {
 			JOptionPane.showMessageDialog(Main.map, tr("Unable to detect a polygon where you clicked."), tr("Area Selector"), JOptionPane.WARNING_MESSAGE);
 		}
@@ -256,6 +261,24 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public void setToleranceAngle(double toleranceAngle) {
 		Main.pref.put(PREF_TOLERANCEANGLE, Double.toString(toleranceAngle));
 		this.toleranceAngle = toleranceAngle;
+	}
+
+	/**
+	 * @return the showAddressDialog
+	 */
+	public boolean getShowAddressDialog() {
+		try{
+			this.showAddressDialog=Boolean.parseBoolean(Main.pref.get(PREF_SHOWADDRESSDIALOG,Boolean.toString(true)));
+		}catch(Throwable th){}
+		return showAddressDialog;
+	}
+
+	/**
+	 * @param showAddressDialog the showAddressDialog to set
+	 */
+	public void setShowAddressDialog(boolean showAddressDialog) {
+		Main.pref.put(PREF_SHOWADDRESSDIALOG, Boolean.toString(showAddressDialog));
+		this.showAddressDialog = showAddressDialog;
 	}
 
 }

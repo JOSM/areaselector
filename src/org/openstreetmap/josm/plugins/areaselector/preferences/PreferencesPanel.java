@@ -13,6 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import org.openstreetmap.josm.plugins.areaselector.ImageAnalyzer;
+import javax.swing.JCheckBox;
 
 /**
  * Area Selector Preferences JPanel
@@ -29,6 +30,7 @@ public class PreferencesPanel extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = -7952454271198838026L;
+	private JCheckBox ckbxShowAddressDialog;
 
 	/**
 	 * 
@@ -58,7 +60,7 @@ public class PreferencesPanel extends JPanel {
 //		this.add(lblSourceSelection);
 		
 		JLabel lblAlgorithmSettings = new JLabel("<html><p><b>"+tr("Algorithm Settings")+"</b></p></html>");
-		sl_panel.putConstraint(SpringLayout.NORTH, lblAlgorithmSettings, 40, SpringLayout.NORTH, this);
+		sl_panel.putConstraint(SpringLayout.NORTH, lblAlgorithmSettings, 20, SpringLayout.NORTH, this);
 		sl_panel.putConstraint(SpringLayout.WEST, lblAlgorithmSettings, 40, SpringLayout.WEST, this);
 		this.add(lblAlgorithmSettings);
 		
@@ -115,6 +117,21 @@ public class PreferencesPanel extends JPanel {
 		txtToleranceAngle.setText("0.4");
 		this.add(txtToleranceAngle);
 		txtToleranceAngle.setColumns(10);
+		
+		JLabel lbluserInterfaceSettings = new JLabel("<html><p><b>"+tr("User Interface Settings")+"</b></p></html>");
+		sl_panel.putConstraint(SpringLayout.NORTH, lbluserInterfaceSettings, 40, SpringLayout.SOUTH, lblToleranceAngle);
+		sl_panel.putConstraint(SpringLayout.WEST, lbluserInterfaceSettings, 0, SpringLayout.WEST, lblAlgorithmSettings);
+		add(lbluserInterfaceSettings);
+		
+		JLabel lblShowAddressDialog = new JLabel(tr("Show Address Dialog after mapping an area"));
+		sl_panel.putConstraint(SpringLayout.NORTH, lblShowAddressDialog, 23, SpringLayout.SOUTH, lbluserInterfaceSettings);
+		sl_panel.putConstraint(SpringLayout.WEST, lblShowAddressDialog, 0, SpringLayout.WEST, lblAlgorithmSettings);
+		add(lblShowAddressDialog);
+		
+		ckbxShowAddressDialog = new JCheckBox(tr("show address dialog"));
+		sl_panel.putConstraint(SpringLayout.WEST, ckbxShowAddressDialog, 84, SpringLayout.EAST, lblShowAddressDialog);
+		sl_panel.putConstraint(SpringLayout.SOUTH, ckbxShowAddressDialog, 0, SpringLayout.SOUTH, lblShowAddressDialog);
+		add(ckbxShowAddressDialog);
 	}
 	
 	/**
@@ -178,5 +195,19 @@ public class PreferencesPanel extends JPanel {
 		txtToleranceAngle.setText(Double.toString(ct));
 	}
 	
-
+	/**
+	 * return if the the show address dialog checkbox is selected
+	 * @return true if selected
+	 */
+	public boolean getShowAddressDialog() {
+		return ckbxShowAddressDialog.isSelected();
+	}
+	
+	/**
+	 * select the checkbox to show Address dialog
+	 * @param show true if selected
+	 */
+	public void setShowAddressDialog(boolean show){
+		ckbxShowAddressDialog.setSelected(show);
+	}
 }
