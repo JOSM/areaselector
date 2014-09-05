@@ -515,18 +515,21 @@ public class ImageAnalyzer {
 				
 				
 				polygons.add(poly);
+				if(debug){
+					g2.setColor(Color.RED);
+					VisualizeShapes.drawPolygon(vertexes,true,g2);
 	
-				g2.setColor(Color.RED);
-				VisualizeShapes.drawPolygon(vertexes,true,g2);
-	
-				// handle internal contours now
-				g2.setColor(Color.BLUE);
+					// handle internal contours now
+					g2.setColor(Color.BLUE);
+				}
 				for( List<Point2D_I32> internal : c.internal ) {
 					vertexes = ShapeFittingOps.fitPolygon(internal,true,toleranceDist,toleranceAngle,100);
 					poly=toPolygon(vertexes);
 					if(poly.contains(point)){
 						polygons.add(poly);
-						VisualizeShapes.drawPolygon(vertexes,true,g2);
+						if(debug){
+							VisualizeShapes.drawPolygon(vertexes,true,g2);
+						}
 					}
 				}
 			}
