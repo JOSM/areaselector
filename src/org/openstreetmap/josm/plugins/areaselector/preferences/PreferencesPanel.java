@@ -31,6 +31,7 @@ public class PreferencesPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -7952454271198838026L;
 	private JCheckBox ckbxShowAddressDialog;
+	private JCheckBox ckbxMergeNodes;
 
 	/**
 	 * 
@@ -118,7 +119,7 @@ public class PreferencesPanel extends JPanel {
 		this.add(txtToleranceAngle);
 		txtToleranceAngle.setColumns(10);
 		
-		JLabel lbluserInterfaceSettings = new JLabel("<html><p><b>"+tr("User Interface Settings")+"</b></p></html>");
+		JLabel lbluserInterfaceSettings = new JLabel("<html><p><b>"+tr("Plugin Settings")+"</b></p></html>");
 		sl_panel.putConstraint(SpringLayout.NORTH, lbluserInterfaceSettings, 40, SpringLayout.SOUTH, lblToleranceAngle);
 		sl_panel.putConstraint(SpringLayout.WEST, lbluserInterfaceSettings, 0, SpringLayout.WEST, lblAlgorithmSettings);
 		add(lbluserInterfaceSettings);
@@ -132,6 +133,16 @@ public class PreferencesPanel extends JPanel {
 		sl_panel.putConstraint(SpringLayout.WEST, ckbxShowAddressDialog, 84, SpringLayout.EAST, lblShowAddressDialog);
 		sl_panel.putConstraint(SpringLayout.SOUTH, ckbxShowAddressDialog, 0, SpringLayout.SOUTH, lblShowAddressDialog);
 		add(ckbxShowAddressDialog);
+		
+		JLabel lblMergeNodesWithNeighbor = new JLabel(tr("Merge nodes with neighbors"));
+		sl_panel.putConstraint(SpringLayout.NORTH, lblMergeNodesWithNeighbor, 21, SpringLayout.SOUTH, lblShowAddressDialog);
+		sl_panel.putConstraint(SpringLayout.WEST, lblMergeNodesWithNeighbor, 0, SpringLayout.WEST, lblAlgorithmSettings);
+		add(lblMergeNodesWithNeighbor);
+		
+		ckbxMergeNodes = new JCheckBox(tr("merge nodes"));
+		sl_panel.putConstraint(SpringLayout.WEST, ckbxMergeNodes, 0, SpringLayout.WEST, ckbxShowAddressDialog);
+		sl_panel.putConstraint(SpringLayout.SOUTH, ckbxMergeNodes, 0, SpringLayout.SOUTH, lblMergeNodesWithNeighbor);
+		add(ckbxMergeNodes);
 	}
 	
 	/**
@@ -209,5 +220,21 @@ public class PreferencesPanel extends JPanel {
 	 */
 	public void setShowAddressDialog(boolean show){
 		ckbxShowAddressDialog.setSelected(show);
+	}
+	
+	/**
+	 * return if the the merge nodes checkbox is selected
+	 * @return true if selected
+	 */
+	public boolean getMergeNodes() {
+		return ckbxMergeNodes.isSelected();
+	}
+	
+	/**
+	 * select the checkbox to merge Nodes
+	 * @param merge true if selected
+	 */
+	public void setMergeNodes(boolean merge){
+		ckbxMergeNodes.setSelected(merge);
 	}
 }

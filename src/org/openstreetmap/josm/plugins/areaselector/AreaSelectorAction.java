@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +24,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.actions.MergeNodesAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.Command;
@@ -45,14 +47,15 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected int colorThreshold=ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
 	protected double toleranceDist=ImageAnalyzer.DEFAULT_TOLERANCEDIST,toleranceAngle=ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
 	
-	protected boolean showAddressDialog=true;
+	protected boolean showAddressDialog=true,mergeNodes=true;
 	
 	public static final String PLUGIN_NAME="areaselector";
 	
 	public static final String PREF_COLORTHRESHOLD=PLUGIN_NAME+".colorthreshold",
 			PREF_TOLERANCEDIST=PLUGIN_NAME+".tolerancedist",
 			PREF_TOLERANCEANGLE=PLUGIN_NAME+".toleranceangle",
-			PREF_SHOWADDRESSDIALOG=PLUGIN_NAME+".showaddressdialog";
+			PREF_SHOWADDRESSDIALOG=PLUGIN_NAME+".showaddressdialog",
+			PREF_MERGENODES=PLUGIN_NAME+".mergenodes";
 	
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
@@ -175,7 +178,10 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Main.main.getCurrentDataSet().setSelected(way);
 			
 			// TODO ConnectWays extends an area instead of snaping it togeter
-//			ConnectWays.connect(way, mapView.getLatLon(clickPoint.x, clickPoint.y));
+			if(mergeNodes){
+				mergeNodes(way);
+			}
+			
 			
 			if(showAddressDialog){
 				showAddressDialog(way);
@@ -206,6 +212,55 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			way.addNode(firstNode);
 		}
 		return way;
+	}
+	
+
+	/**
+	 * Merge Nodes on way to existing nodes
+	 * @param way
+	 * @return
+	 */
+	public Way mergeNodes(Way way){
+//		List<Command> commands=new ArrayList<Command>();
+		for (int i=0; i<way.getNodesCount();i++){
+			Node node=way.getNode(i);
+			Command c=mergeNode(node);
+			if(c!= null){
+//				commands.add(c);
+				Main.main.undoRedo.add(c);
+//				for(PseudoCommand subCommand:c.getChildren()){
+//					if(subCommand instanceof DeleteCommand){
+//						DeleteCommand dc=(DeleteCommand)subCommand;
+//						// check if a deleted node is in the way
+//						dc.getParticipatingPrimitives();
+//					}
+//				}
+			}
+		}
+		
+//		Command c = new SequenceCommand(/* I18n: Name of command */ tr("Merged to neighbor Nodes"), commands);
+		
+//		Main.main.undoRedo.add(c);
+		
+		return way;
+	}
+	
+	
+	/**
+	 * merge node with neighbor nodes 
+	 * @param node node to merge
+	 * @return true if node was merged
+	 */
+	public Command mergeNode(Node node){
+		
+		List<Node> selectedNodes = new ArrayList<Node>();
+		selectedNodes.add(node);
+		List<Node> nearestNodes = Main.map.mapView.getNearestNodes(Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive.isUsablePredicate);
+		selectedNodes.addAll(nearestNodes);
+		Node targetNode = MergeNodesAction.selectTargetNode(selectedNodes);
+        Node targetLocationNode = MergeNodesAction.selectTargetLocationNode(selectedNodes);
+        Command cmd = MergeNodesAction.mergeNodes(Main.main.getEditLayer(), selectedNodes, targetNode, targetLocationNode);
+        return cmd;
 	}
 
 	/**
@@ -279,6 +334,24 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public void setShowAddressDialog(boolean showAddressDialog) {
 		Main.pref.put(PREF_SHOWADDRESSDIALOG, Boolean.toString(showAddressDialog));
 		this.showAddressDialog = showAddressDialog;
+	}
+
+	/**
+	 * @return the mergeNodes
+	 */
+	public boolean getMergeNodes() {
+		try{
+			this.mergeNodes=Boolean.parseBoolean(Main.pref.get(PREF_MERGENODES,Boolean.toString(true)));
+		}catch(Throwable th){}
+		return mergeNodes;
+	}
+
+	/**
+	 * @param mergeNodes the mergeNodes to set
+	 */
+	public void setMergeNodes(boolean mergeNodes) {
+		Main.pref.put(PREF_MERGENODES, Boolean.toString(mergeNodes));
+		this.mergeNodes = mergeNodes;
 	}
 
 }

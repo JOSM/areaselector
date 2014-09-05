@@ -38,6 +38,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     	prefPanel.setToleranceDist(areaSelectorAction.getToleranceDist());
     	prefPanel.setToleranceAngle(areaSelectorAction.getToleranceAngle());
     	prefPanel.setShowAddressDialog(areaSelectorAction.getShowAddressDialog());
+    	prefPanel.setMergeNodes(areaSelectorAction.getMergeNodes());
         
         createPreferenceTabWithScrollPane(gui, prefPanel);
     }
@@ -61,6 +62,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     	areaSelectorAction.setToleranceDist(prefPanel.getToleranceDist());
     	areaSelectorAction.setToleranceAngle(prefPanel.getToleranceAngle());
     	areaSelectorAction.setShowAddressDialog(prefPanel.getShowAddressDialog());
+    	areaSelectorAction.setMergeNodes(prefPanel.getMergeNodes());
         return false;
     }
 
