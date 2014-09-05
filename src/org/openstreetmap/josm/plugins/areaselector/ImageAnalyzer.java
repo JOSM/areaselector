@@ -438,7 +438,13 @@ public class ImageAnalyzer {
 		EnhanceImageOps.equalize(histogram, transform);
 		EnhanceImageOps.applyTransform(gray, transform, adjusted);
 
-		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"histogram_global");
+		ImageUInt8 binary = new ImageUInt8(gray.width,gray.height);
+		// the mean pixel value is often a reasonable threshold when creating a binary image
+		double mean = ImageStatistics.mean(adjusted);
+		// create a binary image by thresholding
+		ThresholdImageOps.threshold(adjusted, binary, (int) mean, true);
+		
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(binary,null),"histogram_global");
  
 //		EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
 //
