@@ -200,6 +200,8 @@ public class ImageAnalyzer {
 		// 150, 152, 199
 //		pointColor=new Color(150,152,199);
 		
+		pointColor = new Color(180,150,150); // border color
+		
 		log.info("point color: " + pointColor);
 		
 		
