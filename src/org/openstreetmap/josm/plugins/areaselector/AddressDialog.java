@@ -52,7 +52,9 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         PREF_COUNTRY=PREF+"country",
         PREF_BUILDING=PREF+"building",
         PREF_TAGS=PREF+"tags",
-        PREF_HOUSENUM_CHANGE="housenum.change";
+        PREF_HOUSENUM_CHANGE=PREF+"housenum.change",
+        PREF_DIALOG_X=PREF+"dialog.x",
+        PREF_DIALOG_Y=PREF+"dialog.y";
 	
 	
     protected String houseNum, streetName, city, postCode, country, houseName,building,tags;
@@ -210,6 +212,10 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         setContent(panel);
         setupDialog();
         this.setSize(630, 350);
+        
+        try{
+        	this.setLocation(Integer.parseInt(Main.pref.get(PREF_DIALOG_X)), Integer.parseInt(Main.pref.get(PREF_DIALOG_Y)));
+        }catch(Throwable th){}
     }
 
     protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box)
@@ -247,6 +253,9 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         Main.pref.put(PREF_BUILDING, building);
         Main.pref.put(PREF_TAGS, tags);
         Main.pref.put(PREF_HOUSENUM_CHANGE, houseNumChange.getSelection().getActionCommand());
+        
+        Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
+        Main.pref.put(PREF_DIALOG_Y, Integer.toString(this.getLocation().y));
         
        
         updateTag(TAG_HOUSENAME, houseName);
