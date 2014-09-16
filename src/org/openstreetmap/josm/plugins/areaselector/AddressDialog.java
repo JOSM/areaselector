@@ -254,9 +254,6 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         Main.pref.put(PREF_TAGS, tags);
         Main.pref.put(PREF_HOUSENUM_CHANGE, houseNumChange.getSelection().getActionCommand());
         
-        Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
-        Main.pref.put(PREF_DIALOG_Y, Integer.toString(this.getLocation().y));
-        
        
         updateTag(TAG_HOUSENAME, houseName);
         updateTag(TAG_HOUSENUM, houseNum);
@@ -307,6 +304,10 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			Main.main.undoRedo.add(c);
 			Main.main.getCurrentDataSet().setSelected(way);
 		}
+		
+		Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
+	    Main.pref.put(PREF_DIALOG_Y, Integer.toString(this.getLocation().y));
+	        
 		return way;
     }
 
