@@ -120,8 +120,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			try {
 				clickPoint=e.getPoint();
 				createArea();
-			} catch (Throwable th) {
-				log.error("failed to add area", th);
+			} catch (Throwable ex) {
+				log.error("failed to add area", ex);
+				new BugReportDialog(ex);
 			}
 
 		}

@@ -60,6 +60,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 			showAddressDialogFor(e.getPoint());
 		} catch (Throwable th) {
 			log.warn("show Address Dialog failed", th);
+			new BugReportDialog(th);
 		}
 	}
 
