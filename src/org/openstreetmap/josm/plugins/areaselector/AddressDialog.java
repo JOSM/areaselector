@@ -4,15 +4,23 @@ package org.openstreetmap.josm.plugins.areaselector;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangeCommand;
@@ -31,7 +39,7 @@ import org.openstreetmap.josm.tools.GBC;
  * @author Paul Woelfel (paul@woelfel.at)
  */
 @SuppressWarnings("serial")
-public class AddressDialog extends ExtendedDialog {
+public class AddressDialog extends ExtendedDialog implements ChangeListener {
 	
 	public static final String TAG_HOUSENAME="name",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postcode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
 
@@ -43,12 +51,17 @@ public class AddressDialog extends ExtendedDialog {
         PREF_POSTCODE=PREF+"postcode",
         PREF_COUNTRY=PREF+"country",
         PREF_BUILDING=PREF+"building",
-        PREF_TAGS=PREF+"tags";
+        PREF_TAGS=PREF+"tags",
+        PREF_HOUSENUM_CHANGE=PREF+"housenum.change",
+        PREF_DIALOG_X=PREF+"dialog.x",
+        PREF_DIALOG_Y=PREF+"dialog.y";
 	
 	
     protected String houseNum, streetName, city, postCode, country, houseName,building,tags;
     
     protected JTextField houseNumField;
+    protected ButtonGroup houseNumChange;
+    
     protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField,tagsField;
     
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
@@ -59,6 +72,10 @@ public class AddressDialog extends ExtendedDialog {
     protected OsmPrimitive way;
     
     protected static Collection<AutoCompletionListItem> aciTags;
+    
+    protected int changeNum=0;
+    
+//    protected static Logger log = Logger.getLogger(AddressDialog.class);
 
     protected final void addLabelled(String str, Component c) {
         JLabel label = new JLabel(str);
@@ -87,9 +104,52 @@ public class AddressDialog extends ExtendedDialog {
         houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
         houseNameField.setEditable(true);
         
+        houseNumField=new JTextField();
+        houseNumField.setPreferredSize(new Dimension(100, 24));
         
-        houseNumField=new JTextField(Main.pref.get(PREF_HOUSENUM));
+        String numChange=Main.pref.get(PREF_HOUSENUM_CHANGE, "0");
+        try{
+        	changeNum=Integer.parseInt(numChange);
+        	if(changeNum!=0){
+        		houseNumField.setText(Integer.toString(Integer.parseInt(Main.pref.get(PREF_HOUSENUM, ""))+changeNum));
+        	}
+        	
+        }catch(Throwable th){}
         
+        JPanel houseNumPanel=new JPanel();
+        houseNumPanel.add(houseNumField);
+        
+        
+        houseNumChange = new ButtonGroup();
+        
+        for(int i=-2;i<=2;i++){
+        	JRadioButton radio=new JRadioButton((i==0?tr("empty"):((i>0?"+":"")+Integer.toString(i))));
+        	radio.setActionCommand(Integer.toString(i));
+        	
+        	if(changeNum==i){
+        		radio.setSelected(true);
+        	}
+        	radio.addChangeListener(this);
+        	houseNumChange.add(radio);
+        	houseNumPanel.add(radio);
+        }
+        
+        
+        
+        JButton skip=new JButton(tr("skip"));
+        skip.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(changeNum!=0){
+					try {
+						houseNumField.setText(Integer.toString(Integer.parseInt(houseNumField.getText())+changeNum));
+					}catch(Throwable th){}
+				}
+			}
+		});
+        houseNumPanel.add(skip);
+       
         
         streetNameField = new AutoCompletingComboBox();
         streetNameField.setPossibleACItems(acm.getValues(TAG_STREETNAME));
@@ -133,8 +193,12 @@ public class AddressDialog extends ExtendedDialog {
         
 
 
-        addLabelled(tr("Name:"), houseNameField);
-        addLabelled(tr("House number:"), houseNumField);
+        
+        JLabel houseNumLabel = new JLabel(tr("House number:"));
+        houseNumLabel.setLabelFor(houseNameField);
+        panel.add(houseNumLabel, GBC.std());
+        panel.add(houseNumPanel, GBC.eol().fill(GBC.HORIZONTAL));
+        
         addLabelled(tr("Street:"), streetNameField);
         addLabelled(tr("City:"), cityField);
         addLabelled(tr("Post code:"), postCodeField);
@@ -142,11 +206,16 @@ public class AddressDialog extends ExtendedDialog {
         addLabelled(tr("Building:"), buildingField);
         addLabelled(tr("Tags:"), tagsField);
         
+        addLabelled(tr("Name:"), houseNameField);
         
         
         setContent(panel);
         setupDialog();
-        this.setSize(400, 350);
+        this.setSize(630, 350);
+        
+        try{
+        	this.setLocation(Integer.parseInt(Main.pref.get(PREF_DIALOG_X)), Integer.parseInt(Main.pref.get(PREF_DIALOG_Y)));
+        }catch(Throwable th){}
     }
 
     protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box)
@@ -164,8 +233,8 @@ public class AddressDialog extends ExtendedDialog {
           return "";
        }
     }
-
-
+    
+  
     public final void saveValues() {
     	houseName = getAutoCompletingComboBoxValue(houseNameField);
     	houseNum = houseNumField.getText();
@@ -183,7 +252,7 @@ public class AddressDialog extends ExtendedDialog {
         Main.pref.put(PREF_COUNTRY, country);
         Main.pref.put(PREF_BUILDING, building);
         Main.pref.put(PREF_TAGS, tags);
-
+        Main.pref.put(PREF_HOUSENUM_CHANGE, houseNumChange.getSelection().getActionCommand());
         
        
         updateTag(TAG_HOUSENAME, houseName);
@@ -211,6 +280,10 @@ public class AddressDialog extends ExtendedDialog {
         
     }
     
+    public void setHouseNumChange(int num){
+    	Main.pref.put(PREF_HOUSENUM_CHANGE, Integer.toString(num));
+    }
+    
     public void updateTag(String tag,String value){
     	if(value==null||value.isEmpty()){
     		if(way.get(tag)!=null){
@@ -231,6 +304,25 @@ public class AddressDialog extends ExtendedDialog {
 			Main.main.undoRedo.add(c);
 			Main.main.getCurrentDataSet().setSelected(way);
 		}
+		
+		Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
+	    Main.pref.put(PREF_DIALOG_Y, Integer.toString(this.getLocation().y));
+	        
 		return way;
     }
+
+
+
+	/* (non-Javadoc)
+	 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+	 * a radio button changed it's event
+	 */
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		try {
+			JRadioButton rb=(JRadioButton)e.getSource();
+			changeNum=Integer.parseInt(rb.getActionCommand());
+			
+		}catch(Throwable th){}
+	}
 }

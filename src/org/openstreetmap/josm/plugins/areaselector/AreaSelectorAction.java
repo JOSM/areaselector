@@ -28,9 +28,12 @@ import org.openstreetmap.josm.actions.MergeNodesAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.command.AddCommand;
 import org.openstreetmap.josm.command.Command;
+import org.openstreetmap.josm.command.DeleteCommand;
+import org.openstreetmap.josm.command.PseudoCommand;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.osm.OsmPrimitiveType;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
@@ -120,8 +123,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			try {
 				clickPoint=e.getPoint();
 				createArea();
-			} catch (Throwable th) {
-				log.error("failed to add area", th);
+			} catch (Throwable ex) {
+				log.error("failed to add area", ex);
+				new BugReportDialog(ex);
 			}
 
 		}
@@ -184,7 +188,6 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Main.main.undoRedo.add(c);
 			Main.main.getCurrentDataSet().setSelected(way);
 			
-			// TODO ConnectWays extends an area instead of snaping it togeter
 			if(mergeNodes){
 				mergeNodes(way);
 			}
@@ -228,20 +231,47 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @return
 	 */
 	public Way mergeNodes(Way way){
+		
+//		log.info("Mergeing Way: "+way);
+		
 //		List<Command> commands=new ArrayList<Command>();
+		List<Node> deletedNodes=new ArrayList<Node>();
 		for (int i=0; i<way.getNodesCount();i++){
 			Node node=way.getNode(i);
-			Command c=mergeNode(node);
-			if(c!= null){
-//				commands.add(c);
-				Main.main.undoRedo.add(c);
-//				for(PseudoCommand subCommand:c.getChildren()){
-//					if(subCommand instanceof DeleteCommand){
-//						DeleteCommand dc=(DeleteCommand)subCommand;
-//						// check if a deleted node is in the way
-//						dc.getParticipatingPrimitives();
-//					}
-//				}
+			
+			List<Node> selectedNodes = new ArrayList<Node>();
+			selectedNodes.add(node);
+			List<Node> nearestNodes = Main.map.mapView.getNearestNodes(Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive.isUsablePredicate);
+			
+			// selectedNodes.addAll(nearestNodes);
+			for(Node n: nearestNodes){
+				if(!way.containsNode(n)&&!deletedNodes.contains(n)){
+					selectedNodes.add(n);
+				}
+			}
+			log.info("selected nodes: "+selectedNodes);
+			if(selectedNodes.size()>1){
+				Node targetNode = MergeNodesAction.selectTargetNode(selectedNodes);
+		        Node targetLocationNode = MergeNodesAction.selectTargetLocationNode(selectedNodes);
+		        Command c = MergeNodesAction.mergeNodes(Main.main.getEditLayer(), selectedNodes, targetNode, targetLocationNode);
+				
+				if(c!= null){
+
+//					commands.add(c);
+					Main.main.undoRedo.add(c);
+					for(PseudoCommand subCommand:c.getChildren()){
+						if(subCommand instanceof DeleteCommand){
+							DeleteCommand dc=(DeleteCommand)subCommand;
+							// check if a deleted node is in the way
+							for (OsmPrimitive p: dc.getParticipatingPrimitives()){
+								if(p instanceof Node){
+									deletedNodes.add((Node)p);
+	//								log.info("adding note to delete "+(Node)p);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		
@@ -249,7 +279,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		
 //		Main.main.undoRedo.add(c);
 		
-		return way;
+		return (Way) Main.main.getCurrentDataSet().getPrimitiveById(way.getId(), OsmPrimitiveType.WAY);
+		
 	}
 	
 	
