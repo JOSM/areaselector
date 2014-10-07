@@ -19,6 +19,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
@@ -207,6 +209,11 @@ public class ImageAnalyzer {
 		
 		workImage=selectMarvinColor(workImage,pointColor);
 		if(debug) saveImgToFile(workImage, "colorExtracted");
+		
+		
+		workImage=skeletonize(workImage);
+		if(debug) saveImgToFile(workImage, "skeleton");
+		
 		
 //		workImage=histogram(workImage);
 //		if(debug) saveImgToFile(workImage,"histogram");
@@ -473,6 +480,30 @@ public class ImageAnalyzer {
 //		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"sharpen8");
  
 		return ConvertBufferedImage.convertTo(adjusted,null);
+	}
+	
+	
+	/**
+	 * skeletonize an image
+	 * @param image input image
+	 * @return skeletonized image
+	 */
+	public BufferedImage skeletonize(BufferedImage image){
+		float [] kernelValues= {
+				0, 1, 0,
+			    1, -4, 1,
+			    0, 1, 0
+		};
+		
+
+		
+		Kernel kernel=new Kernel(3, 3, kernelValues);
+		ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
+		
+		BufferedImage dst= new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_RGB);
+		op.filter(image, dst);
+		
+		return dst;
 	}
  
 	
@@ -828,7 +859,8 @@ public class ImageAnalyzer {
 		} else {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0],point);
-			imgAnalyzer.initUI();
+			//imgAnalyzer.initUI();
+			imgAnalyzer.setColorThreshold(40);
 
 			Polygon polygon=imgAnalyzer.getArea();
 			log.info("got polygon "+polygonToString(polygon));
