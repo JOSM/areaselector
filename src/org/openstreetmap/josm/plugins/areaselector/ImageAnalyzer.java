@@ -489,23 +489,63 @@ public class ImageAnalyzer {
 	 * @return skeletonized image
 	 */
 	public BufferedImage skeletonize(BufferedImage image){
-		float [] kernelValues= {
-				0, 1, 0,
-			    1, -4, 1,
-			    0, 1, 0
+//		float [] kernelValues= {
+//				0, 1, 0,
+//			    1, -4, 1,
+//			    0, 1, 0
+//		};
+		
+		
+		float [] kernel1= {
+				0, 0, 0,
+			    0, 1, 0,
+			    1, 1, 1
 		};
 		
-
+		float [] kernel2= {
+				0, 0, 0,
+			    0, 1, 0,
+			    1, 1, 1
+		};
 		
-		Kernel kernel=new Kernel(3, 3, kernelValues);
-		ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
-		
-		BufferedImage dst= new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_RGB);
-		op.filter(image, dst);
+		BufferedImage src= deepCopy(image);
+		BufferedImage dst=null;
+		for (int i=0; i<4; i++){
+			
+			Kernel kernel=new Kernel(3, 3, kernel1);
+			ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
+			
+			dst= new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_RGB);
+			op.filter(src, dst);
+			src=dst;
+			
+			kernel=new Kernel(3, 3, kernel2);
+			op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
+			
+			dst= new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_RGB);
+			op.filter(src, dst);
+			src=dst;
+			
+			kernel1=rotateCW(kernel1);
+			kernel2=rotateCW(kernel2);
+			
+		}
 		
 		return dst;
 	}
  
+	
+	static float[] rotateCW(float[] mat) {
+	    final int M = (int)Math.sqrt(mat.length);
+	    final int N = (int)Math.sqrt(mat.length);
+	    float[] ret = new float[mat.length];
+	    for (int r = 0; r < M; r++) {
+	        for (int c = 0; c < N; c++) {
+	            ret[c*N+M-1-r] = mat[r*M+c];
+	        }
+	    }
+	    return ret;
+	}
 	
 	
 	/**
