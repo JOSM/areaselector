@@ -19,8 +19,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
-import java.awt.image.ConvolveOp;
-import java.awt.image.Kernel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
@@ -496,42 +494,61 @@ public class ImageAnalyzer {
 //		};
 		
 		
-		float [] kernel1= {
+		int [] kernel1= {
 				0, 0, 0,
 			    0, 1, 0,
 			    1, 1, 1
 		};
 		
-		float [] kernel2= {
+		int [] kernel2= {
 				0, 0, 0,
 			    0, 1, 0,
 			    1, 1, 1
 		};
 		
-		BufferedImage src= deepCopy(image);
-		BufferedImage dst=null;
+		MarvinImage mimg=new MarvinImage(image);
+		
 		for (int i=0; i<4; i++){
 			
-			Kernel kernel=new Kernel(3, 3, kernel1);
-			ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
-			
-			dst= new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_RGB);
-			op.filter(src, dst);
-			src=dst;
-			
-			kernel=new Kernel(3, 3, kernel2);
-			op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
-			
-			dst= new BufferedImage(image.getWidth(),image.getHeight(),BufferedImage.TYPE_INT_RGB);
-			op.filter(src, dst);
-			src=dst;
+			mimg=applyKernel(mimg,kernel1);
+			mimg=applyKernel(mimg,kernel2);
 			
 			kernel1=rotateCW(kernel1);
 			kernel2=rotateCW(kernel2);
 			
 		}
 		
-		return dst;
+		mimg.update();
+		
+		return mimg.getBufferedImage();
+	}
+	
+	
+	/**
+	 * apply a kernel to a marvin image
+	 * @param src
+	 * @param kernel
+	 * @return
+	 */
+	public MarvinImage applyKernel(MarvinImage src, int[] kernel){
+		
+		ArrayList<Boolean> arr=new ArrayList<Boolean>(kernel.length);
+		
+		for(int i=0;i<kernel.length;i++){
+			arr.add( new Boolean(kernel[i]==1));
+		}
+		
+		HashMap<String,Object> attributes=new HashMap<String,Object>();
+		attributes.put("kernel", arr);
+		
+		log.info("applying kernel "+kernel);
+		MarvinImage dest=applyPlugin("org.marvinproject.image.binary.thinning", src, attributes);
+		if(debug) saveImgToFile(dest,"kernel");
+		
+		
+//		colorSelected.update();
+		
+		return dest;
 	}
  
 	
@@ -547,6 +564,30 @@ public class ImageAnalyzer {
 	    return ret;
 	}
 	
+	static boolean[] rotateCW(boolean[] mat) {
+	    final int M = (int)Math.sqrt(mat.length);
+	    final int N = M;
+	    boolean[] ret = new boolean[mat.length];
+	    for (int r = 0; r < M; r++) {
+	        for (int c = 0; c < N; c++) {
+	            ret[c*N+M-1-r] = mat[r*M+c];
+	        }
+	    }
+	    return ret;
+	}
+	
+	
+	static int[] rotateCW(int[] mat) {
+	    final int M = (int)Math.sqrt(mat.length);
+	    final int N = M;
+	    int[] ret = new int[mat.length];
+	    for (int r = 0; r < M; r++) {
+	        for (int c = 0; c < N; c++) {
+	            ret[c*N+M-1-r] = mat[r*M+c];
+	        }
+	    }
+	    return ret;
+	}
 	
 	/**
 	 * detect a Polygon around a point
