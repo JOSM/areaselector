@@ -506,21 +506,19 @@ public class ImageAnalyzer {
 			    1, 1, 1
 		};
 		
-		MarvinImage mimg=new MarvinImage(image);
+		BufferedImage img=deepCopy(image);
 		
 		for (int i=0; i<4; i++){
 			
-			mimg=applyKernel(mimg,kernel1);
-			mimg=applyKernel(mimg,kernel2);
+			img=applyKernel(img,kernel1);
+			img=applyKernel(img,kernel2);
 			
 			kernel1=rotateCW(kernel1);
 			kernel2=rotateCW(kernel2);
 			
 		}
 		
-		mimg.update();
-		
-		return mimg.getBufferedImage();
+		return img;
 	}
 	
 	
@@ -530,25 +528,85 @@ public class ImageAnalyzer {
 	 * @param kernel
 	 * @return
 	 */
-	public MarvinImage applyKernel(MarvinImage src, int[] kernel){
+	public BufferedImage applyKernel(BufferedImage src, int[] kernel){
+		log.info("applying kernel\n"+kernelToString(kernel)+" to "+binaryImageToString(src));
+	
+		BufferedImage dest= new BufferedImage(src.getWidth(),src.getHeight(),BufferedImage.TYPE_INT_RGB);
+	
+		int m=(int)Math.sqrt(kernel.length);
+		if(m*m!=kernel.length) throw new RuntimeException("the matrix must have equal rows and columns");
+		int half=m/2;
 		
-		ArrayList<Boolean> arr=new ArrayList<Boolean>(kernel.length);
-		
-		for(int i=0;i<kernel.length;i++){
-			arr.add( new Boolean(kernel[i]==1));
+		for (int y = half; y < src.getHeight()-half; y++) { // loop through rows
+			for (int x = half; x < src.getWidth()-half; x++) { // loop through cols
+
+				boolean white=true;
+				
+				for(int kernelY=0; white==true && kernelY<m; kernelY++){
+					for(int kernelX=0; white==true && kernelY<m; kernelY++){
+						// check if pixel should be white
+						// get r like Color class does
+						int r=(src.getRGB(x-half+kernelX,y-half+kernelY) >> 16) & 0xFF;
+						
+						if(kernel[kernelY*m+kernelX]==1 &&  r<127){
+							white=false;
+						}
+					}
+				}
+				
+				if(white){
+					dest.setRGB(x, y, Color.white.getRGB());
+					
+				}else {
+					dest.setRGB(x, y, Color.white.getRGB());
+				}
+				
+			}
 		}
 		
-		HashMap<String,Object> attributes=new HashMap<String,Object>();
-		attributes.put("kernel", arr);
 		
-		log.info("applying kernel "+kernel);
-		MarvinImage dest=applyPlugin("org.marvinproject.image.binary.thinning", src, attributes);
 		if(debug) saveImgToFile(dest,"kernel");
 		
-		
-//		colorSelected.update();
-		
 		return dest;
+	}
+	
+	/**
+	 * convert a kernel to a readable format
+	 * @param kernel kernel to show
+	 * @return String representing the kernel
+	 */
+	public static String kernelToString(int[] kernel){
+		StringBuilder sb=new StringBuilder();
+		int row=(int) Math.sqrt(kernel.length);
+		for(int i=0;i<kernel.length;i++){
+			sb.append(kernel[i]);
+			if((i+1)%row==0){
+				sb.append("\n");
+			}else {
+				sb.append(" ");
+			}
+			
+		}
+		return sb.toString();
+	}
+	
+	
+	public static String binaryImageToString(BufferedImage image){
+		StringBuilder sb=new StringBuilder();
+		
+		for(int y=0;y<image.getHeight();y++){
+			for(int x=0;x<image.getWidth();x++){
+				if(((image.getRGB(x,y) >> 16) & 0xFF)>127){
+					sb.append("1");
+				}else {
+					sb.append("0");
+				}
+				
+			}
+			sb.append("\n");
+		}
+		
+		return sb.toString();
 	}
  
 	
