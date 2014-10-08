@@ -496,22 +496,22 @@ public class ImageAnalyzer {
 		
 		int [] kernel1= {
 				0, 0, 0,
-			    0, 1, 0,
+			    -1, 1, -1,
 			    1, 1, 1
 		};
 		
 		int [] kernel2= {
-				0, 0, 0,
-			    0, 1, 0,
-			    1, 1, 1
+				-1, 0, 0,
+			    1, 1, 0,
+			    -1, 1, -1
 		};
 		
 		BufferedImage img=deepCopy(image);
 		
 		for (int i=0; i<4; i++){
 			
-			img=applyKernel(img,kernel1);
-			img=applyKernel(img,kernel2);
+			img=thin(img,kernel1);
+			img=thin(img,kernel2);
 			
 			kernel1=rotateCW(kernel1);
 			kernel2=rotateCW(kernel2);
@@ -521,15 +521,47 @@ public class ImageAnalyzer {
 		return img;
 	}
 	
+	/**
+	 * thin an image with the given kernel
+	 *  <p>1 in a kernel means the pixel has to be white<br>
+	 * 0 in a kernel means the pixel has to be black<br >
+	 * -1 in a kernel means the pixel will be ignored</p>
+	 * @param src
+	 * @param kernel
+	 * @return
+	 */
+	public BufferedImage thin(BufferedImage src, int[] kernel){
+		// apply the kernel to get edge pixels
+		BufferedImage dest=applyKernel(src,kernel);
+		
+		// and now erase the found pixels
+		BufferedImage erased=deepCopy(src);
+		for(int y=0;y<dest.getHeight();y++){
+			for (int x=0; x<dest.getWidth(); x++){
+				
+				if(((dest.getRGB(x,y) >> 16) & 0xFF)>=127){
+					erased.setRGB(x, y, Color.black.getRGB());
+				}
+			}
+		}
+		
+		if(debug) saveImgToFile(erased,"thin");
+		
+		return erased;
+	}
+	
 	
 	/**
-	 * apply a kernel to a marvin image
+	 * apply a kernel to an image
+	 * <p>1 in a kernel means the pixel has to be white<br>
+	 * 0 in a kernel means the pixel has to be black<br >
+	 * -1 in a kernel means the pixel will be ignored</p>
 	 * @param src
 	 * @param kernel
 	 * @return
 	 */
 	public BufferedImage applyKernel(BufferedImage src, int[] kernel){
-		log.info("applying kernel\n"+kernelToString(kernel)+" to "+binaryImageToString(src));
+		if(debug) log.info("applying kernel\n"+kernelToString(kernel));
 	
 		BufferedImage dest= new BufferedImage(src.getWidth(),src.getHeight(),BufferedImage.TYPE_INT_RGB);
 	
@@ -546,14 +578,22 @@ public class ImageAnalyzer {
 					for(int kernelX=0; white==true && kernelX<m; kernelX++){
 						// check if pixel should be white
 						
-						if(kernel[kernelY*m+kernelX]==1 ){
+						if(kernel[kernelY*m+kernelX]!=-1 ){
+							
 							
 							// get r like Color class does
 							int r=(src.getRGB(x-half+kernelX,y-half+kernelY) >> 16) & 0xFF;
-							if(r<127){
-								white=false;
+							if(kernel[kernelY*m+kernelX]==1){
+								if(r<127){
+									white=false;
+								}
+							}else {
+								if(r>=127){
+									white=false;
+								}
 							}
 						}
+					
 					}
 				}
 				
