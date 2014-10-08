@@ -543,13 +543,16 @@ public class ImageAnalyzer {
 				boolean white=true;
 				
 				for(int kernelY=0; white==true && kernelY<m; kernelY++){
-					for(int kernelX=0; white==true && kernelY<m; kernelY++){
+					for(int kernelX=0; white==true && kernelX<m; kernelX++){
 						// check if pixel should be white
-						// get r like Color class does
-						int r=(src.getRGB(x-half+kernelX,y-half+kernelY) >> 16) & 0xFF;
 						
-						if(kernel[kernelY*m+kernelX]==1 &&  r<127){
-							white=false;
+						if(kernel[kernelY*m+kernelX]==1 ){
+							
+							// get r like Color class does
+							int r=(src.getRGB(x-half+kernelX,y-half+kernelY) >> 16) & 0xFF;
+							if(r<127){
+								white=false;
+							}
 						}
 					}
 				}
@@ -558,7 +561,7 @@ public class ImageAnalyzer {
 					dest.setRGB(x, y, Color.white.getRGB());
 					
 				}else {
-					dest.setRGB(x, y, Color.white.getRGB());
+					dest.setRGB(x, y, Color.black.getRGB());
 				}
 				
 			}
