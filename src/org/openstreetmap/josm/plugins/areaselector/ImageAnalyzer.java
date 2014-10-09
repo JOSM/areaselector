@@ -85,15 +85,17 @@ public class ImageAnalyzer {
 	
 	
 	// Algorithm params
-	
+	// default for border = 40
 	public static final int DEFAULT_COLORTHRESHOLD= 17;
 	protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 	
 	
 	// Polynomial fitting tolerances
+	// default for border = 4
 	public static final double DEFAULT_TOLERANCEDIST=4;
 	double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 	
+	// default for border = 0.25
 	public static final double DEFAULT_TOLERANCEANGLE = Math.PI / 8;
 	double toleranceAngle= DEFAULT_TOLERANCEANGLE; // original Math.PI/10
 	
@@ -200,13 +202,16 @@ public class ImageAnalyzer {
 		// 150, 152, 199
 //		pointColor=new Color(150,152,199);
 		
-		pointColor = new Color(180,150,150); // border color
+//		pointColor = new Color(180,150,150); // border color
 		
 		log.info("point color: " + pointColor);
 		
 		
 		workImage=selectMarvinColor(workImage,pointColor);
 		if(debug) saveImgToFile(workImage, "colorExtracted");
+		
+		workImage=invert(workImage);
+		if(debug) saveImgToFile(workImage,"inverted");
 		
 		workImage=skeletonize(workImage);
 		if(debug) saveImgToFile(workImage, "skeleton");
@@ -347,6 +352,25 @@ public class ImageAnalyzer {
 		ThresholdImageOps.threshold(input,binary,(float)mean,true);
 
 		return VisualizeBinaryData.renderBinary(binary, null);
+	}
+	
+	/**
+	 * Invert the RGB color of each pixel
+	 * @param workImage
+	 * @return
+	 */
+	public BufferedImage invert(BufferedImage workImage){
+		BufferedImage img=new BufferedImage(workImage.getWidth(),workImage.getHeight(),BufferedImage.TYPE_INT_RGB);
+		
+		for (int y=0;y<img.getHeight();y++){
+			for (int x=0; x<img.getWidth(); x++){
+				Color c=new Color(workImage.getRGB(x, y));
+				c=new Color(255-c.getRed(), 255-c.getGreen(), 255-c.getBlue());
+				img.setRGB(x, y, c.getRGB());
+			}
+		}
+		
+		return img;
 	}
 	
 	/**
@@ -1063,7 +1087,7 @@ public class ImageAnalyzer {
 			Point point=new Point(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 			ImageAnalyzer imgAnalyzer = new ImageAnalyzer(args[0],point);
 			//imgAnalyzer.initUI();
-			imgAnalyzer.setColorThreshold(40);
+//			imgAnalyzer.setColorThreshold(40);
 
 			Polygon polygon=imgAnalyzer.getArea();
 			log.info("got polygon "+polygonToString(polygon));
