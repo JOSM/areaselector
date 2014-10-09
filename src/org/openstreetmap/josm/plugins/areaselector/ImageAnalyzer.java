@@ -208,7 +208,6 @@ public class ImageAnalyzer {
 		workImage=selectMarvinColor(workImage,pointColor);
 		if(debug) saveImgToFile(workImage, "colorExtracted");
 		
-		
 		workImage=skeletonize(workImage);
 		if(debug) saveImgToFile(workImage, "skeleton");
 		
@@ -487,35 +486,34 @@ public class ImageAnalyzer {
 	 * @return skeletonized image
 	 */
 	public BufferedImage skeletonize(BufferedImage image){
-//		float [] kernelValues= {
-//				0, 1, 0,
-//			    1, -4, 1,
-//			    0, 1, 0
-//		};
-		
-		
-		int [] kernel1= {
-				0, 0, 0,
-			    -1, 1, -1,
-			    1, 1, 1
-		};
-		
-		int [] kernel2= {
-				-1, 0, 0,
-			    1, 1, 0,
-			    -1, 1, -1
-		};
-		
+
 		BufferedImage img=deepCopy(image);
 		
-		for (int i=0; i<4; i++){
+		for(int j=0;j<3;j++){
 			
-			img=thin(img,kernel1);
-			img=thin(img,kernel2);
+			int [] kernel1= {
+					0, 0, 0,
+				    -1, 1, -1,
+				    1, 1, 1
+			};
 			
-			kernel1=rotateCW(kernel1);
-			kernel2=rotateCW(kernel2);
+			int [] kernel2= {
+					-1, 0, 0,
+				    1, 1, 0,
+				    -1, 1, -1
+			};
 			
+			
+			for (int i=0; i<4; i++){
+				img=thin(img,kernel1);
+				img=thin(img,kernel2);
+				
+				kernel1=rotateCW(kernel1);
+				kernel2=rotateCW(kernel2);
+				
+			}
+			
+			if(debug) saveImgToFile(img, "skeleton");
 		}
 		
 		return img;
@@ -545,7 +543,7 @@ public class ImageAnalyzer {
 			}
 		}
 		
-		if(debug) saveImgToFile(erased,"thin");
+//		if(debug) saveImgToFile(erased,"thin");
 		
 		return erased;
 	}
@@ -561,7 +559,7 @@ public class ImageAnalyzer {
 	 * @return
 	 */
 	public BufferedImage applyKernel(BufferedImage src, int[] kernel){
-		if(debug) log.info("applying kernel\n"+kernelToString(kernel));
+//		if(debug) log.info("applying kernel\n"+kernelToString(kernel));
 	
 		BufferedImage dest= new BufferedImage(src.getWidth(),src.getHeight(),BufferedImage.TYPE_INT_RGB);
 	
@@ -608,7 +606,7 @@ public class ImageAnalyzer {
 		}
 		
 		
-		if(debug) saveImgToFile(dest,"kernel");
+//		if(debug) saveImgToFile(dest,"kernel");
 		
 		return dest;
 	}
@@ -653,31 +651,12 @@ public class ImageAnalyzer {
 	}
  
 	
-	static float[] rotateCW(float[] mat) {
-	    final int M = (int)Math.sqrt(mat.length);
-	    final int N = (int)Math.sqrt(mat.length);
-	    float[] ret = new float[mat.length];
-	    for (int r = 0; r < M; r++) {
-	        for (int c = 0; c < N; c++) {
-	            ret[c*N+M-1-r] = mat[r*M+c];
-	        }
-	    }
-	    return ret;
-	}
 	
-	static boolean[] rotateCW(boolean[] mat) {
-	    final int M = (int)Math.sqrt(mat.length);
-	    final int N = M;
-	    boolean[] ret = new boolean[mat.length];
-	    for (int r = 0; r < M; r++) {
-	        for (int c = 0; c < N; c++) {
-	            ret[c*N+M-1-r] = mat[r*M+c];
-	        }
-	    }
-	    return ret;
-	}
-	
-	
+	/**
+	 * rotate a matrix counterwise
+	 * @param mat
+	 * @return
+	 */
 	static int[] rotateCW(int[] mat) {
 	    final int M = (int)Math.sqrt(mat.length);
 	    final int N = M;
@@ -710,11 +689,11 @@ public class ImageAnalyzer {
 		ThresholdImageOps.threshold(input, binary, (float) mean, true);
 
 		// reduce noise with some filtering
-		ImageUInt8 filtered = BinaryImageOps.erode8(binary, 1, null);
-		filtered = BinaryImageOps.dilate8(filtered, 1, null);
+//		ImageUInt8 filtered = BinaryImageOps.erode8(binary, 1, null);
+//		filtered = BinaryImageOps.dilate8(filtered, 1, null);
 
 		// Find the contour around the shapes
-		List<Contour> contours = BinaryImageOps.contour(filtered, ConnectRule.EIGHT,null);
+		List<Contour> contours = BinaryImageOps.contour(binary, ConnectRule.FOUR,null);
 
 		// Fit a polygon to each shape and draw the results
 		Graphics2D g2 = polygonImage.createGraphics();
