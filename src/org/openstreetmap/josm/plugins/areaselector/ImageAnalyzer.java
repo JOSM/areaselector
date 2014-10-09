@@ -606,20 +606,28 @@ public class ImageAnalyzer {
 		// apply the kernel to get edge pixels
 		boolean[][] dest=applyKernel(src,kernel);
 		
+		
+		
 		// and now erase the found pixels
 		boolean[][] erased=new boolean[src.length][src[0].length];
+		// make a deep copy 
+		for(int y=0;y<src.length;y++){
+			for (int x=0; x<src[y].length; x++){
+				erased[y][x]=src[y][x];
+			}
+		}
+		
+		
 		for(int y=0;y<dest.length;y++){
 			for (int x=0; x<dest[y].length; x++){
 				
 				if(dest[y][x]){
 					erased[y][x]=false;
-				}else {
-					erased[y][x]=src[y][x];
 				}
 			}
 		}
 		
-		if(debug) saveImgToFile(erased,"kerneldiff");
+//		if(debug) saveImgToFile(erased,"kerneldiff");
 		
 		return erased;
 	}
@@ -661,7 +669,7 @@ public class ImageAnalyzer {
 									white=false;
 								}
 							}else {
-								if(!src[y-half+kernelY][x-half+kernelX]){
+								if(src[y-half+kernelY][x-half+kernelX]){
 									white=false;
 								}
 							}
@@ -681,7 +689,7 @@ public class ImageAnalyzer {
 		}
 		
 		
-		if(debug) saveImgToFile(dest,"kernel");
+//		if(debug) saveImgToFile(dest,"kernel");
 		
 		return dest;
 	}
