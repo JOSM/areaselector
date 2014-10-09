@@ -506,6 +506,7 @@ public class ImageAnalyzer {
 	
 	/**
 	 * skeletonize an image
+	 * Algorithm is based on http://homepages.inf.ed.ac.uk/rbf/HIPR2/thin.htm
 	 * @param image input image
 	 * @return skeletonized image
 	 */
