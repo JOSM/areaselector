@@ -511,7 +511,15 @@ public class ImageAnalyzer {
 	 */
 	public BufferedImage skeletonize(BufferedImage image){
 
-		BufferedImage img=deepCopy(image);
+//		BufferedImage img=deepCopy(image);
+		
+		boolean [][] img=new boolean[image.getHeight()][image.getWidth()];
+		
+		for(int y=0;y<image.getHeight();y++){
+			for(int x=0;x<image.getWidth();x++){
+				img[y][x]=((image.getRGB(x, y) >> 16) & 0xFF)>127;
+			}
+		}
 		
 		for(int j=0;j<3;j++){
 			
@@ -529,8 +537,8 @@ public class ImageAnalyzer {
 			
 			
 			for (int i=0; i<4; i++){
-				img=thin(img,kernel1);
-				img=thin(img,kernel2);
+				img=applyKernelDiff(img,kernel1);
+				img=applyKernelDiff(img,kernel2);
 				
 				kernel1=rotateCW(kernel1);
 				kernel2=rotateCW(kernel2);
@@ -572,9 +580,9 @@ public class ImageAnalyzer {
 		
 		for(int j=0;j<3;j++){
 			for(int i=0;i<8;i++){
-				img=thin(img,kernel1[i%2]);
+				img=applyKernelDiff(img,kernel1[i%2]);
 				kernel1[i%2]=rotateCW(kernel1[i%2]);
-				img=thin(img,kernel2[i%2]);
+				img=applyKernelDiff(img,kernel2[i%2]);
 				kernel2[i%2]=rotateCW(kernel2[i%2]);
 			}
 			
@@ -582,7 +590,7 @@ public class ImageAnalyzer {
 			
 		}
 		
-		return img;
+		return convertBinaryMatrixToImage(img);
 	}
 	
 	/**
@@ -594,22 +602,24 @@ public class ImageAnalyzer {
 	 * @param kernel
 	 * @return
 	 */
-	public BufferedImage thin(BufferedImage src, int[] kernel){
+	public boolean[][] applyKernelDiff(boolean [][] src, int[] kernel){
 		// apply the kernel to get edge pixels
-		BufferedImage dest=applyKernel(src,kernel);
+		boolean[][] dest=applyKernel(src,kernel);
 		
 		// and now erase the found pixels
-		BufferedImage erased=deepCopy(src);
-		for(int y=0;y<dest.getHeight();y++){
-			for (int x=0; x<dest.getWidth(); x++){
+		boolean[][] erased=new boolean[src.length][src[0].length];
+		for(int y=0;y<dest.length;y++){
+			for (int x=0; x<dest[y].length; x++){
 				
-				if(((dest.getRGB(x,y) >> 16) & 0xFF)>=127){
-					erased.setRGB(x, y, Color.black.getRGB());
+				if(dest[y][x]){
+					erased[y][x]=false;
+				}else {
+					erased[y][x]=src[y][x];
 				}
 			}
 		}
 		
-//		if(debug) saveImgToFile(erased,"thin");
+		if(debug) saveImgToFile(erased,"kerneldiff");
 		
 		return erased;
 	}
@@ -624,17 +634,17 @@ public class ImageAnalyzer {
 	 * @param kernel
 	 * @return
 	 */
-	public BufferedImage applyKernel(BufferedImage src, int[] kernel){
+	public boolean[][] applyKernel(boolean[][] src, int[] kernel){
 //		if(debug) log.info("applying kernel\n"+kernelToString(kernel));
 	
-		BufferedImage dest= new BufferedImage(src.getWidth(),src.getHeight(),BufferedImage.TYPE_INT_RGB);
+		boolean[][] dest= new boolean[src.length][src[0].length];
 	
 		int m=(int)Math.sqrt(kernel.length);
 		if(m*m!=kernel.length) throw new RuntimeException("the matrix must have equal rows and columns");
 		int half=m/2;
 		
-		for (int y = half; y < src.getHeight()-half; y++) { // loop through rows
-			for (int x = half; x < src.getWidth()-half; x++) { // loop through cols
+		for (int y = half; y < src.length-half; y++) { // loop through rows
+			for (int x = half; x < src[y].length-half; x++) { // loop through cols
 
 				boolean white=true;
 				
@@ -646,13 +656,12 @@ public class ImageAnalyzer {
 							
 							
 							// get r like Color class does
-							int r=(src.getRGB(x-half+kernelX,y-half+kernelY) >> 16) & 0xFF;
 							if(kernel[kernelY*m+kernelX]==1){
-								if(r<127){
+								if(!src[y-half+kernelY][x-half+kernelX]){
 									white=false;
 								}
 							}else {
-								if(r>=127){
+								if(!src[y-half+kernelY][x-half+kernelX]){
 									white=false;
 								}
 							}
@@ -662,17 +671,17 @@ public class ImageAnalyzer {
 				}
 				
 				if(white){
-					dest.setRGB(x, y, Color.white.getRGB());
+					dest[y][x]=true;
 					
 				}else {
-					dest.setRGB(x, y, Color.black.getRGB());
+					dest[y][x]=false;
 				}
 				
 			}
 		}
 		
 		
-//		if(debug) saveImgToFile(dest,"kernel");
+		if(debug) saveImgToFile(dest,"kernel");
 		
 		return dest;
 	}
@@ -899,6 +908,22 @@ public class ImageAnalyzer {
 	public boolean saveImgToFile(MarvinImage buf,String filename){
 		buf.update();
 		return saveImgToFile(buf.getBufferedImage(),filename);
+	}
+	
+	public BufferedImage convertBinaryMatrixToImage(boolean [][] image){
+		BufferedImage buf=new BufferedImage(image[0].length,image.length,BufferedImage.TYPE_INT_RGB);
+		
+		for(int y=0;y<image.length;y++){
+			for(int x=0;x<image[y].length;x++){
+				buf.setRGB(x, y, (image[y][x]?Color.white:Color.black).getRGB());
+			}
+		}
+		return buf;
+	}
+	
+	public boolean saveImgToFile(boolean [][]image,String filename){
+		
+		return saveImgToFile(convertBinaryMatrixToImage(image),filename);
 	}
 	
 	public boolean saveImgToFile(BufferedImage buf,String filename){
