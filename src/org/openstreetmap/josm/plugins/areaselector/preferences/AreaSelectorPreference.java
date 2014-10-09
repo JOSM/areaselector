@@ -24,7 +24,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
 	PreferencesPanel prefPanel;
 	
 	public AreaSelectorPreference(AreaSelectorPlugin plugin) {
-    	super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Select tile map service or imagery preferences."));
+    	super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Area detection algorithm settings."));
 
         areaSelectorPlugin = plugin;
     }
