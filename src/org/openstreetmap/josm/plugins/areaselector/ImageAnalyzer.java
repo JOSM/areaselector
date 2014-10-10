@@ -524,13 +524,13 @@ public class ImageAnalyzer {
 		
 		for(int j=0;j<3;j++){
 			
-			int [] kernel1= {
+			int [] thinningKernel1= {
 					0, 0, 0,
 				    -1, 1, -1,
 				    1, 1, 1
 			};
 			
-			int [] kernel2= {
+			int [] thinningKernel2= {
 					-1, 0, 0,
 				    1, 1, 0,
 				    -1, 1, -1
@@ -538,56 +538,54 @@ public class ImageAnalyzer {
 			
 			
 			for (int i=0; i<4; i++){
-				img=applyKernelDiff(img,kernel1);
-				img=applyKernelDiff(img,kernel2);
+				img=applyKernelDiff(img,thinningKernel1);
+				img=applyKernelDiff(img,thinningKernel2);
 				
-				kernel1=rotateCW(kernel1);
-				kernel2=rotateCW(kernel2);
+				thinningKernel1=rotateCW(thinningKernel1);
+				thinningKernel2=rotateCW(thinningKernel2);
 				
 			}
 			
-			if(debug) saveImgToFile(img, "skeleton1");
+			if(debug) saveImgToFile(img, "thin");
+		
+		
+			// filter small lines
+			int [][] noiseReductionKernel1= 
+			{
+				{
+					1, 1, 1,
+				    -1, 1, -1,
+				    0, 0, 0
+				},
+				{ // rotation of 45 degrees
+					-1, 1, 1,
+				    0, 1, 1,
+				    0, 0, -1
+				}
+			};
 			
-		}
-		
-		// filter small lines
-		int [][] kernel1= 
-		{
+			int [][] noiseReductionKernel2=
 			{
-				1, 1, 1,
-			    -1, 1, -1,
-			    0, 0, 0
-			},
-			{ // rotation of 45 degrees
-				-1, 1, 1,
-			    0, 1, 1,
-			    0, 0, -1
-			}
-		};
+				{
+					0, -1, -1,
+				    0, 1, 0,
+				    0, 0, 0
+				},
+				{ // rotation of 45 degrees
+					0, 0, -1,
+				    0, 1, -1,
+				    0, 0, 0
+				}
+			};
 		
-		int [][] kernel2=
-		{
-			{
-				0, -1, -1,
-			    0, 1, 0,
-			    0, 0, 0
-			},
-			{ // rotation of 45 degrees
-				0, 0, -1,
-			    0, 1, -1,
-			    0, 0, 0
-			}
-		};
-		
-		for(int j=0;j<3;j++){
 			for(int i=0;i<8;i++){
-				img=applyKernelDiff(img,kernel1[i%2]);
-				kernel1[i%2]=rotateCW(kernel1[i%2]);
-				img=applyKernelDiff(img,kernel2[i%2]);
-				kernel2[i%2]=rotateCW(kernel2[i%2]);
+				img=applyKernelDiff(img,noiseReductionKernel1[i%2]);
+				noiseReductionKernel1[i%2]=rotateCW(noiseReductionKernel1[i%2]);
+				img=applyKernelDiff(img,noiseReductionKernel2[i%2]);
+				noiseReductionKernel2[i%2]=rotateCW(noiseReductionKernel2[i%2]);
 			}
 			
-			if(debug) saveImgToFile(img, "skeleton2");
+			if(debug) saveImgToFile(img, "noisereduction");
 			
 		}
 		
