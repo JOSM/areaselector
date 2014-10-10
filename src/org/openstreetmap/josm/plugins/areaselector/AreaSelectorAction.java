@@ -308,7 +308,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		// refresh from prefs
 		try{
 		this.colorThreshold=Integer.parseInt(Main.pref.get(PREF_COLORTHRESHOLD, Integer.toString(ImageAnalyzer.DEFAULT_COLORTHRESHOLD)));
-		}catch(Throwable th){}
+		}catch(Throwable th){
+			log.warn("Could not load color threshold",th);
+		}
 		return colorThreshold;
 	}
 
@@ -325,8 +327,10 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 */
 	public double getToleranceDist() {
 		try{
-			this.toleranceDist=Integer.parseInt(Main.pref.get(PREF_TOLERANCEDIST, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEDIST)));
-		}catch(Throwable th){}
+			this.toleranceDist=Double.parseDouble(Main.pref.get(PREF_TOLERANCEDIST, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEDIST)));
+		}catch(Throwable th){
+			log.warn("Could not load tolerance dist",th);
+		}
 		return toleranceDist;
 	}
 
@@ -343,8 +347,10 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 */
 	public double getToleranceAngle() {
 		try{
-			this.toleranceAngle=Integer.parseInt(Main.pref.get(PREF_TOLERANCEANGLE, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEANGLE)));
-		}catch(Throwable th){}
+			this.toleranceAngle=Double.parseDouble(Main.pref.get(PREF_TOLERANCEANGLE, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEANGLE)));
+		}catch(Throwable th){
+			log.warn("Could not load tolerance angle",th);
+		}
 		return toleranceAngle;
 	}
 
