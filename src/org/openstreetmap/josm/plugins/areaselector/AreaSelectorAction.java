@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.openstreetmap.josm.Main;
@@ -38,6 +39,7 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.gui.progress.PleaseWaitProgressMonitor;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
 
@@ -64,7 +66,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
 	
 	protected Point clickPoint=null;
-
+	
 	/**
 	 * 
 	 */
@@ -156,50 +158,69 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	
 
 	public void createArea() {
-
-		MapView mapView = Main.map.mapView;
+		final PleaseWaitProgressMonitor progress=new PleaseWaitProgressMonitor(tr("Detecting area"));
 		
-		BufferedImage bufImage = getLayeredImage();
+		progress.beginTask(tr("Starting detection"));
+		progress.setCustomText(tr("The background image is beeing processed"));
 
-		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
 		
-		imgAnalyzer.setColorThreshold(colorThreshold);
-		imgAnalyzer.setToleranceDist(toleranceDist);
-		imgAnalyzer.setToleranceAngle(toleranceAngle);
-		
-		Polygon polygon = imgAnalyzer.getArea();
-
-		if (polygon != null) {
-			Way way = createWayFromPolygon(mapView, polygon);
-
-			way.put(AddressDialog.TAG_BUILDING, "yes");
-
-
-			Collection<Command> cmds = new LinkedList<Command>();
-			List<Node> nodes = way.getNodes();
-			for (int i = 0; i < nodes.size() - 1; i++) {
-
-				cmds.add(new AddCommand(nodes.get(i)));
-			}
-			// w.setKeys(ToolSettings.getTags());
-			cmds.add(new AddCommand(way));
-
-			Command c = new SequenceCommand(/* I18n: Name of command */ tr("Created area"), cmds);
-			Main.main.undoRedo.add(c);
-			Main.main.getCurrentDataSet().setSelected(way);
+		SwingUtilities.invokeLater(new Runnable() {
 			
-			if(mergeNodes){
-				mergeNodes(way);
-			}
+			@Override
+			public void run() {
+
+				MapView mapView = Main.map.mapView;
+				
+				BufferedImage bufImage = getLayeredImage();
+
+				ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
+				
+				imgAnalyzer.setColorThreshold(colorThreshold);
+				imgAnalyzer.setToleranceDist(toleranceDist);
+				imgAnalyzer.setToleranceAngle(toleranceAngle);
+				
+				Polygon polygon = imgAnalyzer.getArea();
+				
+				if(!progress.isCanceled()){
+//					progress.setTicks(5000);
+					if (polygon != null) {
+						Way way = createWayFromPolygon(mapView, polygon);
+			
+						way.put(AddressDialog.TAG_BUILDING, "yes");
 			
 			
-			if(showAddressDialog){
-				showAddressDialog(way);
+						Collection<Command> cmds = new LinkedList<Command>();
+						List<Node> nodes = way.getNodes();
+						for (int i = 0; i < nodes.size() - 1; i++) {
+			
+							cmds.add(new AddCommand(nodes.get(i)));
+						}
+						// w.setKeys(ToolSettings.getTags());
+						cmds.add(new AddCommand(way));
+			
+						Command c = new SequenceCommand(/* I18n: Name of command */ tr("Created area"), cmds);
+						Main.main.undoRedo.add(c);
+						Main.main.getCurrentDataSet().setSelected(way);
+						
+						if(mergeNodes){
+							mergeNodes(way);
+						}
+						progress.finishTask();
+						progress.close();
+						
+						if(showAddressDialog){
+							showAddressDialog(way);
+						}
+					}else {
+						progress.finishTask();
+						progress.close();
+						JOptionPane.showMessageDialog(Main.map, tr("Unable to detect a polygon where you clicked."), tr("Area Selector"), JOptionPane.WARNING_MESSAGE);
+					}
+				}
 			}
-		}else {
-			JOptionPane.showMessageDialog(Main.map, tr("Unable to detect a polygon where you clicked."), tr("Area Selector"), JOptionPane.WARNING_MESSAGE);
-		}
+		});
 
+		
 	}
 
 	public OsmPrimitive showAddressDialog(Way way) {
