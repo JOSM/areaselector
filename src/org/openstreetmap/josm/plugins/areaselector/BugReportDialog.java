@@ -31,84 +31,79 @@ import org.openstreetmap.josm.gui.ExtendedDialog;
  */
 public class BugReportDialog extends ExtendedDialog {
 
-	protected static final String[] BUTTON_TEXTS = new String[] { tr("OK") };
+    protected static final String[] BUTTON_TEXTS = new String[] { tr("OK") };
 
-	protected static final String[] BUTTON_ICONS = new String[] { "ok.png" };
-	
-	public static final String ISSUESLINK="https://github.com/JOSM/JOSM-areaselector/issues";
+    protected static final String[] BUTTON_ICONS = new String[] { "ok.png" };
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1837579079609770297L;
-	
-	protected static Logger log=Logger.getLogger(BugReportDialog.class);
+    public static final String ISSUESLINK="https://github.com/JOSM/JOSM-areaselector/issues";
 
-	/**
-	 * @param th
-	 */
-	public BugReportDialog(Throwable ex) {
-		super(Main.parent, tr("Error Report"), BUTTON_TEXTS, true);
-		setButtonIcons(BUTTON_ICONS);
-		JPanel panel = new JPanel(new BorderLayout());
-		StringBuilder html = new StringBuilder();
-		html.append("<html>");
-		html.append("<h1>" + tr("Something went wrong!") + "</h1>");
-		html.append("<p>" + tr("Please file a bug report on the github project page under")
-				+ " <a href=\""+ISSUESLINK+"\">"+ISSUESLINK+"</a>.<br><br></p>");
-		html.append("<p>" + tr("Let us know what you did and what happend add the following text to the bug report, so we can find the source of the issue.") + "<br><br></p>");
-		
+    protected static Logger log=Logger.getLogger(BugReportDialog.class);
 
-		html.append("</html>");
-		JLabel content = new JLabel(html.toString());
-		content.addMouseListener(new MouseListener() {
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				try {
-					Desktop.getDesktop().browse(new URI(ISSUESLINK));
-				} catch (IOException|URISyntaxException ex) {
-					log.error("could not open URI",ex);
-				} 
-			}
-		});
-		
-		panel.add(content, BorderLayout.NORTH);
-		JTextArea stacktrace=new JTextArea();
-		stacktrace.setText("```\n"+getStacktraceAsString(ex)+"\n```");
-		panel.add(new JScrollPane(stacktrace),BorderLayout.CENTER);
-		setContent(panel);
+    /**
+     * @param th
+     */
+    public BugReportDialog(Throwable ex) {
+        super(Main.parent, tr("Error Report"), BUTTON_TEXTS, true);
+        setButtonIcons(BUTTON_ICONS);
+        JPanel panel = new JPanel(new BorderLayout());
+        StringBuilder html = new StringBuilder();
+        html.append("<html>");
+        html.append("<h1>" + tr("Something went wrong!") + "</h1>");
+        html.append("<p>" + tr("Please file a bug report on the github project page under")
+                + " <a href=\""+ISSUESLINK+"\">"+ISSUESLINK+"</a>.<br><br></p>");
+        html.append("<p>" + tr("Let us know what you did and what happend add the following text to the bug report, so we can find the source of the issue.") + "<br><br></p>");
 
-		
-		this.showDialog();
-	}
-	
-	public static String getStacktraceAsString(Throwable th){
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		th.printStackTrace(pw);
-		return sw.toString();
-	}
-	
-	public static String getStackTraceAsHtml(Throwable th){
-		String exception=getStacktraceAsString(th);
-		return exception.replaceAll("\n", "<br>\n");
-	}
+
+        html.append("</html>");
+        JLabel content = new JLabel(html.toString());
+        content.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI(ISSUESLINK));
+                } catch (IOException|URISyntaxException ex) {
+                    log.error("could not open URI",ex);
+                }
+            }
+        });
+
+        panel.add(content, BorderLayout.NORTH);
+        JTextArea stacktrace=new JTextArea();
+        stacktrace.setText("```\n"+getStacktraceAsString(ex)+"\n```");
+        panel.add(new JScrollPane(stacktrace),BorderLayout.CENTER);
+        setContent(panel);
+
+
+        this.showDialog();
+    }
+
+    public static String getStacktraceAsString(Throwable th){
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        th.printStackTrace(pw);
+        return sw.toString();
+    }
+
+    public static String getStackTraceAsHtml(Throwable th){
+        String exception=getStacktraceAsString(th);
+        return exception.replaceAll("\n", "<br>\n");
+    }
 
 }

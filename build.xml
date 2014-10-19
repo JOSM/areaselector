@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-** This is a template build file for a JOSM  plugin.
+** This is the build file for AreaSelector JOSM plugin.
 **
 ** Maintaining versions
 ** ====================
@@ -19,9 +19,6 @@
 	<property name="plugin.main.version" value="7001" />
 
 	<!-- Configure these properties (replace "..." accordingly).
-
-
-
          See http://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
     -->
 	<property name="plugin.author" value="Paul Woelfel, Thomas Konrad" />
@@ -29,20 +26,15 @@
 	<property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at." />
 	<property name="plugin.icon" value="images/mapmode/areaselector.png" />
 	<property name="plugin.link" value="https://github.com/r00tat/JOSM-areaselector"/>
-	<!--<property name="plugin.early" value="..."/>-->
-	<!--<property name="plugin.requires" value="..."/>-->
-	<!--<property name="plugin.stage" value="..."/>-->
+	<property name="plugin.requires" value="log4j"/>
 
 	<property name="josm" location="../../core/dist/josm-custom.jar" />
 	<property name="plugin.dist.dir" value="../../dist" />
-	
-	
-
 
 	<!-- ** include targets that all plugins have in common ** -->
 	<import file="../build-common.xml" />
 
-
-
-
+    <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
+        <include name="log4j.jar"/>
+    </fileset>
 </project>

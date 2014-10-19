@@ -19,51 +19,48 @@ import org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin;
 import org.openstreetmap.josm.tools.GBC;
 
 public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
-	
-	AreaSelectorPlugin areaSelectorPlugin;
-	PreferencesPanel prefPanel;
-	
-	public AreaSelectorPreference(AreaSelectorPlugin plugin) {
-    	super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Area detection algorithm settings."));
+
+    AreaSelectorPlugin areaSelectorPlugin;
+    PreferencesPanel prefPanel;
+
+    public AreaSelectorPreference(AreaSelectorPlugin plugin) {
+        super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Area detection algorithm settings."));
 
         areaSelectorPlugin = plugin;
     }
-    
+
     @Override
     public void addGui(PreferenceTabbedPane gui) {
-    	prefPanel = new PreferencesPanel();
-        
-    	AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
-    	prefPanel.setColorThreshold(areaSelectorAction.getColorThreshold());
-    	prefPanel.setToleranceDist(areaSelectorAction.getToleranceDist());
-    	prefPanel.setToleranceAngle(areaSelectorAction.getToleranceAngle());
-    	prefPanel.setShowAddressDialog(areaSelectorAction.getShowAddressDialog());
-    	prefPanel.setMergeNodes(areaSelectorAction.getMergeNodes());
-        
+        prefPanel = new PreferencesPanel();
+
+        AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
+        prefPanel.setColorThreshold(areaSelectorAction.getColorThreshold());
+        prefPanel.setToleranceDist(areaSelectorAction.getToleranceDist());
+        prefPanel.setToleranceAngle(areaSelectorAction.getToleranceAngle());
+        prefPanel.setShowAddressDialog(areaSelectorAction.getShowAddressDialog());
+        prefPanel.setMergeNodes(areaSelectorAction.getMergeNodes());
+
         createPreferenceTabWithScrollPane(gui, prefPanel);
     }
-    
+
     protected void addLabelled(JPanel panel, String str, Component c) {
         JLabel label = new JLabel(str);
-        
+
         GBC gbc=GBC.std();
         gbc.gridwidth = GridBagConstraints.RELATIVE;
         panel.add(label, gbc);
         label.setLabelFor(c);
         panel.add(c, GBC.eol().fill(GridBagConstraints.HORIZONTAL));
     }
-    
-    
-    
+
     @Override
     public boolean ok() {
-    	AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
-    	areaSelectorAction.setColorThreshold(prefPanel.getColorThreshold());
-    	areaSelectorAction.setToleranceDist(prefPanel.getToleranceDist());
-    	areaSelectorAction.setToleranceAngle(prefPanel.getToleranceAngle());
-    	areaSelectorAction.setShowAddressDialog(prefPanel.getShowAddressDialog());
-    	areaSelectorAction.setMergeNodes(prefPanel.getMergeNodes());
+        AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
+        areaSelectorAction.setColorThreshold(prefPanel.getColorThreshold());
+        areaSelectorAction.setToleranceDist(prefPanel.getToleranceDist());
+        areaSelectorAction.setToleranceAngle(prefPanel.getToleranceAngle());
+        areaSelectorAction.setShowAddressDialog(prefPanel.getShowAddressDialog());
+        areaSelectorAction.setMergeNodes(prefPanel.getMergeNodes());
         return false;
     }
-
 }

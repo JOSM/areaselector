@@ -18,20 +18,20 @@ import org.openstreetmap.josm.plugins.areaselector.preferences.AreaSelectorPrefe
  * 
  */
 public class AreaSelectorPlugin extends Plugin{
-	
-	AreaSelectorAction areaSelectorAction;
-	
-	AddressDialogAction addressDialogAction;
-	
-	public AreaSelectorPlugin(PluginInformation info) {
+    
+    AreaSelectorAction areaSelectorAction;
+    
+    AddressDialogAction addressDialogAction;
+    
+    public AreaSelectorPlugin(PluginInformation info) {
         super(info);
         
         ConsoleAppender console = new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n"),
-				ConsoleAppender.SYSTEM_OUT);
+                ConsoleAppender.SYSTEM_OUT);
 
-		// BasicConfigurator.configure(console);
-		Logger.getRootLogger().addAppender(console);
-		Logger.getRootLogger().setLevel(Level.INFO);
+        // BasicConfigurator.configure(console);
+        Logger.getRootLogger().addAppender(console);
+        Logger.getRootLogger().setLevel(Level.INFO);
 
         
         areaSelectorAction=new AreaSelectorAction(Main.map);
@@ -54,12 +54,12 @@ public class AreaSelectorPlugin extends Plugin{
         return new AreaSelectorPreference(this);
     }
 
-	/**
-	 * @return the areaSelectorAction
-	 */
-	public AreaSelectorAction getAreaSelectorAction() {
-		return areaSelectorAction;
-	}
+    /**
+     * @return the areaSelectorAction
+     */
+    public AreaSelectorAction getAreaSelectorAction() {
+        return areaSelectorAction;
+    }
 
 
 }
