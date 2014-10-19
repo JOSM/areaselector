@@ -261,7 +261,7 @@ public class ImageAnalyzer {
 
 		int r = pointColor.getRed(), g = pointColor.getGreen(), b = pointColor.getBlue();
 
-		HashMap<String,Object> attributes=new HashMap<String,Object>();
+		HashMap<String,Object> attributes=new HashMap<>();
 		attributes.put("range", colorThreshold);
 		attributes.put("r", r);
 		attributes.put("g", g);
@@ -412,7 +412,7 @@ public class ImageAnalyzer {
 		
 		
 		MultiSpectral<ImageFloat32> input = ConvertBufferedImage.convertFromMulti(image,null,true,ImageFloat32.class);
-		MultiSpectral<ImageFloat32> hsv = new MultiSpectral<ImageFloat32>(ImageFloat32.class,input.width,input.height,3);
+		MultiSpectral<ImageFloat32> hsv = new MultiSpectral<>(ImageFloat32.class,input.width,input.height,3);
 
 		// Convert into HSV
 		ColorHsv.rgbToHsv_F32(input,hsv);
@@ -751,7 +751,7 @@ public class ImageAnalyzer {
 	 */
 	public Polygon detectArea(BufferedImage image,Point point){
 		
-		List <Polygon> polygons=new ArrayList<Polygon>();
+		List <Polygon> polygons=new ArrayList<>();
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class);
 		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
 		BufferedImage polygonImage = new BufferedImage(input.width,input.height,BufferedImage.TYPE_INT_RGB);

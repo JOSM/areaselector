@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.openstreetmap.josm.plugins.areaselector;
 
@@ -43,37 +43,37 @@ import org.openstreetmap.josm.tools.Shortcut;
 
 /**
  * @author Paul Woelfel
- * 
+ *
  */
 public class AreaSelectorAction extends MapMode implements MouseListener {
-	
+
 	protected int colorThreshold=ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
 	protected double toleranceDist=ImageAnalyzer.DEFAULT_TOLERANCEDIST,toleranceAngle=ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
-	
+
 	protected boolean showAddressDialog=true,mergeNodes=true;
-	
+
 	public static final String PLUGIN_NAME="areaselector";
-	
+
 	public static final String PREF_COLORTHRESHOLD=PLUGIN_NAME+".colorthreshold",
 			PREF_TOLERANCEDIST=PLUGIN_NAME+".tolerancedist",
 			PREF_TOLERANCEANGLE=PLUGIN_NAME+".toleranceangle",
 			PREF_SHOWADDRESSDIALOG=PLUGIN_NAME+".showaddressdialog",
 			PREF_MERGENODES=PLUGIN_NAME+".mergenodes";
-	
+
 
 	protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
-	
+
 	protected Point clickPoint=null;
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
 	public AreaSelectorAction(MapFrame mapFrame) {
 		super(tr("Area Selection"), "areaselector", tr("Select an area (e.g. building) from an underlying image."), Shortcut.registerShortcut("tools:areaselector",
 				tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A, Shortcut.ALT_CTRL), mapFrame, getCursor());
-		
+
 		// load prefs
 		this.getColorThreshold();
 		this.getToleranceDist();
@@ -130,8 +130,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 		}
 	}
-	
-	
+
+
 	public BufferedImage getLayeredImage(){
 		MapView mapView = Main.map.mapView;
 		// Collection<Layer> layers=mapView.getAllLayers();
@@ -141,7 +141,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		Graphics2D imgGraphics = bufImage.createGraphics();
 
 		Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
-		
+
 		for (int i=layers.length-1;i>=0;i--) {
 			Layer layer=layers[i];
 			if(layer.isVisible() && layer.isBackgroundLayer()){
@@ -150,23 +150,23 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				layer.paint(imgGraphics, mapView, mapView.getRealBounds());
 			}
 		}
-		
+
 		return bufImage;
 	}
-	
+
 
 	public void createArea() {
 
 		MapView mapView = Main.map.mapView;
-		
+
 		BufferedImage bufImage = getLayeredImage();
 
 		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
-		
+
 		imgAnalyzer.setColorThreshold(colorThreshold);
 		imgAnalyzer.setToleranceDist(toleranceDist);
 		imgAnalyzer.setToleranceAngle(toleranceAngle);
-		
+
 		Polygon polygon = imgAnalyzer.getArea();
 
 		if (polygon != null) {
@@ -175,7 +175,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			way.put(AddressDialog.TAG_BUILDING, "yes");
 
 
-			Collection<Command> cmds = new LinkedList<Command>();
+			Collection<Command> cmds = new LinkedList<>();
 			List<Node> nodes = way.getNodes();
 			for (int i = 0; i < nodes.size() - 1; i++) {
 
@@ -187,12 +187,12 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Command c = new SequenceCommand(/* I18n: Name of command */ tr("Created area"), cmds);
 			Main.main.undoRedo.add(c);
 			Main.main.getCurrentDataSet().setSelected(way);
-			
+
 			if(mergeNodes){
 				mergeNodes(way);
 			}
-			
-			
+
+
 			if(showAddressDialog){
 				showAddressDialog(way);
 			}
@@ -223,7 +223,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		}
 		return way;
 	}
-	
+
 
 	/**
 	 * Merge Nodes on way to existing nodes
@@ -231,18 +231,18 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @return
 	 */
 	public Way mergeNodes(Way way){
-		
+
 //		log.info("Mergeing Way: "+way);
-		
+
 //		List<Command> commands=new ArrayList<Command>();
-		List<Node> deletedNodes=new ArrayList<Node>();
+		List<Node> deletedNodes=new ArrayList<>();
 		for (int i=0; i<way.getNodesCount();i++){
 			Node node=way.getNode(i);
-			
-			List<Node> selectedNodes = new ArrayList<Node>();
+
+			List<Node> selectedNodes = new ArrayList<>();
 			selectedNodes.add(node);
 			List<Node> nearestNodes = Main.map.mapView.getNearestNodes(Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive.isUsablePredicate);
-			
+
 			// selectedNodes.addAll(nearestNodes);
 			for(Node n: nearestNodes){
 				if(!way.containsNode(n)&&!deletedNodes.contains(n)){
@@ -254,7 +254,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				Node targetNode = MergeNodesAction.selectTargetNode(selectedNodes);
 		        Node targetLocationNode = MergeNodesAction.selectTargetLocationNode(selectedNodes);
 		        Command c = MergeNodesAction.mergeNodes(Main.main.getEditLayer(), selectedNodes, targetNode, targetLocationNode);
-				
+
 				if(c!= null){
 
 //					commands.add(c);
@@ -274,24 +274,24 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				}
 			}
 		}
-		
+
 //		Command c = new SequenceCommand(/* I18n: Name of command */ tr("Merged to neighbor Nodes"), commands);
-		
+
 //		Main.main.undoRedo.add(c);
-		
+
 		return (Way) Main.main.getCurrentDataSet().getPrimitiveById(way.getId(), OsmPrimitiveType.WAY);
-		
+
 	}
-	
-	
+
+
 	/**
-	 * merge node with neighbor nodes 
+	 * merge node with neighbor nodes
 	 * @param node node to merge
 	 * @return true if node was merged
 	 */
 	public Command mergeNode(Node node){
-		
-		List<Node> selectedNodes = new ArrayList<Node>();
+
+		List<Node> selectedNodes = new ArrayList<>();
 		selectedNodes.add(node);
 		List<Node> nearestNodes = Main.map.mapView.getNearestNodes(Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive.isUsablePredicate);
 		selectedNodes.addAll(nearestNodes);
