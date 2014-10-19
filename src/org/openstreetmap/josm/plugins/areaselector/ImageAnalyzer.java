@@ -70,42 +70,42 @@ import boofcv.struct.image.MultiSpectral;
 public class ImageAnalyzer {
 
 	protected static Logger log = Logger.getLogger(ImageAnalyzer.class);
-	
+
 	public static final String IMG_TYPE="PNG";
-	
+
 	protected static int fileCount=0;
 
 	protected BufferedImage baseImage,workImage;
-	
+
 	protected MarvinImage workMarvin;
 
 	protected Point point;
-	
+
 	protected boolean debug=false;
-	
-	
+
+
 	// Algorithm params
 	// default for border = 40
 	public static final int DEFAULT_COLORTHRESHOLD= 17;
 	protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
-	
-	
+
+
 	// Polynomial fitting tolerances
 	// default for border = 4
 	public static final double DEFAULT_TOLERANCEDIST=4;
 	double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
-	
+
 	// default for border = 0.25
 	public static final double DEFAULT_TOLERANCEANGLE = Math.PI / 8;
 	double toleranceAngle= DEFAULT_TOLERANCEANGLE; // original Math.PI/10
-	
+
 	// gaussian blur radius
 	public static final int DEFAULT_BLURRADIUS = 10;
 	protected int blurRadius = DEFAULT_BLURRADIUS;
-	
-	
-	
-	
+
+
+
+
 	public ImageAnalyzer(String filename, Point point) {
 		log.info("Loading from " + filename);
 		baseImage = getImgFromFile(filename);
@@ -121,18 +121,18 @@ public class ImageAnalyzer {
 
 	protected void init() {
 		if(debug) saveImgToFile(baseImage,"baseimage");
-		
+
 	}
 
 	public void initUI() {
-		
+
 		final JFrame mainWindow = new JFrame("Image Analyzer");
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		mainWindow.setLayout(new BorderLayout());
 		getArea();
 
-		
+
 		final ImageLinePanel gui = new ImageLinePanel();
 		gui.setBackground(workImage);
 //		gui.setLineSegments(lines);
@@ -141,39 +141,39 @@ public class ImageAnalyzer {
 		mainWindow.getContentPane().add(gui);
 
 		JPanel textAreaPanel = new JPanel();
-		
+
 		final JTextArea colorThresholdTextArea=new JTextArea(1,5);
 		colorThresholdTextArea.setText(""+colorThreshold);
 		final JLabel colorLabel = new JLabel("Color Threshold: ");
 		textAreaPanel.add(colorLabel);
 		textAreaPanel.add(colorThresholdTextArea);
-		
-		
+
+
 		final JTextArea toleranceDistTextArea=new JTextArea(1,5);
 		toleranceDistTextArea.setText(""+toleranceDist);
 		final JLabel toleranceDistLabel = new JLabel("Tolerance Dist: ");
 		textAreaPanel.add(toleranceDistLabel);
 		textAreaPanel.add(toleranceDistTextArea);
-		
+
 		final JTextArea toleranceAngleTextArea=new JTextArea(1,5);
 		toleranceAngleTextArea.setText(""+(toleranceAngle));
 		final JLabel toleranceAngleLabel = new JLabel("Tolerance Angle: ");
 		textAreaPanel.add(toleranceAngleLabel);
 		textAreaPanel.add(toleranceAngleTextArea);
-		
-		
+
+
 		JButton refreshButton=new JButton("Refresh");
 		refreshButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				colorThreshold=Integer.parseInt(colorThresholdTextArea.getText());
-				
-				
+
+
 				toleranceDist=Double.parseDouble(toleranceDistTextArea.getText());
-				
+
 				toleranceAngle=Double.parseDouble(toleranceAngleTextArea.getText());
-				
+
 
 				getArea();
 				gui.setBackground(workImage);
@@ -181,9 +181,9 @@ public class ImageAnalyzer {
 				mainWindow.repaint();
 			}
 		});
-		
+
 		textAreaPanel.add(refreshButton);
-		
+
 		mainWindow.getContentPane().add(textAreaPanel, BorderLayout.NORTH);
 
 		mainWindow.setVisible(true);
@@ -192,7 +192,7 @@ public class ImageAnalyzer {
 
 
 	public Polygon getArea() {
-		
+
 		log.info("Using following params for algorithm: colorThreshold="+colorThreshold+" toleranceDist="+toleranceDist+" toleranceAngle="+toleranceAngle);
 
 		// get color at that point
@@ -201,22 +201,22 @@ public class ImageAnalyzer {
 		Color pointColor = new Color(workImage.getRGB(point.x, point.y));
 		// 150, 152, 199
 //		pointColor=new Color(150,152,199);
-		
+
 //		pointColor = new Color(180,150,150); // border color
-		
+
 		log.info("point color: " + pointColor);
-		
-		
+
+
 		workImage=selectMarvinColor(workImage,pointColor);
 		if(debug) saveImgToFile(workImage, "colorExtracted");
-		
+
 		workImage=invert(workImage);
 		if(debug) saveImgToFile(workImage,"inverted");
-		
+
 		workImage=skeletonize(workImage);
 		if(debug) saveImgToFile(workImage, "skeleton");
-		
-		
+
+
 //		workImage=histogram(workImage);
 //		if(debug) saveImgToFile(workImage,"histogram");
 
@@ -226,29 +226,29 @@ public class ImageAnalyzer {
 //		workImage=binarize(workImage);
 //		if(debug) saveImgToFile(workImage,"binarize");
 
-		
+
 //		workImage=erodeAndDilate(workImage);
 //		if(debug) saveImgToFile(workImage,"erodeDilate");
-		
+
 //		workImage=gaussian(workImage);
 //		if(debug) saveImgToFile(workImage, "test/gaus");
-		
-		
+
+
 //		workImage = dilate(workImage);
 //		if(debug) saveImgToFile(workImage,"dilate");
 
-		
+
 //		lines=detectLines(workImage);
-		
+
 		Polygon polygon=detectArea(workImage,point);
-		
+
 
 
 		log.info("done.");
 
 		return polygon;
 	}
-	
+
 	/**
 	 * select a color from a image
 	 * @param workImage image to work with
@@ -266,22 +266,22 @@ public class ImageAnalyzer {
 		attributes.put("r", r);
 		attributes.put("g", g);
 		attributes.put("b", b);
-		
+
 		MarvinImage src=new MarvinImage(workImage);
-		
+
 		log.info("Applying gaus filter");
 		MarvinImage gaus=applyPlugin("org.marvinproject.image.blur.gaussianBlur", src);
 		if(debug) saveImgToFile(gaus,"gaussian");
-		
+
 		log.info("searching for the correct color");
 		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.selectColor", gaus, attributes);
 //		ImgUtils.imshow("selected color",colorSelected);
-		
+
 		colorSelected.update();
-		
+
 		return colorSelected.getBufferedImage();
 	}
-	
+
 	/**
 	 * erode and dilate an image
 	 * @param workImage image to transform
@@ -304,11 +304,11 @@ public class ImageAnalyzer {
 		// this is less efficient, but easier to code.
 		ImageUInt8 filtered = BinaryImageOps.erode4(binary, 1, null);
 		filtered = BinaryImageOps.dilate4(filtered, 1, null);
-		
+
 		return VisualizeBinaryData.renderBinary(filtered, null);
 	}
-	
-	
+
+
 	/**
 	 * dilate an image
 	 * @param workImage image to transform
@@ -331,16 +331,16 @@ public class ImageAnalyzer {
 		// this is less efficient, but easier to code.
 		ImageUInt8 filtered;
 		filtered = BinaryImageOps.dilate4(binary, 1, null);
-		
+
 		return VisualizeBinaryData.renderBinary(filtered, null);
 	}
-	
-	
-	
-	
+
+
+
+
 	public BufferedImage binarize(BufferedImage workImage){
 		log.info("Binarize");
-		
+
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
 		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
 //		ImageSInt32 label = new ImageSInt32(input.width,input.height);
@@ -353,7 +353,7 @@ public class ImageAnalyzer {
 
 		return VisualizeBinaryData.renderBinary(binary, null);
 	}
-	
+
 	/**
 	 * Invert the RGB color of each pixel
 	 * @param workImage
@@ -361,7 +361,7 @@ public class ImageAnalyzer {
 	 */
 	public BufferedImage invert(BufferedImage workImage){
 		BufferedImage img=new BufferedImage(workImage.getWidth(),workImage.getHeight(),BufferedImage.TYPE_INT_RGB);
-		
+
 		for (int y=0;y<img.getHeight();y++){
 			for (int x=0; x<img.getWidth(); x++){
 				Color c=new Color(workImage.getRGB(x, y));
@@ -369,10 +369,10 @@ public class ImageAnalyzer {
 				img.setRGB(x, y, c.getRGB());
 			}
 		}
-		
+
 		return img;
 	}
-	
+
 	/**
 	 * apply gaussian filter
 	 * @param image image to filter
@@ -382,23 +382,23 @@ public class ImageAnalyzer {
 		log.info("gaussian filter");
 		ImageFloat32 input=null;
 		input = ConvertBufferedImage.convertFrom(image, (ImageFloat32)null);
-		
+
 		ImageFloat32 output=GeneralizedImageOps.createSingleBand(ImageFloat32.class, input.width, input.height);
-		
+
 //		BlurImageOps.gaussian(input, output, -1, blurRadius, null);
 		GBlurImageOps.gaussian(input, output, -1, blurRadius, null);
-		
+
 		return VisualizeImageData.colorizeSign(output,null,-1);
 //		return VisualizeImageData.colorizeGradient(derivX, derivY, maxAbsValue)
 	}
-	
-	
+
+
 	/**
 	 * Selectively displays only pixels which have a similar hue and saturation values to what is provided.
 	 * This is intended to be a simple example of color based segmentation.  Color based segmentation can be done
 	 * in RGB color, but is more problematic due to it not being intensity invariant.  More robust techniques
 	 * can use Gaussian models instead of a uniform distribution, as is done below.
-	 * @return 
+	 * @return
 	 */
 	public BufferedImage selectColor( BufferedImage image , Color rgbColor) {
 		log.info("selecting color");
@@ -409,8 +409,8 @@ public class ImageAnalyzer {
 		log.info("HSV color: H = " + color[0]+" S = "+color[1]+" V = "+color[2]);
 		float hue=color[0];
 		float saturation=color[1];
-		
-		
+
+
 		MultiSpectral<ImageFloat32> input = ConvertBufferedImage.convertFromMulti(image,null,true,ImageFloat32.class);
 		MultiSpectral<ImageFloat32> hsv = new MultiSpectral<>(ImageFloat32.class,input.width,input.height,3);
 
@@ -446,8 +446,8 @@ public class ImageAnalyzer {
 
 		return output;
 	}
-	
-	
+
+
 	/**
 	 * histogram adjustment
 	 * @param image buffered image to adjust histogram
@@ -455,15 +455,15 @@ public class ImageAnalyzer {
 	 */
 	public BufferedImage histogram(BufferedImage image) {
 		log.info("Histogram adjustment");
-		
+
 		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
 		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
 //		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"gray");
- 
+
 		int histogram[] = new int[256];
 		int transform[] = new int[256];
- 
- 
+
+
 		ImageStatistics.histogram(gray,histogram);
 		EnhanceImageOps.equalize(histogram, transform);
 		EnhanceImageOps.applyTransform(gray, transform, adjusted);
@@ -473,37 +473,37 @@ public class ImageAnalyzer {
 		double mean = ImageStatistics.mean(adjusted);
 		// create a binary image by thresholding
 		ThresholdImageOps.threshold(adjusted, binary, (int) mean, true);
-		
+
 		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(binary,null),"histogram_global");
- 
+
 //		EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
 //
 //		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"histogram_local");
- 
+
 		return ConvertBufferedImage.convertTo(adjusted,null);
 	}
- 
+
 	/**
 	 * When an image is sharpened the intensity of edges are made more extreme while flat regions remain unchanged.
-	 * @return 
+	 * @return
 	 */
-	public BufferedImage sharpen(BufferedImage image) {	
+	public BufferedImage sharpen(BufferedImage image) {
 		log.info("sharpen");
 		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
 		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(gray,null),"gray");
-		
+
 		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
- 
+
 		EnhanceImageOps.sharpen4(gray, adjusted);
 		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"sharpen4");
- 
+
 //		EnhanceImageOps.sharpen8(gray, adjusted);
 //		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"sharpen8");
- 
+
 		return ConvertBufferedImage.convertTo(adjusted,null);
 	}
-	
-	
+
+
 	/**
 	 * skeletonize an image
 	 * Algorithm is based on http://homepages.inf.ed.ac.uk/rbf/HIPR2/thin.htm
@@ -513,44 +513,44 @@ public class ImageAnalyzer {
 	public BufferedImage skeletonize(BufferedImage image){
 
 //		BufferedImage img=deepCopy(image);
-		
+
 		boolean [][] img=new boolean[image.getHeight()][image.getWidth()];
-		
+
 		for(int y=0;y<image.getHeight();y++){
 			for(int x=0;x<image.getWidth();x++){
 				img[y][x]=((image.getRGB(x, y) >> 16) & 0xFF)>127;
 			}
 		}
-		
+
 		for(int j=0;j<3;j++){
-			
+
 			int [] thinningKernel1= {
 					0, 0, 0,
 				    -1, 1, -1,
 				    1, 1, 1
 			};
-			
+
 			int [] thinningKernel2= {
 					-1, 0, 0,
 				    1, 1, 0,
 				    -1, 1, -1
 			};
-			
-			
+
+
 			for (int i=0; i<4; i++){
 				img=applyKernelDiff(img,thinningKernel1);
 				img=applyKernelDiff(img,thinningKernel2);
-				
+
 				thinningKernel1=rotateCW(thinningKernel1);
 				thinningKernel2=rotateCW(thinningKernel2);
-				
+
 			}
-			
+
 			if(debug) saveImgToFile(img, "thin");
-		
-		
+
+
 			// filter small lines
-			int [][] noiseReductionKernel1= 
+			int [][] noiseReductionKernel1=
 			{
 				{
 					1, 1, 1,
@@ -563,7 +563,7 @@ public class ImageAnalyzer {
 				    0, 0, -1
 				}
 			};
-			
+
 			int [][] noiseReductionKernel2=
 			{
 				{
@@ -577,21 +577,21 @@ public class ImageAnalyzer {
 				    0, 0, 0
 				}
 			};
-		
+
 			for(int i=0;i<8;i++){
 				img=applyKernelDiff(img,noiseReductionKernel1[i%2]);
 				noiseReductionKernel1[i%2]=rotateCW(noiseReductionKernel1[i%2]);
 				img=applyKernelDiff(img,noiseReductionKernel2[i%2]);
 				noiseReductionKernel2[i%2]=rotateCW(noiseReductionKernel2[i%2]);
 			}
-			
+
 			if(debug) saveImgToFile(img, "noisereduction");
-			
+
 		}
-		
+
 		return convertBinaryMatrixToImage(img);
 	}
-	
+
 	/**
 	 * thin an image with the given kernel
 	 *  <p>1 in a kernel means the pixel has to be white<br>
@@ -604,12 +604,12 @@ public class ImageAnalyzer {
 	public boolean[][] applyKernelDiff(boolean [][] src, int[] kernel){
 		// apply the kernel to get edge pixels
 		boolean[][] dest=applyKernel(src,kernel);
-		
+
 		// and now erase the found pixels
 		boolean[][] erased=new boolean[src.length][src[0].length];
 		for(int y=0;y<dest.length;y++){
 			for (int x=0; x<dest[y].length; x++){
-				
+
 				if(dest[y][x]){
 					erased[y][x]=false;
 				}else {
@@ -617,13 +617,13 @@ public class ImageAnalyzer {
 				}
 			}
 		}
-		
+
 //		if(debug) saveImgToFile(erased,"kerneldiff");
-		
+
 		return erased;
 	}
-	
-	
+
+
 	/**
 	 * apply a kernel to an image
 	 * <p>1 in a kernel means the pixel has to be white<br>
@@ -635,25 +635,25 @@ public class ImageAnalyzer {
 	 */
 	public boolean[][] applyKernel(boolean[][] src, int[] kernel){
 //		if(debug) log.info("applying kernel\n"+kernelToString(kernel));
-	
+
 		boolean[][] dest= new boolean[src.length][src[0].length];
-	
+
 		int m=(int)Math.sqrt(kernel.length);
 		if(m*m!=kernel.length) throw new RuntimeException("the matrix must have equal rows and columns");
 		int half=m/2;
-		
+
 		for (int y = half; y < src.length-half; y++) { // loop through rows
 			for (int x = half; x < src[y].length-half; x++) { // loop through cols
 
 				boolean white=true;
-				
+
 				for(int kernelY=0; white==true && kernelY<m; kernelY++){
 					for(int kernelX=0; white==true && kernelX<m; kernelX++){
 						// check if pixel should be white
-						
+
 						if(kernel[kernelY*m+kernelX]!=-1 ){
-							
-							
+
+
 							// get r like Color class does
 							if(kernel[kernelY*m+kernelX]==1){
 								if(!src[y-half+kernelY][x-half+kernelX]){
@@ -665,26 +665,26 @@ public class ImageAnalyzer {
 								}
 							}
 						}
-					
+
 					}
 				}
-				
+
 				if(white){
 					dest[y][x]=true;
-					
+
 				}else {
 					dest[y][x]=false;
 				}
-				
+
 			}
 		}
-		
-		
+
+
 //		if(debug) saveImgToFile(dest,"kernel");
-		
+
 		return dest;
 	}
-	
+
 	/**
 	 * convert a kernel to a readable format
 	 * @param kernel kernel to show
@@ -700,15 +700,15 @@ public class ImageAnalyzer {
 			}else {
 				sb.append(" ");
 			}
-			
+
 		}
 		return sb.toString();
 	}
-	
-	
+
+
 	public static String binaryImageToString(BufferedImage image){
 		StringBuilder sb=new StringBuilder();
-		
+
 		for(int y=0;y<image.getHeight();y++){
 			for(int x=0;x<image.getWidth();x++){
 				if(((image.getRGB(x,y) >> 16) & 0xFF)>127){
@@ -716,16 +716,16 @@ public class ImageAnalyzer {
 				}else {
 					sb.append("0");
 				}
-				
+
 			}
 			sb.append("\n");
 		}
-		
+
 		return sb.toString();
 	}
- 
-	
-	
+
+
+
 	/**
 	 * rotate a matrix counterwise
 	 * @param mat
@@ -742,7 +742,7 @@ public class ImageAnalyzer {
 	    }
 	    return ret;
 	}
-	
+
 	/**
 	 * detect a Polygon around a point
 	 * @param image Image to analyze for polygons
@@ -750,7 +750,7 @@ public class ImageAnalyzer {
 	 * @return Polygon if found
 	 */
 	public Polygon detectArea(BufferedImage image,Point point){
-		
+
 		List <Polygon> polygons=new ArrayList<>();
 		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class);
 		ImageUInt8 binary = new ImageUInt8(input.width,input.height);
@@ -777,16 +777,16 @@ public class ImageAnalyzer {
 			// Fit the polygon to the found external contour.  Note loop = true
 			List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(c.external,true,
 					toleranceDist,toleranceAngle,100);
-			
+
 			Polygon poly=toPolygon(vertexes);
 			if(poly.contains(point)){
-				
-				
+
+
 				polygons.add(poly);
 				if(debug){
 					g2.setColor(Color.RED);
 					VisualizeShapes.drawPolygon(vertexes,true,g2);
-	
+
 					// handle internal contours now
 					g2.setColor(Color.BLUE);
 				}
@@ -802,12 +802,12 @@ public class ImageAnalyzer {
 				}
 			}
 		}
-		
+
 		if(debug) saveImgToFile(polygonImage, "polygons");
-		
+
 		log.info("Found "+polygons.size()+" matching polygons");
-		
-		
+
+
 		Polygon innerPolygon=null;
 		// let's see if we have outer polygons
 		// if so, remove them, we only want inner shapes
@@ -818,32 +818,32 @@ public class ImageAnalyzer {
 			}
 		}
 		if(innerPolygon!=null){
-			
-		
+
+
 			log.info("Best matching polygon is: "+polygonToString(innerPolygon));
-		
-		
+
+
 			polygonImage=deepCopy(baseImage);
 			g2=polygonImage.createGraphics();
 //			g2.setColor(Color.WHITE);
 //			g2.fillRect(0, 0, polygonImage.getWidth(), polygonImage.getHeight());
-			
+
 			g2.setColor(Color.RED);
 			g2.setStroke(new BasicStroke(2));
 			g2.drawPolygon(innerPolygon);
-			
+
 			if(debug) saveImgToFile(polygonImage,"polygon");
-			
-			
+
+
 		}
-		
+
 		workImage=polygonImage;
-		
-		
-		
+
+
+
 		return innerPolygon;
 	}
-	
+
 	public Polygon toPolygon(List<PointIndex_I32> points){
 		int npoints=points.size();
 		int [] xpoints = new int[npoints], ypoints = new int [npoints];
@@ -853,14 +853,14 @@ public class ImageAnalyzer {
 			ypoints[i]=point.y;
 			i++;
 		}
-		
+
 		return new Polygon(xpoints,ypoints,npoints);
 	}
-	
+
 	/**
 	 * Return the String info of a Polygon
 	 * @param p Polygon to return as String
-	 * @return 
+	 * @return
 	 */
 	public static String polygonToString(Polygon p){
 		if(p==null)  return "";
@@ -876,10 +876,10 @@ public class ImageAnalyzer {
 			sb.append(")");
 		}
 		sb.append("]");
-		
+
 		return sb.toString();
 	}
-	
+
 	/**
 	 * make a deep copy of buffered image
 	 * @param bi buffered image
@@ -891,27 +891,15 @@ public class ImageAnalyzer {
 		 WritableRaster raster = bi.copyData(null);
 		 return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
 		}
-	
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#finalize()
-	 */
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-	}
-	
 	public boolean saveImgToFile(MarvinImage buf,String filename){
 		buf.update();
 		return saveImgToFile(buf.getBufferedImage(),filename);
 	}
-	
+
 	public BufferedImage convertBinaryMatrixToImage(boolean [][] image){
 		BufferedImage buf=new BufferedImage(image[0].length,image.length,BufferedImage.TYPE_INT_RGB);
-		
+
 		for(int y=0;y<image.length;y++){
 			for(int x=0;x<image[y].length;x++){
 				buf.setRGB(x, y, (image[y][x]?Color.white:Color.black).getRGB());
@@ -919,12 +907,12 @@ public class ImageAnalyzer {
 		}
 		return buf;
 	}
-	
+
 	public boolean saveImgToFile(boolean [][]image,String filename){
-		
+
 		return saveImgToFile(convertBinaryMatrixToImage(image),filename);
 	}
-	
+
 	public boolean saveImgToFile(BufferedImage buf,String filename){
 		try {
 			ImageIO.write(buf, IMG_TYPE, new File("test/"+(fileCount<10?"0":"")+(fileCount++)+"_"+filename+"."+IMG_TYPE.toLowerCase()));
@@ -934,7 +922,7 @@ public class ImageAnalyzer {
 		}
 		return false;
 	}
-	
+
 	public BufferedImage getImgFromFile(String filename){
 		try {
 			return ImageIO.read(new File(filename+"."+IMG_TYPE.toLowerCase()));
@@ -943,37 +931,37 @@ public class ImageAnalyzer {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * find out if marvin fits our needs.
 	 */
 	public void testMarvin(){
 //		MarvinImage greyImg=applyPlugin("org.marvinproject.image.color.grayScale", src);
-		
+
 		//ImgUtils.imshow("Marvin Test", greyImg.getBufferedImage());
-		
+
 //		HashMap<String,Object> attributes=new HashMap<String,Object>();
 //		attributes.put("range", colorThreshold);
 //		attributes.put("r", 100);
 //		MarvinImage colorSelected=applyPlugin("org.marvinproject.image.color.thresholdRange", src, attributes);
 //		ImgUtils.imshow("selected color",colorSelected);
-		
+
 //		MarvinImage robertsImg=applyPlugin("org.marvinproject.image.edge.roberts.jar", greyImg);
-//		
+//
 //		ImgUtils.imshow("Marvin Edge", robertsImg);
-		
-		
+
+
 		MarvinImage mImg=new MarvinImage(getImgFromFile("test/boundary_in"));
 		MarvinImage inverted=applyPlugin("org.marvinproject.image.color.invert", mImg);
 		//ImgUtils.imshow("inverted", inverted.getBufferedImage());
 		MarvinImage blackAndWhite=MarvinColorModelConverter.rgbToBinary(inverted, 127);
 		MarvinImage boundary=applyPlugin("org.marvinproject.image.morphological.boundary", blackAndWhite);
 		ImgUtils.imshow("boundary", boundary);
-		
-		
-		
+
+
+
 	}
-	
+
 	/**
 	 * load the plugin, process it with that image and return it. The original image is not modified.
 	 * @param pluginName the plugin jar name
@@ -983,7 +971,7 @@ public class ImageAnalyzer {
 	public MarvinImage applyPlugin(String pluginName, MarvinImage img){
 		return applyPlugin(pluginName, img,null);
 	}
-	
+
 	/**
 	 * load the plugin, process it with that image and return it. The original image is not modified.
 	 * @param pluginName the plugin jar name
@@ -994,20 +982,20 @@ public class ImageAnalyzer {
 	public MarvinImage applyPlugin(String pluginName, MarvinImage img,HashMap<String,Object> attributes){
 		MarvinImage dest=img.clone();
 		MarvinImagePlugin plugin=MarvinPluginLoader.loadImagePlugin(pluginName);
-		
+
 		if(attributes!=null){
 			for(String key : attributes.keySet()){
 				plugin.setAttribute(key, attributes.get(key));
 			}
 		}
-		
+
 		plugin.process(img, dest);
-		
+
 		// do not update every time, only when needed
 		//dest.update();
 		return dest;
 	}
-	
+
 	/**
 	 * create a instance of a marvin plugin
 	 * @param pluginClassName full class name of the plugin
@@ -1015,11 +1003,11 @@ public class ImageAnalyzer {
 	 */
 	public MarvinImagePlugin getPlugin(String pluginClassName){
 		MarvinImagePlugin plugin=null;
-		
+
 			try {
 				Class<?> classObject=Class.forName(pluginClassName);
 				Object classInstance=classObject.newInstance();
-				
+
 				if(classInstance instanceof MarvinImagePlugin){
 					// this is a correct plugin
 					plugin=(MarvinAbstractImagePlugin) classInstance;
@@ -1027,11 +1015,11 @@ public class ImageAnalyzer {
 				}else {
 					log.error("The class "+pluginClassName+" is not a MarvinPlugin");
 				}
-				
+
 			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 				log.error("could not load marvin plugin", e);
 			}
-		
+
 		return plugin;
 	}
 
@@ -1090,7 +1078,7 @@ public class ImageAnalyzer {
 	public void setBlurRadius(int blurRadius) {
 		this.blurRadius = blurRadius;
 	}
-	
+
 	/**
 	 * @param args
 	 */
@@ -1102,7 +1090,7 @@ public class ImageAnalyzer {
 		Logger.getRootLogger().addAppender(console);
 
 		Logger.getRootLogger().setLevel(Level.DEBUG);
-		
+
 
 		// test/baseimage.png 419 308
 		if (args.length < 3) {

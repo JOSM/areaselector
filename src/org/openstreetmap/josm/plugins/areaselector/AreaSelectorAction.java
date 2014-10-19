@@ -123,7 +123,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			try {
 				clickPoint=e.getPoint();
 				createArea();
-			} catch (Throwable ex) {
+			} catch (Exception ex) {
 				log.error("failed to add area", ex);
 				new BugReportDialog(ex);
 			}
@@ -308,7 +308,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		// refresh from prefs
 		try{
 		this.colorThreshold=Integer.parseInt(Main.pref.get(PREF_COLORTHRESHOLD, Integer.toString(ImageAnalyzer.DEFAULT_COLORTHRESHOLD)));
-		}catch(Throwable th){
+		}catch(NumberFormatException th){
 			log.warn("Could not load color threshold",th);
 		}
 		return colorThreshold;
@@ -328,7 +328,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public double getToleranceDist() {
 		try{
 			this.toleranceDist=Double.parseDouble(Main.pref.get(PREF_TOLERANCEDIST, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEDIST)));
-		}catch(Throwable th){
+		}catch(NumberFormatException th){
 			log.warn("Could not load tolerance dist",th);
 		}
 		return toleranceDist;
@@ -348,7 +348,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public double getToleranceAngle() {
 		try{
 			this.toleranceAngle=Double.parseDouble(Main.pref.get(PREF_TOLERANCEANGLE, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEANGLE)));
-		}catch(Throwable th){
+		}catch(NumberFormatException th){
 			log.warn("Could not load tolerance angle",th);
 		}
 		return toleranceAngle;
@@ -368,7 +368,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public boolean getShowAddressDialog() {
 		try{
 			this.showAddressDialog=Boolean.parseBoolean(Main.pref.get(PREF_SHOWADDRESSDIALOG,Boolean.toString(true)));
-		}catch(Throwable th){}
+		}catch(NumberFormatException e){}
 		return showAddressDialog;
 	}
 
@@ -386,7 +386,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public boolean getMergeNodes() {
 		try{
 			this.mergeNodes=Boolean.parseBoolean(Main.pref.get(PREF_MERGENODES,Boolean.toString(true)));
-		}catch(Throwable th){}
+		}catch(NumberFormatException e){}
 		return mergeNodes;
 	}
 

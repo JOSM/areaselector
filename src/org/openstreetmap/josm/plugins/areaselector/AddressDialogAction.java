@@ -32,7 +32,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 	public static Logger log = Logger.getLogger(AddressDialogAction.class);
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 2633172251746257372L;
 
@@ -49,7 +49,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.openstreetmap.josm.actions.mapmode.MapMode#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	@Override
@@ -58,7 +58,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 
 		try {
 			showAddressDialogFor(e.getPoint());
-		} catch (Throwable th) {
+		} catch (Exception th) {
 			log.warn("show Address Dialog failed", th);
 			new BugReportDialog(th);
 		}
