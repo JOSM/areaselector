@@ -11,7 +11,7 @@ Checkout the JOSM source, compile it and checkout the plugin source:
     ant clean
     ant dist
     cd plugins
-    git clone https://github.com/r00tat/JOSM-areaselector.git areaselector
+    git clone https://github.com/JOSM/JOSM-areaselector.git areaselector
     cd areaselector
     ant clean
     ant
