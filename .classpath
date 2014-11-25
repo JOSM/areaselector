@@ -25,5 +25,6 @@
 	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-log4j"/>
+	<classpathentry kind="lib" path="../../dist/log4j.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
