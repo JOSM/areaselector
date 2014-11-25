@@ -216,7 +216,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         tagsField.setName("tags");
         houseNameField.setName(TAG_HOUSENAME);
         
-        fields=new Vector<Component>();
+        fields=new Vector<>();
         Component []fieldArr={houseNumField, streetNameField, cityField, postCodeField, countryField, buildingField, tagsField, houseNameField};
         fields.addAll(Arrays.asList(fieldArr));
 
@@ -241,7 +241,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			@Override
 			public Component getComponentBefore(Container aContainer, Component aComponent) {
 				int ix=getIndex(aComponent);
-				return fields.get(ix-1>0?ix-1:fields.size()-1);
+				return fields.get(ix-1>=0?ix-1:fields.size()-1);
 			}
 			
 			@Override
