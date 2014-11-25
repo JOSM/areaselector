@@ -34,29 +34,4 @@
 	<!-- ** include targets that all plugins have in common ** -->
 	<import file="../build-common.xml" />
 
-
-	
-
-	<!--
-    **********************************************************
-    ** compile - complies the source tree
-    **********************************************************
-    -->
-	<target name="compile" depends="init">
-		<echo message="compiling sources for  ${plugin.jar} ... "/>
-		<javac srcdir="src" classpath="${josm}" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
-      <classpath>
-          <pathelement location="${josm}"/>
-        <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
-            <include name="log4j.jar"/>
-        </fileset>
-    		<fileset dir="lib">
-    				<include name="**/*.jar"/>
-    		</fileset>
-
-      </classpath>
-			<compilerarg value="-Xlint:deprecation"/>
-			<compilerarg value="-Xlint:unchecked"/>
-		</javac>
-	</target>
 </project>
