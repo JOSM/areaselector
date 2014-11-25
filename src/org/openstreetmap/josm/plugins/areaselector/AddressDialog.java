@@ -4,14 +4,18 @@ package org.openstreetmap.josm.plugins.areaselector;
 import static org.openstreetmap.josm.tools.I18n.tr;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Vector;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -73,6 +77,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
     protected static Collection<AutoCompletionListItem> aciTags;
 
     protected int changeNum=0;
+    
+    protected Vector<Component> fields;
 
 //    protected static Logger log = Logger.getLogger(AddressDialog.class);
 
@@ -190,7 +196,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         tagsField.setSelectedItem(Main.pref.get(PREF_TAGS));
 
         JLabel houseNumLabel = new JLabel(tr("House number:"));
-        houseNumLabel.setLabelFor(houseNameField);
+        houseNumLabel.setLabelFor(houseNumField);
         panel.add(houseNumLabel, GBC.std());
         panel.add(houseNumPanel, GBC.eol().fill(GBC.HORIZONTAL));
 
@@ -202,6 +208,64 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         addLabelled(tr("Tags:"), tagsField);
 
         addLabelled(tr("Name:"), houseNameField);
+        houseNumField.setName(TAG_HOUSENUM);
+        streetNameField.setName(TAG_STREETNAME);
+        cityField.setName(TAG_CITY);
+        postCodeField.setName(TAG_POSTCODE);
+        buildingField.setName(TAG_BUILDING);
+        tagsField.setName("tags");
+        houseNameField.setName(TAG_HOUSENAME);
+        
+        fields=new Vector<Component>();
+        Component []fieldArr={houseNumField, streetNameField, cityField, postCodeField, countryField, buildingField, tagsField, houseNameField};
+        fields.addAll(Arrays.asList(fieldArr));
+
+        
+        this.setFocusTraversalPolicy(new FocusTraversalPolicy() {
+			
+			@Override
+			public Component getLastComponent(Container aContainer) {
+				return fields.get(fields.size()-1);
+			}
+			
+			@Override
+			public Component getFirstComponent(Container aContainer) {
+				return fields.get(0);
+			}
+			
+			@Override
+			public Component getDefaultComponent(Container aContainer) {
+				return fields.get(0);
+			}
+			
+			@Override
+			public Component getComponentBefore(Container aContainer, Component aComponent) {
+				int ix=getIndex(aComponent);
+				return fields.get(ix-1>0?ix-1:fields.size()-1);
+			}
+			
+			@Override
+			public Component getComponentAfter(Container aContainer, Component aComponent) {
+				int ix=getIndex(aComponent);
+				return fields.get(ix+1<fields.size()?ix+1:0);
+			}
+			
+			public int getIndex(Component c){
+				for(int i=0;i<fields.size();i++){
+					
+					if(fields.get(i).equals(c)){
+						return i;
+					}else if(fields.get(i) instanceof AutoCompletingComboBox){
+						AutoCompletingComboBox ac=(AutoCompletingComboBox)fields.get(i);
+						if(Arrays.asList(ac.getComponents()).contains(c)){
+							return i;
+						}
+					}
+				}
+				return -1;
+			}
+		});
+        
 
 
         setContent(panel);
