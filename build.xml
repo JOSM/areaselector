@@ -25,7 +25,7 @@
 	<property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin" />
 	<property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at." />
 	<property name="plugin.icon" value="images/mapmode/areaselector.png" />
-	<property name="plugin.link" value="https://github.com/r00tat/JOSM-areaselector"/>
+	<property name="plugin.link" value="https://github.com/JOSM/JOSM-areaselector"/>
 	<property name="plugin.requires" value="log4j"/>
 
 	<property name="josm" location="../../core/dist/josm-custom.jar" />
@@ -34,7 +34,29 @@
 	<!-- ** include targets that all plugins have in common ** -->
 	<import file="../build-common.xml" />
 
-    <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
-        <include name="log4j.jar"/>
-    </fileset>
+
+	
+
+	<!--
+    **********************************************************
+    ** compile - complies the source tree
+    **********************************************************
+    -->
+	<target name="compile" depends="init">
+		<echo message="compiling sources for  ${plugin.jar} ... "/>
+		<javac srcdir="src" classpath="${josm}" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
+      <classpath>
+          <pathelement location="${josm}"/>
+        <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
+            <include name="log4j.jar"/>
+        </fileset>
+    		<fileset dir="lib">
+    				<include name="**/*.jar"/>
+    		</fileset>
+
+      </classpath>
+			<compilerarg value="-Xlint:deprecation"/>
+			<compilerarg value="-Xlint:unchecked"/>
+		</javac>
+	</target>
 </project>
