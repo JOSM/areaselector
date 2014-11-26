@@ -34,4 +34,7 @@
 	<!-- ** include targets that all plugins have in common ** -->
 	<import file="../build-common.xml" />
 
+    <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
+        <include name="log4j.jar"/>
+    </fileset>
 </project>
