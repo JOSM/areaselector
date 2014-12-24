@@ -102,7 +102,10 @@ public class ImageAnalyzer {
     // gaussian blur radius
     public static final int DEFAULT_BLURRADIUS = 10;
     protected int blurRadius = DEFAULT_BLURRADIUS;
-
+    
+    // default thinning iterations = 3
+    public static final int DEFAULT_THINNING_ITERATIONS = 2;
+    protected int thinningIterations = DEFAULT_THINNING_ITERATIONS;
 
 
 
@@ -160,6 +163,14 @@ public class ImageAnalyzer {
         final JLabel toleranceAngleLabel = new JLabel("Tolerance Angle: ");
         textAreaPanel.add(toleranceAngleLabel);
         textAreaPanel.add(toleranceAngleTextArea);
+        
+        final JTextArea thinningIterationsTextArea=new JTextArea(1,5);
+        thinningIterationsTextArea.setText(""+(thinningIterations));
+        final JLabel thinningIterationsLabel = new JLabel("Thinning Iterations: ");
+        textAreaPanel.add(thinningIterationsLabel);
+        textAreaPanel.add(thinningIterationsTextArea);
+        
+        
 
 
         JButton refreshButton=new JButton("Refresh");
@@ -173,6 +184,8 @@ public class ImageAnalyzer {
                 toleranceDist=Double.parseDouble(toleranceDistTextArea.getText());
 
                 toleranceAngle=Double.parseDouble(toleranceAngleTextArea.getText());
+                
+                thinningIterations=Integer.parseInt(thinningIterationsTextArea.getText());
 
 
                 getArea();
@@ -522,7 +535,7 @@ public class ImageAnalyzer {
             }
         }
 
-        for(int j=0;j<3;j++){
+        for(int j=0;j<thinningIterations;j++){
 
             int [] thinningKernel1= {
                     0, 0, 0,
@@ -1078,6 +1091,21 @@ public class ImageAnalyzer {
     public void setBlurRadius(int blurRadius) {
         this.blurRadius = blurRadius;
     }
+    
+	/**
+	 * @return the thinningIterations
+	 */
+	public int getThinningIterations() {
+		return thinningIterations;
+	}
+
+	/**
+	 * @param thinningIterations the thinningIterations to set
+	 */
+	public void setThinningIterations(int thinningIterations) {
+		this.thinningIterations = thinningIterations;
+	}
+
 
     /**
      * @param args

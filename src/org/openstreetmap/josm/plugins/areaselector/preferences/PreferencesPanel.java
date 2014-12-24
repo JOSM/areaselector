@@ -24,10 +24,11 @@ public class PreferencesPanel extends JPanel {
     private JTextField txtColorThreshold;
     private JTextField txtToleranceDist;
     private JTextField txtToleranceAngle;
+    private JTextField txtThinningIterations;
 
     private JCheckBox ckbxShowAddressDialog;
     private JCheckBox ckbxMergeNodes;
-
+    
     /**
      * Constructs a new {@code PreferencesPanel}.
      */
@@ -115,7 +116,6 @@ public class PreferencesPanel extends JPanel {
         txtToleranceAngle.setColumns(10);
 
         JLabel lbluserInterfaceSettings = new JLabel("<html><p><b>"+tr("Plugin Settings")+"</b></p></html>");
-        sl_panel.putConstraint(SpringLayout.NORTH, lbluserInterfaceSettings, 40, SpringLayout.SOUTH, lblToleranceAngle);
         sl_panel.putConstraint(SpringLayout.WEST, lbluserInterfaceSettings, 0, SpringLayout.WEST, lblAlgorithmSettings);
         add(lbluserInterfaceSettings);
 
@@ -138,6 +138,24 @@ public class PreferencesPanel extends JPanel {
         sl_panel.putConstraint(SpringLayout.WEST, ckbxMergeNodes, 0, SpringLayout.WEST, ckbxShowAddressDialog);
         sl_panel.putConstraint(SpringLayout.SOUTH, ckbxMergeNodes, 0, SpringLayout.SOUTH, lblMergeNodesWithNeighbor);
         add(ckbxMergeNodes);
+        
+        JLabel lblThinningIterationsExplanation = new JLabel("<html><p>"+tr("How often thinning operation should be applied (Default {0}).",ImageAnalyzer.DEFAULT_THINNING_ITERATIONS)+"</p></html>");
+        sl_panel.putConstraint(SpringLayout.NORTH, lblThinningIterationsExplanation, 40, SpringLayout.NORTH, lblToleranceAngle);
+        sl_panel.putConstraint(SpringLayout.WEST, lblThinningIterationsExplanation, 0, SpringLayout.WEST, lblAlgorithmSettings);
+        add(lblThinningIterationsExplanation);
+        
+        JLabel lblThinningIterations = new JLabel(tr("Thinning Iterations"));
+        sl_panel.putConstraint(SpringLayout.NORTH, lbluserInterfaceSettings, 40, SpringLayout.SOUTH, lblThinningIterations);
+        sl_panel.putConstraint(SpringLayout.NORTH, lblThinningIterations, 10, SpringLayout.SOUTH, lblThinningIterationsExplanation);
+        sl_panel.putConstraint(SpringLayout.WEST, lblThinningIterations, 0, SpringLayout.WEST, lblAlgorithmSettings);
+        add(lblThinningIterations);
+        
+        txtThinningIterations = new JTextField();
+        sl_panel.putConstraint(SpringLayout.NORTH, txtThinningIterations, 10, SpringLayout.SOUTH, lblThinningIterationsExplanation);
+        sl_panel.putConstraint(SpringLayout.EAST, txtThinningIterations, 0, SpringLayout.EAST, txtColorThreshold);
+        txtThinningIterations.setText("0.4");
+        txtThinningIterations.setColumns(10);
+        add(txtThinningIterations);
     }
 
     /**
@@ -232,4 +250,24 @@ public class PreferencesPanel extends JPanel {
     public void setMergeNodes(boolean merge){
         ckbxMergeNodes.setSelected(merge);
     }
+    
+	/**
+	 * get Thinning Iterations
+	 * @return
+	 */
+	public int getThinningIterations() {
+		try{
+			return Integer.parseInt(txtThinningIterations.getText());
+		}catch(NumberFormatException e){
+			return ImageAnalyzer.DEFAULT_THINNING_ITERATIONS;
+		}
+	}
+	
+	/**
+	 * set text field to value of thinning Iterations
+	 * @param thinningIterations
+	 */
+	public void setThinningIterations(int thinningIterations) {
+		txtThinningIterations.setText(Integer.toString(thinningIterations));
+	}
 }

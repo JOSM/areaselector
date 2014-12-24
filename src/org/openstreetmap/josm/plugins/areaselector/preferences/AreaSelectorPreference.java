@@ -37,6 +37,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
         prefPanel.setColorThreshold(areaSelectorAction.getColorThreshold());
         prefPanel.setToleranceDist(areaSelectorAction.getToleranceDist());
         prefPanel.setToleranceAngle(areaSelectorAction.getToleranceAngle());
+        prefPanel.setThinningIterations(areaSelectorAction.getThinningIterations());
         prefPanel.setShowAddressDialog(areaSelectorAction.getShowAddressDialog());
         prefPanel.setMergeNodes(areaSelectorAction.getMergeNodes());
 
@@ -59,6 +60,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
         areaSelectorAction.setColorThreshold(prefPanel.getColorThreshold());
         areaSelectorAction.setToleranceDist(prefPanel.getToleranceDist());
         areaSelectorAction.setToleranceAngle(prefPanel.getToleranceAngle());
+        areaSelectorAction.setThinningIterations(prefPanel.getThinningIterations());
         areaSelectorAction.setShowAddressDialog(prefPanel.getShowAddressDialog());
         areaSelectorAction.setMergeNodes(prefPanel.getMergeNodes());
         return false;

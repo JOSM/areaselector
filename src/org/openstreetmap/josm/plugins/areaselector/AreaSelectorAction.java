@@ -47,7 +47,7 @@ import org.openstreetmap.josm.tools.Shortcut;
  */
 public class AreaSelectorAction extends MapMode implements MouseListener {
 
-    protected int colorThreshold=ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
+    protected int colorThreshold=ImageAnalyzer.DEFAULT_COLORTHRESHOLD, thinningIterations=ImageAnalyzer.DEFAULT_THINNING_ITERATIONS;
     protected double toleranceDist=ImageAnalyzer.DEFAULT_TOLERANCEDIST,toleranceAngle=ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
 
     protected boolean showAddressDialog=true,mergeNodes=true;
@@ -58,7 +58,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             PREF_TOLERANCEDIST=PLUGIN_NAME+".tolerancedist",
             PREF_TOLERANCEANGLE=PLUGIN_NAME+".toleranceangle",
             PREF_SHOWADDRESSDIALOG=PLUGIN_NAME+".showaddressdialog",
-            PREF_MERGENODES=PLUGIN_NAME+".mergenodes";
+            PREF_MERGENODES=PLUGIN_NAME+".mergenodes",
+            PREF_THINNING_ITERATIONS=PLUGIN_NAME+".thinning_iterations";
 
 
     protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
@@ -315,6 +316,25 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
     public void setColorThreshold(int colorThreshold) {
         Main.pref.put(PREF_COLORTHRESHOLD, Integer.toString(colorThreshold));
         this.colorThreshold = colorThreshold;
+    }
+    
+    
+    public int getThinningIterations() {
+        // refresh from prefs
+        try{
+        this.thinningIterations=Integer.parseInt(Main.pref.get(PREF_THINNING_ITERATIONS, Integer.toString(ImageAnalyzer.DEFAULT_THINNING_ITERATIONS)));
+        }catch(NumberFormatException th){
+            log.warn("Could not load thinning iterations",th);
+        }
+        return thinningIterations;
+    }
+
+    /**
+     * @param thinningIterations the thinningIterations to set
+     */
+    public void setThinningIterations(int thinningIterations) {
+        Main.pref.put(PREF_THINNING_ITERATIONS, Integer.toString(thinningIterations));
+        this.thinningIterations = thinningIterations;
     }
 
     /**
