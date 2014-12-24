@@ -85,8 +85,8 @@ public class ImageAnalyzer {
 
 
     // Algorithm params
-    // default for border = 40
-    public static final int DEFAULT_COLORTHRESHOLD= 17;
+    // default for border = 17
+    public static final int DEFAULT_COLORTHRESHOLD= 14;
     protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 
 
@@ -95,11 +95,11 @@ public class ImageAnalyzer {
     public static final double DEFAULT_TOLERANCEDIST=4;
     double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 
-    // default for border = 0.25
+    // default for border = Math.PI / 8
     public static final double DEFAULT_TOLERANCEANGLE = Math.PI / 8;
     double toleranceAngle= DEFAULT_TOLERANCEANGLE; // original Math.PI/10
 
-    // gaussian blur radius
+    // gaussian blur radius = 10
     public static final int DEFAULT_BLURRADIUS = 10;
     protected int blurRadius = DEFAULT_BLURRADIUS;
     
