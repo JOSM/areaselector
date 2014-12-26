@@ -245,7 +245,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
                     selectedNodes.add(n);
                 }
             }
-            log.info("selected nodes: "+selectedNodes);
+//            log.info("selected nodes: "+selectedNodes);
             if(selectedNodes.size()>1){
                 Node targetNode = MergeNodesAction.selectTargetNode(selectedNodes);
                 Node targetLocationNode = MergeNodesAction.selectTargetLocationNode(selectedNodes);
