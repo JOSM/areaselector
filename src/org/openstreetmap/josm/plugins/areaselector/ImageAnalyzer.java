@@ -92,11 +92,11 @@ public class ImageAnalyzer {
 
     // Polynomial fitting tolerances
     // default for border = 4
-    public static final double DEFAULT_TOLERANCEDIST=4;
+    public static final double DEFAULT_TOLERANCEDIST=4.5d;
     double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 
     // default for border = Math.PI / 8
-    public static final double DEFAULT_TOLERANCEANGLE = Math.PI / 8;
+    public static final double DEFAULT_TOLERANCEANGLE = 4.2d;
     double toleranceAngle= DEFAULT_TOLERANCEANGLE; // original Math.PI/10
 
     // gaussian blur radius = 10
