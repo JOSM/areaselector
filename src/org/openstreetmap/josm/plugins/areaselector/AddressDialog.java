@@ -330,7 +330,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
                 aciTags.add(aci);
             }
 
-            String[] alltags=tags.split(" *[,;] *");
+            String[] alltags=tags.split(" *; *");
             for(int i=0;i<alltags.length;i++){
                 String[] kv=alltags[i].split(" *= *");
                 if(kv.length>=2){
