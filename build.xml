@@ -30,6 +30,8 @@
 
 	<property name="josm" location="../../core/dist/josm-custom.jar" />
 	<property name="plugin.dist.dir" value="../../dist" />
+	
+	<property name="plugin.canloadatruntime" value="true"/>
 
 	<!-- ** include targets that all plugins have in common ** -->
 	<import file="../build-common.xml" />
