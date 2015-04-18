@@ -37,6 +37,8 @@ import org.apache.log4j.PatternLayout;
 
 import boofcv.alg.color.ColorHsv;
 import boofcv.alg.enhance.EnhanceImageOps;
+import boofcv.alg.feature.detect.edge.CannyEdge;
+import boofcv.alg.feature.detect.edge.EdgeContour;
 import boofcv.alg.feature.shapes.ShapeFittingOps;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
@@ -46,6 +48,7 @@ import boofcv.alg.filter.derivative.GradientSobel;
 import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.core.image.GeneralizedImageOps;
+import boofcv.factory.feature.detect.edge.FactoryEdgeDetectors;
 import boofcv.gui.binary.VisualizeBinaryData;
 import boofcv.gui.feature.VisualizeShapes;
 import boofcv.gui.image.VisualizeImageData;
@@ -426,8 +429,8 @@ public class ImageAnalyzer {
 		ImageSInt16 derivY = new ImageSInt16(input.width,input.height);
 		GradientSobel.process(input, derivX, derivY, null);
 //		BufferedImage outputImage = VisualizeImageData.colorizeSign(derivX,null,-1);
-		saveImgToFile(ConvertBufferedImage.convertTo(derivX, null), "derivX");
-		saveImgToFile(ConvertBufferedImage.convertTo(derivY, null), "derivY");
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(derivX, null), "derivX");
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(derivY, null), "derivY");
 		ImageSInt16 combined = new ImageSInt16(input.width, input.height);
 		
 		for(int y=0; y<input.height; y++){
@@ -435,8 +438,40 @@ public class ImageAnalyzer {
 				combined.set(x, y, (derivX.get(x, y)|derivY.get(x, y)));
 			}
 		}
-		saveImgToFile(ConvertBufferedImage.convertTo(combined, null), "combined");
+		if(debug) saveImgToFile(ConvertBufferedImage.convertTo(combined, null), "combined");
     	return image;
+    }
+    
+    public BufferedImage canny(BufferedImage image){
+		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+		ImageUInt8 edgeImage = new ImageUInt8(gray.width,gray.height);
+ 
+		// Create a canny edge detector which will dynamically compute the threshold based on maximum edge intensity
+		// It has also been configured to save the trace as a graph.  This is the graph created while performing
+		// hysteresis thresholding.
+		CannyEdge<ImageUInt8,ImageSInt16> canny = FactoryEdgeDetectors.canny(2,true, true, ImageUInt8.class, ImageSInt16.class);
+ 
+		// The edge image is actually an optional parameter.  If you don't need it just pass in null
+		canny.process(gray,0.1f,0.3f,edgeImage);
+ 
+		// First get the contour created by canny
+		List<EdgeContour> edgeContours = canny.getContours();
+		// The 'edgeContours' is a tree graph that can be difficult to process.  An alternative is to extract
+		// the contours from the binary image, which will produce a single loop for each connected cluster of pixels.
+		// Note that you are only interested in external contours.
+		List<Contour> contours = BinaryImageOps.contour(edgeImage, ConnectRule.EIGHT, null);
+		BufferedImage visualBinary = VisualizeBinaryData.renderBinary(edgeImage, null);
+		if(debug){
+			BufferedImage visualCannyContour = VisualizeBinaryData.renderContours(edgeContours,null,
+					gray.width,gray.height,null);
+			BufferedImage visualEdgeContour = VisualizeBinaryData.renderExternal(contours, null,
+					gray.width, gray.height, null);
+			saveImgToFile(visualBinary, "canny_binary");
+			saveImgToFile(visualCannyContour, "canny_contour");
+			saveImgToFile(visualEdgeContour, "canny_edge");
+		}
+		
+		return visualBinary;
     }
 
 
