@@ -88,6 +88,13 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
     		}
     	}
     	
+    	if (prefs.containsKey(KEY_MERGENODES)){
+    		this.mergeNodes = prefs.get(KEY_MERGENODES).compareTo("true") == 0;
+    	}
+    	if (prefs.containsKey(KEY_SHOWADDRESSDIALOG)){
+    		this.showAddressDialog = prefs.get(KEY_SHOWADDRESSDIALOG).compareTo("true") == 0;
+    	}
+    	
     }
 
     private static Cursor getCursor() {
@@ -320,6 +327,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		this.prefs = prefs;
 		Main.pref.putCollection(PREF_KEYS, prefs.keySet());
 		Main.pref.putCollection(PREF_VALUES, prefs.values());
+		this.readPrefs();
 	}
 
     
