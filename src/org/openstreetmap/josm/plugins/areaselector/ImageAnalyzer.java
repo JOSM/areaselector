@@ -42,6 +42,7 @@ import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
 import boofcv.alg.filter.binary.ThresholdImageOps;
 import boofcv.alg.filter.blur.GBlurImageOps;
+import boofcv.alg.filter.derivative.GradientSobel;
 import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.core.image.GeneralizedImageOps;
@@ -51,6 +52,7 @@ import boofcv.gui.image.VisualizeImageData;
 import boofcv.struct.ConnectRule;
 import boofcv.struct.PointIndex_I32;
 import boofcv.struct.image.ImageFloat32;
+import boofcv.struct.image.ImageSInt16;
 import boofcv.struct.image.ImageUInt8;
 import boofcv.struct.image.MultiSpectral;
 
@@ -412,6 +414,30 @@ public class ImageAnalyzer {
 
         return ConvertBufferedImage.convertTo(adjusted,null);
     }
+    
+    /**
+     * apply a sobel operator
+     * @param image Image to process
+     * @return processed Image
+     */
+    public BufferedImage sobel(BufferedImage image){
+    	ImageUInt8 input = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+    	ImageSInt16 derivX = new ImageSInt16(input.width,input.height);
+		ImageSInt16 derivY = new ImageSInt16(input.width,input.height);
+		GradientSobel.process(input, derivX, derivY, null);
+//		BufferedImage outputImage = VisualizeImageData.colorizeSign(derivX,null,-1);
+		saveImgToFile(ConvertBufferedImage.convertTo(derivX, null), "derivX");
+		saveImgToFile(ConvertBufferedImage.convertTo(derivY, null), "derivY");
+		ImageSInt16 combined = new ImageSInt16(input.width, input.height);
+		
+		for(int y=0; y<input.height; y++){
+			for (int x=0; x<input.width; x++){
+				combined.set(x, y, (derivX.get(x, y)|derivY.get(x, y)));
+			}
+		}
+		saveImgToFile(ConvertBufferedImage.convertTo(combined, null), "combined");
+    	return image;
+    }
 
 
     /**
@@ -457,7 +483,9 @@ public class ImageAnalyzer {
             }
 
             if(debug) saveImgToFile(img, "thin");
-
+        }
+        
+        for(int j=0;j<thinningIterations;j++){
 
             // filter small lines
             int [][] noiseReductionKernel1=
