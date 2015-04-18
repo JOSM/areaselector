@@ -388,6 +388,8 @@ public class ImageAnalyzer {
         log.info("Histogram adjustment");
 
         ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+        if(debug) saveImgToFile(ConvertBufferedImage.convertTo(gray,null),"histogram_gray");
+        
         ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
 //        if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"gray");
 
@@ -405,10 +407,10 @@ public class ImageAnalyzer {
         // create a binary image by thresholding
         ThresholdImageOps.threshold(adjusted, binary, (int) mean, true);
 
-        if(debug) saveImgToFile(ConvertBufferedImage.convertTo(binary,null),"histogram_global");
+        //if(debug) saveImgToFile(ConvertBufferedImage.convertTo(binary,null),"histogram_global");
 
-//        EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
-//
+        EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
+
 //        if(debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted,null),"histogram_local");
 
         return ConvertBufferedImage.convertTo(adjusted,null);
