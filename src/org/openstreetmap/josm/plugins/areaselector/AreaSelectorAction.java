@@ -76,6 +76,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         this.getToleranceAngle();
         this.getMergeNodes();
         this.getShowAddressDialog();
+        this.getThinningIterations();
     }
 
     private static Cursor getCursor() {
@@ -162,6 +163,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         imgAnalyzer.setColorThreshold(colorThreshold);
         imgAnalyzer.setToleranceDist(toleranceDist);
         imgAnalyzer.setToleranceAngle(toleranceAngle);
+        imgAnalyzer.setThinningIterations(thinningIterations);
 
         Polygon polygon = imgAnalyzer.getArea();
 
