@@ -17,6 +17,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,29 +55,39 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
     public static final String PLUGIN_NAME="areaselector";
 
-    public static final String PREF_COLORTHRESHOLD=PLUGIN_NAME+".colorthreshold",
-            PREF_TOLERANCEDIST=PLUGIN_NAME+".tolerancedist",
-            PREF_TOLERANCEANGLE=PLUGIN_NAME+".toleranceangle",
-            PREF_SHOWADDRESSDIALOG=PLUGIN_NAME+".showaddressdialog",
-            PREF_MERGENODES=PLUGIN_NAME+".mergenodes",
-            PREF_THINNING_ITERATIONS=PLUGIN_NAME+".thinning_iterations";
+    public static final String 
+            KEY_SHOWADDRESSDIALOG="showaddressdialog",
+            KEY_MERGENODES="mergenodes",
+            PREF_KEYS = PLUGIN_NAME+".keys",
+            PREF_VALUES = PLUGIN_NAME + ".values";
 
 
     protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
 
     protected Point clickPoint=null;
+    
+    protected HashMap<String, String> prefs = null;
 
     public AreaSelectorAction(MapFrame mapFrame) {
         super(tr("Area Selection"), "areaselector", tr("Select an area (e.g. building) from an underlying image."), Shortcut.registerShortcut("tools:areaselector",
                 tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A, Shortcut.ALT_CTRL), mapFrame, getCursor());
 
         // load prefs
-        this.getColorThreshold();
-        this.getToleranceDist();
-        this.getToleranceAngle();
-        this.getMergeNodes();
-        this.getShowAddressDialog();
-        this.getThinningIterations();
+        this.readPrefs();
+    }
+    
+    protected void readPrefs(){
+    	String[] keys = Main.pref.getCollection(PREF_KEYS).toArray(new String[0]);
+    	String[] values = Main.pref.getCollection(PREF_VALUES).toArray(new String[0]);
+    	prefs = new HashMap<>();
+    	if(keys ==null || values==null ||keys.length != values.length){
+    		//use default prefs
+    	}else {
+    		for (int i=0; i<keys.length; i++){
+    			prefs.put(keys[i], values[i]);
+    		}
+    	}
+    	
     }
 
     private static Cursor getCursor() {
@@ -159,11 +170,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         BufferedImage bufImage = getLayeredImage();
 
         ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
-
-        imgAnalyzer.setColorThreshold(colorThreshold);
-        imgAnalyzer.setToleranceDist(toleranceDist);
-        imgAnalyzer.setToleranceAngle(toleranceAngle);
-        imgAnalyzer.setThinningIterations(thinningIterations);
+        imgAnalyzer.setPrefs(prefs);
 
         Polygon polygon = imgAnalyzer.getArea();
 
@@ -299,120 +306,21 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         return cmd;
     }
 
-    /**
-     * @return the colorThreshold
-     */
-    public int getColorThreshold() {
-        // refresh from prefs
-        try{
-        this.colorThreshold=Integer.parseInt(Main.pref.get(PREF_COLORTHRESHOLD, Integer.toString(ImageAnalyzer.DEFAULT_COLORTHRESHOLD)));
-        }catch(NumberFormatException th){
-            log.warn("Could not load color threshold",th);
-        }
-        return colorThreshold;
-    }
+	/**
+	 * @return the prefs
+	 */
+	public HashMap<String, String> getPrefs() {
+		return prefs;
+	}
 
-    /**
-     * @param colorThreshold the colorThreshold to set
-     */
-    public void setColorThreshold(int colorThreshold) {
-        Main.pref.put(PREF_COLORTHRESHOLD, Integer.toString(colorThreshold));
-        this.colorThreshold = colorThreshold;
-    }
+	/**
+	 * @param prefs the prefs to set
+	 */
+	public void setPrefs(HashMap<String, String> prefs) {
+		this.prefs = prefs;
+		Main.pref.putCollection(PREF_KEYS, prefs.keySet());
+		Main.pref.putCollection(PREF_VALUES, prefs.values());
+	}
+
     
-    
-    public int getThinningIterations() {
-        // refresh from prefs
-        try{
-        this.thinningIterations=Integer.parseInt(Main.pref.get(PREF_THINNING_ITERATIONS, Integer.toString(ImageAnalyzer.DEFAULT_THINNING_ITERATIONS)));
-        }catch(NumberFormatException th){
-            log.warn("Could not load thinning iterations",th);
-        }
-        return thinningIterations;
-    }
-
-    /**
-     * @param thinningIterations the thinningIterations to set
-     */
-    public void setThinningIterations(int thinningIterations) {
-        Main.pref.put(PREF_THINNING_ITERATIONS, Integer.toString(thinningIterations));
-        this.thinningIterations = thinningIterations;
-    }
-
-    /**
-     * @return the toleranceDist
-     */
-    public double getToleranceDist() {
-        try{
-            this.toleranceDist=Double.parseDouble(Main.pref.get(PREF_TOLERANCEDIST, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEDIST)));
-        }catch(NumberFormatException th){
-            log.warn("Could not load tolerance dist",th);
-        }
-        return toleranceDist;
-    }
-
-    /**
-     * @param toleranceDist the toleranceDist to set
-     */
-    public void setToleranceDist(double toleranceDist) {
-        Main.pref.put(PREF_TOLERANCEDIST, Double.toString(toleranceDist));
-        this.toleranceDist = toleranceDist;
-    }
-
-    /**
-     * @return the toleranceAngle
-     */
-    public double getToleranceAngle() {
-        try{
-            this.toleranceAngle=Double.parseDouble(Main.pref.get(PREF_TOLERANCEANGLE, Double.toString(ImageAnalyzer.DEFAULT_TOLERANCEANGLE)));
-        }catch(NumberFormatException th){
-            log.warn("Could not load tolerance angle",th);
-        }
-        return toleranceAngle;
-    }
-
-    /**
-     * @param toleranceAngle the toleranceAngle to set
-     */
-    public void setToleranceAngle(double toleranceAngle) {
-        Main.pref.put(PREF_TOLERANCEANGLE, Double.toString(toleranceAngle));
-        this.toleranceAngle = toleranceAngle;
-    }
-
-    /**
-     * @return the showAddressDialog
-     */
-    public boolean getShowAddressDialog() {
-        try{
-            this.showAddressDialog=Boolean.parseBoolean(Main.pref.get(PREF_SHOWADDRESSDIALOG,Boolean.toString(true)));
-        }catch(NumberFormatException e){}
-        return showAddressDialog;
-    }
-
-    /**
-     * @param showAddressDialog the showAddressDialog to set
-     */
-    public void setShowAddressDialog(boolean showAddressDialog) {
-        Main.pref.put(PREF_SHOWADDRESSDIALOG, Boolean.toString(showAddressDialog));
-        this.showAddressDialog = showAddressDialog;
-    }
-
-    /**
-     * @return the mergeNodes
-     */
-    public boolean getMergeNodes() {
-        try{
-            this.mergeNodes=Boolean.parseBoolean(Main.pref.get(PREF_MERGENODES,Boolean.toString(true)));
-        }catch(NumberFormatException e){}
-        return mergeNodes;
-    }
-
-    /**
-     * @param mergeNodes the mergeNodes to set
-     */
-    public void setMergeNodes(boolean mergeNodes) {
-        Main.pref.put(PREF_MERGENODES, Boolean.toString(mergeNodes));
-        this.mergeNodes = mergeNodes;
-    }
-
 }

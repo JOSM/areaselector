@@ -22,6 +22,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
 
     AreaSelectorPlugin areaSelectorPlugin;
     PreferencesPanel prefPanel;
+    
 
     public AreaSelectorPreference(AreaSelectorPlugin plugin) {
         super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Area detection algorithm settings."));
@@ -34,12 +35,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
         prefPanel = new PreferencesPanel();
 
         AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
-        prefPanel.setColorThreshold(areaSelectorAction.getColorThreshold());
-        prefPanel.setToleranceDist(areaSelectorAction.getToleranceDist());
-        prefPanel.setToleranceAngle(areaSelectorAction.getToleranceAngle());
-        prefPanel.setThinningIterations(areaSelectorAction.getThinningIterations());
-        prefPanel.setShowAddressDialog(areaSelectorAction.getShowAddressDialog());
-        prefPanel.setMergeNodes(areaSelectorAction.getMergeNodes());
+        prefPanel.setPrefs(areaSelectorAction.getPrefs());
 
         createPreferenceTabWithScrollPane(gui, prefPanel);
     }
@@ -57,12 +53,7 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     @Override
     public boolean ok() {
         AreaSelectorAction areaSelectorAction=areaSelectorPlugin.getAreaSelectorAction();
-        areaSelectorAction.setColorThreshold(prefPanel.getColorThreshold());
-        areaSelectorAction.setToleranceDist(prefPanel.getToleranceDist());
-        areaSelectorAction.setToleranceAngle(prefPanel.getToleranceAngle());
-        areaSelectorAction.setThinningIterations(prefPanel.getThinningIterations());
-        areaSelectorAction.setShowAddressDialog(prefPanel.getShowAddressDialog());
-        areaSelectorAction.setMergeNodes(prefPanel.getMergeNodes());
+        areaSelectorAction.setPrefs(prefPanel.getPrefs());
         return false;
     }
 }

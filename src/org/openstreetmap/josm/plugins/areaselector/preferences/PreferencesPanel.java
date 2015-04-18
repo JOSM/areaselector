@@ -7,12 +7,15 @@ package org.openstreetmap.josm.plugins.areaselector.preferences;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.util.HashMap;
+
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.openstreetmap.josm.plugins.areaselector.AreaSelectorAction;
 import org.openstreetmap.josm.plugins.areaselector.ImageAnalyzer;
 
 /**
@@ -28,6 +31,8 @@ public class PreferencesPanel extends JPanel {
 
     private JCheckBox ckbxShowAddressDialog;
     private JCheckBox ckbxMergeNodes;
+    
+    protected HashMap<String, String> prefs;
     
     /**
      * Constructs a new {@code PreferencesPanel}.
@@ -75,7 +80,6 @@ public class PreferencesPanel extends JPanel {
         txtColorThreshold = new JTextField();
         sl_panel.putConstraint(SpringLayout.NORTH, txtColorThreshold, -6, SpringLayout.NORTH, lblColorThreshold);
         sl_panel.putConstraint(SpringLayout.WEST, txtColorThreshold, 64, SpringLayout.EAST, lblColorThreshold);
-        txtColorThreshold.setText("15");
         this.add(txtColorThreshold);
         txtColorThreshold.setColumns(10);
 
@@ -93,7 +97,6 @@ public class PreferencesPanel extends JPanel {
         txtToleranceDist = new JTextField();
         sl_panel.putConstraint(SpringLayout.NORTH, txtToleranceDist, -6, SpringLayout.NORTH, lblToleranceDistance);
         sl_panel.putConstraint(SpringLayout.EAST, txtToleranceDist, 0, SpringLayout.EAST, txtColorThreshold);
-        txtToleranceDist.setText("3");
         this.add(txtToleranceDist);
         txtToleranceDist.setColumns(10);
 
@@ -111,7 +114,6 @@ public class PreferencesPanel extends JPanel {
         txtToleranceAngle = new JTextField();
         sl_panel.putConstraint(SpringLayout.NORTH, txtToleranceAngle, -6, SpringLayout.NORTH, lblToleranceAngle);
         sl_panel.putConstraint(SpringLayout.EAST, txtToleranceAngle, 0, SpringLayout.EAST, txtColorThreshold);
-        txtToleranceAngle.setText("0.4");
         this.add(txtToleranceAngle);
         txtToleranceAngle.setColumns(10);
 
@@ -153,7 +155,6 @@ public class PreferencesPanel extends JPanel {
         txtThinningIterations = new JTextField();
         sl_panel.putConstraint(SpringLayout.NORTH, txtThinningIterations, 10, SpringLayout.SOUTH, lblThinningIterationsExplanation);
         sl_panel.putConstraint(SpringLayout.EAST, txtThinningIterations, 0, SpringLayout.EAST, txtColorThreshold);
-        txtThinningIterations.setText("0.4");
         txtThinningIterations.setColumns(10);
         add(txtThinningIterations);
     }
@@ -269,5 +270,48 @@ public class PreferencesPanel extends JPanel {
 	 */
 	public void setThinningIterations(int thinningIterations) {
 		txtThinningIterations.setText(Integer.toString(thinningIterations));
+	}
+
+	/**
+	 * @return the prefs
+	 */
+	public HashMap<String, String> getPrefs() {
+		// make sure prefs are up to date
+		prefs.put(ImageAnalyzer.KEY_COLORTHRESHOLD, txtColorThreshold.getText());
+		prefs.put(ImageAnalyzer.KEY_THINNING_ITERATIONS, txtThinningIterations.getText());
+		prefs.put(ImageAnalyzer.KEY_TOLERANCEANGLE, txtToleranceAngle.getText());
+		prefs.put(ImageAnalyzer.KEY_TOLERANCEDIST, txtToleranceDist.getText());
+		prefs.put(AreaSelectorAction.KEY_MERGENODES, ckbxMergeNodes.isSelected() ? "true":"false");
+		prefs.put(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, ckbxShowAddressDialog.isSelected() ? "true":"false");
+		return prefs;
+	}
+
+	/**
+	 * @param prefs the prefs to set
+	 */
+	public void setPrefs(HashMap<String, String> prefs) {
+		this.prefs = prefs;
+		if(prefs.containsKey(ImageAnalyzer.KEY_COLORTHRESHOLD)){
+			txtColorThreshold.setText(prefs.get(ImageAnalyzer.KEY_COLORTHRESHOLD));
+		}
+		if(prefs.containsKey(ImageAnalyzer.KEY_THINNING_ITERATIONS)){
+			txtThinningIterations.setText(prefs.get(ImageAnalyzer.KEY_THINNING_ITERATIONS));
+		}
+		if(prefs.containsKey(ImageAnalyzer.KEY_TOLERANCEANGLE)){
+			txtToleranceAngle.setText(prefs.get(ImageAnalyzer.KEY_TOLERANCEANGLE));
+		}
+		if(prefs.containsKey(ImageAnalyzer.KEY_TOLERANCEDIST)){
+			txtToleranceDist.setText(prefs.get(ImageAnalyzer.KEY_TOLERANCEDIST));
+		}
+		if(prefs.containsKey(AreaSelectorAction.KEY_MERGENODES)){
+			ckbxMergeNodes.setSelected(prefs.get(AreaSelectorAction.KEY_MERGENODES).compareTo("true")==0);
+		}else {
+			ckbxMergeNodes.setSelected(true);
+		}
+		if(prefs.containsKey(AreaSelectorAction.KEY_SHOWADDRESSDIALOG)){
+			ckbxShowAddressDialog.setSelected(prefs.get(AreaSelectorAction.KEY_SHOWADDRESSDIALOG).compareTo("true")==0);
+		}else {
+			ckbxShowAddressDialog.setSelected(true);
+		}
 	}
 }

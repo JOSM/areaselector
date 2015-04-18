@@ -9,14 +9,10 @@ import georegression.metric.UtilAngle;
 import georegression.struct.point.Point2D_I32;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -27,11 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import marvin.image.MarvinColorModelConverter;
 import marvin.image.MarvinImage;
@@ -55,7 +46,6 @@ import boofcv.alg.misc.ImageStatistics;
 import boofcv.core.image.ConvertBufferedImage;
 import boofcv.core.image.GeneralizedImageOps;
 import boofcv.gui.binary.VisualizeBinaryData;
-import boofcv.gui.feature.ImageLinePanel;
 import boofcv.gui.feature.VisualizeShapes;
 import boofcv.gui.image.VisualizeImageData;
 import boofcv.struct.ConnectRule;
@@ -85,26 +75,30 @@ public class ImageAnalyzer {
 
 
     // Algorithm params
-    // default for border = 17
     public static final int DEFAULT_COLORTHRESHOLD= 14;
+    public static final String KEY_COLORTHRESHOLD = "COLORTHRESHOLD";
     protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 
 
     // Polynomial fitting tolerances
     // default for border = 4
     public static final double DEFAULT_TOLERANCEDIST=4.5d;
+    public static final String KEY_TOLERANCEDIST = "TOLERANCEDIST";
     double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 
     // default for border = Math.PI / 8
     public static final double DEFAULT_TOLERANCEANGLE = 0.42d;
+    public static final String KEY_TOLERANCEANGLE = "TOLERANCEANGLE";
     double toleranceAngle= DEFAULT_TOLERANCEANGLE; // original Math.PI/10
 
     // gaussian blur radius = 10
     public static final int DEFAULT_BLURRADIUS = 10;
+    public static final String KEY_BLURRADIUS = "BLURRADIUS";
     protected int blurRadius = DEFAULT_BLURRADIUS;
     
     // default thinning iterations = 3
     public static final int DEFAULT_THINNING_ITERATIONS = 2;
+    public static final String KEY_THINNING_ITERATIONS = "THINNING_ITERATIONS";
     protected int thinningIterations = DEFAULT_THINNING_ITERATIONS;
 
 
@@ -126,81 +120,33 @@ public class ImageAnalyzer {
         if(debug) saveImgToFile(baseImage,"baseimage");
 
     }
-
-    public void initUI() {
-
-        final JFrame mainWindow = new JFrame("Image Analyzer");
-        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        mainWindow.setLayout(new BorderLayout());
-        getArea();
-
-
-        final ImageLinePanel gui = new ImageLinePanel();
-        gui.setBackground(workImage);
-//        gui.setLineSegments(lines);
-        gui.setPreferredSize(new Dimension(baseImage.getWidth(),baseImage.getHeight()));
-
-        mainWindow.getContentPane().add(gui);
-
-        JPanel textAreaPanel = new JPanel();
-
-        final JTextArea colorThresholdTextArea=new JTextArea(1,5);
-        colorThresholdTextArea.setText(""+colorThreshold);
-        final JLabel colorLabel = new JLabel("Color Threshold: ");
-        textAreaPanel.add(colorLabel);
-        textAreaPanel.add(colorThresholdTextArea);
-
-
-        final JTextArea toleranceDistTextArea=new JTextArea(1,5);
-        toleranceDistTextArea.setText(""+toleranceDist);
-        final JLabel toleranceDistLabel = new JLabel("Tolerance Dist: ");
-        textAreaPanel.add(toleranceDistLabel);
-        textAreaPanel.add(toleranceDistTextArea);
-
-        final JTextArea toleranceAngleTextArea=new JTextArea(1,5);
-        toleranceAngleTextArea.setText(""+(toleranceAngle));
-        final JLabel toleranceAngleLabel = new JLabel("Tolerance Angle: ");
-        textAreaPanel.add(toleranceAngleLabel);
-        textAreaPanel.add(toleranceAngleTextArea);
-        
-        final JTextArea thinningIterationsTextArea=new JTextArea(1,5);
-        thinningIterationsTextArea.setText(""+(thinningIterations));
-        final JLabel thinningIterationsLabel = new JLabel("Thinning Iterations: ");
-        textAreaPanel.add(thinningIterationsLabel);
-        textAreaPanel.add(thinningIterationsTextArea);
-        
-        
-
-
-        JButton refreshButton=new JButton("Refresh");
-        refreshButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                colorThreshold=Integer.parseInt(colorThresholdTextArea.getText());
-
-
-                toleranceDist=Double.parseDouble(toleranceDistTextArea.getText());
-
-                toleranceAngle=Double.parseDouble(toleranceAngleTextArea.getText());
-                
-                thinningIterations=Integer.parseInt(thinningIterationsTextArea.getText());
-
-
-                getArea();
-                gui.setBackground(workImage);
-//                gui.setLineSegments(lines);
-                mainWindow.repaint();
-            }
-        });
-
-        textAreaPanel.add(refreshButton);
-
-        mainWindow.getContentPane().add(textAreaPanel, BorderLayout.NORTH);
-
-        mainWindow.setVisible(true);
-        mainWindow.setSize(1200, 800);
+    
+    public void setPrefs(HashMap<String, String> prefs){
+    	if(prefs.containsKey(KEY_COLORTHRESHOLD)){
+    		try {
+    			this.colorThreshold = Integer.parseInt(prefs.get(KEY_COLORTHRESHOLD));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_TOLERANCEDIST)){
+    		try {
+    			this.toleranceDist = Double.parseDouble(prefs.get(KEY_TOLERANCEDIST));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_TOLERANCEANGLE)){
+    		try {
+    			this.toleranceAngle = Double.parseDouble(prefs.get(KEY_TOLERANCEANGLE));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_BLURRADIUS)){
+    		try {
+    			this.blurRadius = Integer.parseInt(prefs.get(KEY_BLURRADIUS));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_THINNING_ITERATIONS)){
+    		try {
+    			this.thinningIterations = Integer.parseInt(prefs.get(KEY_THINNING_ITERATIONS));
+    		}catch (NumberFormatException ex){}
+    	}
     }
 
 
@@ -208,13 +154,11 @@ public class ImageAnalyzer {
 
         log.info("Using following params for algorithm: colorThreshold="+colorThreshold+" toleranceDist="+toleranceDist+" toleranceAngle="+toleranceAngle);
 
-        // get color at that point
         workImage = deepCopy(baseImage);
-
+                
+        // get color at that point
         Color pointColor = new Color(workImage.getRGB(point.x, point.y));
-        // 150, 152, 199
 //        pointColor=new Color(150,152,199);
-
 //        pointColor = new Color(180,150,150); // border color
 
         log.info("point color: " + pointColor);
@@ -230,34 +174,8 @@ public class ImageAnalyzer {
         if(debug) saveImgToFile(workImage, "skeleton");
 
 
-//        workImage=histogram(workImage);
-//        if(debug) saveImgToFile(workImage,"histogram");
-
-//        workImage=sharpen(workImage);
-//        if(debug) saveImgToFile(workImage,"sharpen");
-//
-//        workImage=binarize(workImage);
-//        if(debug) saveImgToFile(workImage,"binarize");
-
-
-//        workImage=erodeAndDilate(workImage);
-//        if(debug) saveImgToFile(workImage,"erodeDilate");
-
-//        workImage=gaussian(workImage);
-//        if(debug) saveImgToFile(workImage, "test/gaus");
-
-
-//        workImage = dilate(workImage);
-//        if(debug) saveImgToFile(workImage,"dilate");
-
-
-//        lines=detectLines(workImage);
-
+        
         Polygon polygon=detectArea(workImage,point);
-
-
-
-        log.info("done.");
 
         return polygon;
     }
