@@ -96,7 +96,7 @@ public class ImageAnalyzer {
     double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 
     // default for border = Math.PI / 8
-    public static final double DEFAULT_TOLERANCEANGLE = 4.2d;
+    public static final double DEFAULT_TOLERANCEANGLE = 0.42d;
     double toleranceAngle= DEFAULT_TOLERANCEANGLE; // original Math.PI/10
 
     // gaussian blur radius = 10
@@ -1075,7 +1075,7 @@ public class ImageAnalyzer {
      * @param toleranceAngle the toleranceAngle to set
      */
     public void setToleranceAngle(double toleranceAngle) {
-        this.toleranceAngle = toleranceAngle;
+        this.toleranceAngle = (toleranceAngle > Math.PI/2 ? DEFAULT_TOLERANCEANGLE : toleranceAngle);
     }
 
     /**
