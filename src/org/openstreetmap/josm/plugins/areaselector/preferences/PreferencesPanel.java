@@ -31,6 +31,8 @@ public class PreferencesPanel extends JPanel {
 
     private JCheckBox ckbxShowAddressDialog;
     private JCheckBox ckbxMergeNodes;
+    private JCheckBox ckbxHSV;
+    
     
     protected HashMap<String, String> prefs;
     
@@ -157,120 +159,19 @@ public class PreferencesPanel extends JPanel {
         sl_panel.putConstraint(SpringLayout.EAST, txtThinningIterations, 0, SpringLayout.EAST, txtColorThreshold);
         txtThinningIterations.setColumns(10);
         add(txtThinningIterations);
+        
+        JLabel lblHSV = new JLabel(tr("Use hue and saturation instead of RGB distinction"));
+        sl_panel.putConstraint(SpringLayout.NORTH, lblHSV, 20, SpringLayout.SOUTH, lblMergeNodesWithNeighbor);
+        sl_panel.putConstraint(SpringLayout.WEST, lblHSV, 0, SpringLayout.WEST, lblMergeNodesWithNeighbor);
+        add(lblHSV);
+        
+        ckbxHSV = new JCheckBox(tr("use HSV based algorithm"));
+        sl_panel.putConstraint(SpringLayout.WEST, ckbxHSV, 0, SpringLayout.WEST, ckbxMergeNodes);
+        sl_panel.putConstraint(SpringLayout.SOUTH, ckbxHSV, 0, SpringLayout.SOUTH, lblHSV);
+        add(ckbxHSV);
     }
 
-    /**
-     * get the current color threshold from the text field
-     * @return the color threshold
-     */
-    public int getColorThreshold(){
-        try {
-            return Integer.parseInt(txtColorThreshold.getText());
-        }catch (NumberFormatException e){
-            return ImageAnalyzer.DEFAULT_COLORTHRESHOLD;
-        }
-    }
-
-    /**
-     * Set the color threshold
-     * @param ct color threshold
-     */
-    public void setColorThreshold(int ct){
-        txtColorThreshold.setText(Integer.toString(ct));
-    }
-
-
-    /**
-     * get the current tolerance distance from the text field
-     * @return the tolerance distance
-     */
-    public double getToleranceDist(){
-        try {
-            return Double.parseDouble(txtToleranceDist.getText());
-        }catch (NumberFormatException e){
-            return ImageAnalyzer.DEFAULT_TOLERANCEDIST;
-        }
-    }
-
-    /**
-     * Set the tolerance distance
-     * @param ct tolerance distance
-     */
-    public void setToleranceDist(double ct){
-        txtToleranceDist.setText(Double.toString(ct));
-    }
-
-    /**
-     * get the current tolerance angle from the text field
-     * @return the tolerance angle
-     */
-    public double getToleranceAngle(){
-        try {
-            return Double.parseDouble(txtToleranceAngle.getText());
-        }catch (NumberFormatException e){
-            return ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
-        }
-    }
-
-    /**
-     * Set the tolerance angle
-     * @param ct tolerance angle
-     */
-    public void setToleranceAngle(double ct){
-        txtToleranceAngle.setText(Double.toString(ct));
-    }
-
-    /**
-     * return if the the show address dialog checkbox is selected
-     * @return true if selected
-     */
-    public boolean getShowAddressDialog() {
-        return ckbxShowAddressDialog.isSelected();
-    }
-
-    /**
-     * select the checkbox to show Address dialog
-     * @param show true if selected
-     */
-    public void setShowAddressDialog(boolean show){
-        ckbxShowAddressDialog.setSelected(show);
-    }
-
-    /**
-     * return if the the merge nodes checkbox is selected
-     * @return true if selected
-     */
-    public boolean getMergeNodes() {
-        return ckbxMergeNodes.isSelected();
-    }
-
-    /**
-     * select the checkbox to merge Nodes
-     * @param merge true if selected
-     */
-    public void setMergeNodes(boolean merge){
-        ckbxMergeNodes.setSelected(merge);
-    }
     
-	/**
-	 * get Thinning Iterations
-	 * @return
-	 */
-	public int getThinningIterations() {
-		try{
-			return Integer.parseInt(txtThinningIterations.getText());
-		}catch(NumberFormatException e){
-			return ImageAnalyzer.DEFAULT_THINNING_ITERATIONS;
-		}
-	}
-	
-	/**
-	 * set text field to value of thinning Iterations
-	 * @param thinningIterations
-	 */
-	public void setThinningIterations(int thinningIterations) {
-		txtThinningIterations.setText(Integer.toString(thinningIterations));
-	}
 
 	/**
 	 * @return the prefs
@@ -283,6 +184,7 @@ public class PreferencesPanel extends JPanel {
 		prefs.put(ImageAnalyzer.KEY_TOLERANCEDIST, txtToleranceDist.getText());
 		prefs.put(AreaSelectorAction.KEY_MERGENODES, ckbxMergeNodes.isSelected() ? "true":"false");
 		prefs.put(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, ckbxShowAddressDialog.isSelected() ? "true":"false");
+		prefs.put(ImageAnalyzer.KEY_HSV, ckbxHSV.isSelected() ? "true":"false");
 		return prefs;
 	}
 
@@ -312,6 +214,11 @@ public class PreferencesPanel extends JPanel {
 			ckbxShowAddressDialog.setSelected(prefs.get(AreaSelectorAction.KEY_SHOWADDRESSDIALOG).compareTo("true")==0);
 		}else {
 			ckbxShowAddressDialog.setSelected(true);
+		}
+		if(prefs.containsKey(ImageAnalyzer.KEY_HSV)){
+			ckbxHSV.setSelected(prefs.get(ImageAnalyzer.KEY_HSV).compareTo("true")==0);
+		}else {
+			ckbxHSV.setSelected(false);
 		}
 	}
 }

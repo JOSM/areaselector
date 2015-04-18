@@ -100,6 +100,9 @@ public class ImageAnalyzer {
     public static final int DEFAULT_THINNING_ITERATIONS = 2;
     public static final String KEY_THINNING_ITERATIONS = "THINNING_ITERATIONS";
     protected int thinningIterations = DEFAULT_THINNING_ITERATIONS;
+    
+    protected boolean useHSV = false;
+    public static final String KEY_HSV="HSV";
 
 
 
@@ -120,35 +123,6 @@ public class ImageAnalyzer {
         if(debug) saveImgToFile(baseImage,"baseimage");
 
     }
-    
-    public void setPrefs(HashMap<String, String> prefs){
-    	if(prefs.containsKey(KEY_COLORTHRESHOLD)){
-    		try {
-    			this.colorThreshold = Integer.parseInt(prefs.get(KEY_COLORTHRESHOLD));
-    		}catch (NumberFormatException ex){}
-    	}
-    	if(prefs.containsKey(KEY_TOLERANCEDIST)){
-    		try {
-    			this.toleranceDist = Double.parseDouble(prefs.get(KEY_TOLERANCEDIST));
-    		}catch (NumberFormatException ex){}
-    	}
-    	if(prefs.containsKey(KEY_TOLERANCEANGLE)){
-    		try {
-    			this.toleranceAngle = Double.parseDouble(prefs.get(KEY_TOLERANCEANGLE));
-    		}catch (NumberFormatException ex){}
-    	}
-    	if(prefs.containsKey(KEY_BLURRADIUS)){
-    		try {
-    			this.blurRadius = Integer.parseInt(prefs.get(KEY_BLURRADIUS));
-    		}catch (NumberFormatException ex){}
-    	}
-    	if(prefs.containsKey(KEY_THINNING_ITERATIONS)){
-    		try {
-    			this.thinningIterations = Integer.parseInt(prefs.get(KEY_THINNING_ITERATIONS));
-    		}catch (NumberFormatException ex){}
-    	}
-    }
-
 
     public Polygon getArea() {
 
@@ -163,8 +137,11 @@ public class ImageAnalyzer {
 
         log.info("point color: " + pointColor);
 
-
-        workImage=selectMarvinColor(workImage,pointColor);
+        if(useHSV){
+        	workImage = selectColor(workImage, pointColor);
+        }else {
+        	workImage = selectMarvinColor(workImage,pointColor);
+        }
         if(debug) saveImgToFile(workImage, "colorExtracted");
 
         workImage=invert(workImage);
@@ -1025,6 +1002,39 @@ public class ImageAnalyzer {
 	public void setThinningIterations(int thinningIterations) {
 		this.thinningIterations = thinningIterations;
 	}
+	
+    
+    public void setPrefs(HashMap<String, String> prefs){
+    	if(prefs.containsKey(KEY_COLORTHRESHOLD)){
+    		try {
+    			this.colorThreshold = Integer.parseInt(prefs.get(KEY_COLORTHRESHOLD));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_TOLERANCEDIST)){
+    		try {
+    			this.toleranceDist = Double.parseDouble(prefs.get(KEY_TOLERANCEDIST));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_TOLERANCEANGLE)){
+    		try {
+    			this.toleranceAngle = Double.parseDouble(prefs.get(KEY_TOLERANCEANGLE));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_BLURRADIUS)){
+    		try {
+    			this.blurRadius = Integer.parseInt(prefs.get(KEY_BLURRADIUS));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_THINNING_ITERATIONS)){
+    		try {
+    			this.thinningIterations = Integer.parseInt(prefs.get(KEY_THINNING_ITERATIONS));
+    		}catch (NumberFormatException ex){}
+    	}
+    	if(prefs.containsKey(KEY_HSV)){
+    		useHSV = prefs.get(KEY_HSV).compareTo("true") == 0;
+    	}
+    }
+
 
 
     /**
