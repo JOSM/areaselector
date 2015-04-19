@@ -134,30 +134,37 @@ public class ImageAnalyzer {
         log.info("Using following params for algorithm: colorThreshold="+colorThreshold+" toleranceDist="+toleranceDist+" toleranceAngle="+toleranceAngle);
 
         workImage = deepCopy(baseImage);
-                
-        // get color at that point
-        Color pointColor = new Color(workImage.getRGB(point.x, point.y));
-//        pointColor=new Color(150,152,199);
-//        pointColor = new Color(180,150,150); // border color
-
-        log.info("point color: " + pointColor);
-
-        if(useHSV){
-        	workImage = selectColor(workImage, pointColor);
+        
+        Polygon polygon = detectCannyArea(workImage, point);
+        
+        if(polygon != null){
+        	// canny detection was successful
+        	return polygon;
         }else {
-        	workImage = selectMarvinColor(workImage,pointColor);
-        }
-        if(debug) saveImgToFile(workImage, "colorExtracted");
-
-        workImage=invert(workImage);
-        if(debug) saveImgToFile(workImage,"inverted");
-
-        workImage=skeletonize(workImage);
-        if(debug) saveImgToFile(workImage, "skeleton");
-
+            log.info("Falling back to custom detection");
+	        // get color at that point
+	        Color pointColor = new Color(workImage.getRGB(point.x, point.y));
+	
+	        log.info("point color: " + pointColor);
+	
+	        if(useHSV){
+	        	workImage = selectColor(workImage, pointColor);
+	        }else {
+	        	workImage = selectMarvinColor(workImage,pointColor);
+	        }
+	        if(debug) saveImgToFile(workImage, "colorExtracted");
+	        
+	//        workImage = canny(workImage);
+	
+	        workImage=invert(workImage);
+	        if(debug) saveImgToFile(workImage,"inverted");
+	
+	        workImage=skeletonize(workImage);
+	        if(debug) saveImgToFile(workImage, "skeleton");
 
         
-        Polygon polygon=detectArea(workImage,point);
+        	polygon=detectArea(workImage,point);
+        }
 
         return polygon;
     }
@@ -715,6 +722,41 @@ public class ImageAnalyzer {
         }
         return ret;
     }
+    
+    /**
+     * detect a Polygon around a point with Canny Edge detection from boofcv
+     * @param image Image to analyze for polygons
+     * @param point point to search the polygon
+     * @return Polygon if found
+     */
+    public Polygon detectCannyArea(BufferedImage image,Point point){
+
+        ImageUInt8 gray = ConvertBufferedImage.convertFrom(image,(ImageUInt8)null);
+		ImageUInt8 edgeImage = new ImageUInt8(gray.width,gray.height);
+ 
+		// Create a canny edge detector which will dynamically compute the threshold based on maximum edge intensity
+		// It has also been configured to save the trace as a graph.  This is the graph created while performing
+		// hysteresis thresholding.
+		CannyEdge<ImageUInt8,ImageSInt16> canny = FactoryEdgeDetectors.canny(2,true, true, ImageUInt8.class, ImageSInt16.class);
+ 
+		// The edge image is actually an optional parameter.  If you don't need it just pass in null
+		canny.process(gray,0.1f,0.3f,edgeImage);
+ 
+		// First get the contour created by canny
+		// List<EdgeContour> edgeContours = canny.getContours();
+		// The 'edgeContours' is a tree graph that can be difficult to process.  An alternative is to extract
+		// the contours from the binary image, which will produce a single loop for each connected cluster of pixels.
+		// Note that you are only interested in external contours.
+		List<Contour> contours = BinaryImageOps.contour(edgeImage, ConnectRule.EIGHT, null);
+
+
+        Polygon innerPolygon = searchPolygon(contours, image);
+        if(innerPolygon != null){
+        	log.info("Detected polygon with canny algorithm "+innerPolygon);
+        }
+
+        return innerPolygon;
+    }
 
     /**
      * detect a Polygon around a point
@@ -724,10 +766,8 @@ public class ImageAnalyzer {
      */
     public Polygon detectArea(BufferedImage image,Point point){
 
-        List <Polygon> polygons=new ArrayList<>();
         ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class);
         ImageUInt8 binary = new ImageUInt8(input.width,input.height);
-        BufferedImage polygonImage = new BufferedImage(input.width,input.height,BufferedImage.TYPE_INT_RGB);
 
         // the mean pixel value is often a reasonable threshold when creating a binary image
         double mean = ImageStatistics.mean(input);
@@ -741,6 +781,24 @@ public class ImageAnalyzer {
 
         // Find the contour around the shapes
         List<Contour> contours = BinaryImageOps.contour(binary, ConnectRule.FOUR,null);
+
+
+        Polygon innerPolygon = searchPolygon(contours, image);
+
+        return innerPolygon;
+    }
+    
+    /**
+     * search for a matching polygon
+     * 
+     * @param contours contours detected by boofcv
+     * @param input input image
+     * @return Polygon if found, otherwise null
+     */
+    public Polygon searchPolygon(List<Contour> contours, BufferedImage input){
+    	List <Polygon> polygons=new ArrayList<>();
+        
+        BufferedImage polygonImage = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         // Fit a polygon to each shape and draw the results
         Graphics2D g2 = polygonImage.createGraphics();
@@ -807,13 +865,8 @@ public class ImageAnalyzer {
 
             if(debug) saveImgToFile(polygonImage,"polygon");
 
-
+            workImage=polygonImage;
         }
-
-        workImage=polygonImage;
-
-
-
         return innerPolygon;
     }
 
