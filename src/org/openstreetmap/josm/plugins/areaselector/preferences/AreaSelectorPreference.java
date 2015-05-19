@@ -6,17 +6,10 @@ package org.openstreetmap.josm.plugins.areaselector.preferences;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.openstreetmap.josm.gui.preferences.DefaultTabPreferenceSetting;
 import org.openstreetmap.josm.gui.preferences.PreferenceTabbedPane;
 import org.openstreetmap.josm.plugins.areaselector.AreaSelectorAction;
 import org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin;
-import org.openstreetmap.josm.tools.GBC;
 
 public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
 
@@ -25,7 +18,9 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
     
 
     public AreaSelectorPreference(AreaSelectorPlugin plugin) {
-        super("areaselector", tr("Area Selector") + " - " + tr("Preferences"), tr("Area detection algorithm settings."));
+        super("areaselector", 
+        		"<html><p><b>"+tr("Area Selector - Preferences") + "</b></p></html>", 
+        		tr("Settings for the area detection algorithm."));
 
         areaSelectorPlugin = plugin;
     }
@@ -40,15 +35,6 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
         createPreferenceTabWithScrollPane(gui, prefPanel);
     }
 
-    protected void addLabelled(JPanel panel, String str, Component c) {
-        JLabel label = new JLabel(str);
-
-        GBC gbc=GBC.std();
-        gbc.gridwidth = GridBagConstraints.RELATIVE;
-        panel.add(label, gbc);
-        label.setLabelFor(c);
-        panel.add(c, GBC.eol().fill(GridBagConstraints.HORIZONTAL));
-    }
 
     @Override
     public boolean ok() {
