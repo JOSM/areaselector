@@ -39,6 +39,8 @@ public class PreferencesPanel extends JPanel {
 	private JCheckBox ckbxMergeNodes;
 
 	private JCheckBox ckbxHSV;
+	
+	protected JCheckBox debug;
 
 	protected JComponent ref;
 
@@ -88,6 +90,9 @@ public class PreferencesPanel extends JPanel {
 
 		ckbxMergeNodes = new JCheckBox("<html><p><b>" + tr("merge nodes") + "</b></p></html>");
 		this.addCheckbox(tr("Merge nodes with existing nodes"), ckbxMergeNodes);
+		
+		debug = new JCheckBox("<html><p><b>" + tr("Debug") + "</b></p></html>");
+		this.addCheckbox(tr("Debugging mode will write images for each processing step."), debug);
 
 	}
 
@@ -159,6 +164,7 @@ public class PreferencesPanel extends JPanel {
 		prefs.put(AreaSelectorAction.KEY_MERGENODES, ckbxMergeNodes.isSelected() ? "true" : "false");
 		prefs.put(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, ckbxShowAddressDialog.isSelected() ? "true" : "false");
 		prefs.put(ImageAnalyzer.KEY_HSV, ckbxHSV.isSelected() ? "true" : "false");
+		prefs.put(ImageAnalyzer.KEY_DEBUG, debug.isSelected() ? "true" : "false");
 		return prefs;
 	}
 
@@ -197,5 +203,10 @@ public class PreferencesPanel extends JPanel {
 		 }else {
 		 ckbxHSV.setSelected(false);
 		 }
+		if (prefs.containsKey(ImageAnalyzer.KEY_DEBUG)) {
+			debug.setSelected(prefs.get(ImageAnalyzer.KEY_DEBUG).compareTo("true") == 0);
+		} else {
+			debug.setSelected(false);
+		}
 	}
 }

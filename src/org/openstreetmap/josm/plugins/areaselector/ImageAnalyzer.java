@@ -76,6 +76,7 @@ public class ImageAnalyzer {
 
     protected Point point;
 
+    public static final String KEY_DEBUG="DEBUG";
     protected boolean debug=false;
 
 
@@ -1121,6 +1122,10 @@ public class ImageAnalyzer {
 	
     
     public void setPrefs(HashMap<String, String> prefs){
+    	if(prefs.containsKey(KEY_DEBUG)){
+    		debug = prefs.get(KEY_DEBUG).compareTo("true") == 0;
+    	}
+    	
     	if(prefs.containsKey(KEY_COLORTHRESHOLD)){
     		try {
     			this.colorThreshold = Integer.parseInt(prefs.get(KEY_COLORTHRESHOLD));
