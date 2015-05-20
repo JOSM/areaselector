@@ -109,8 +109,11 @@ public class ImageAnalyzer {
     
     protected boolean useHSV = false;
     public static final String KEY_HSV="HSV";
-
-
+    
+    public static final String KEY_ALGORITHM="ALGORITHM";
+    public static final int ALGORITHM_AUTO=0, ALGORITHM_BOOFCV=1, ALGORITHM_CUSTOM=2;
+    protected int algorithm = ALGORITHM_AUTO;
+    
 
     public ImageAnalyzer(String filename, Point point) {
         log.info("Loading from " + filename);
@@ -136,9 +139,13 @@ public class ImageAnalyzer {
 
         workImage = deepCopy(baseImage);
         
-        Polygon polygon = detectCannyArea(workImage, point);
+        Polygon polygon = null;
         
-        if(polygon != null){
+        if(algorithm == ALGORITHM_AUTO || algorithm == ALGORITHM_BOOFCV){
+        	polygon = detectCannyArea(workImage, point);
+        }
+        
+        if(polygon != null || algorithm == ALGORITHM_BOOFCV){
         	// canny detection was successful
         	return polygon;
         }else {
@@ -1153,6 +1160,11 @@ public class ImageAnalyzer {
     	}
     	if(prefs.containsKey(KEY_HSV)){
     		useHSV = prefs.get(KEY_HSV).compareTo("true") == 0;
+    	}
+    	if(prefs.containsKey(KEY_ALGORITHM)){
+    		try{
+    			algorithm = Integer.parseInt(prefs.get(KEY_ALGORITHM));
+    		}catch(NumberFormatException e){}
     	}
     }
 
