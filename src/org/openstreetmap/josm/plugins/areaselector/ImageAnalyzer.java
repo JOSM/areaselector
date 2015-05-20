@@ -10,6 +10,7 @@ import georegression.struct.point.Point2D_I32;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -134,8 +135,15 @@ public class ImageAnalyzer {
     }
 
     protected void init() {
-        if(debug) saveImgToFile(baseImage,"baseimage");
-
+    	
+        if(debug) {
+        	BufferedImage buf = deepCopy(baseImage);
+        	Graphics2D g2d = buf.createGraphics();
+        	g2d.setColor(Color.red);
+        	g2d.setFont(new Font("default", Font.BOLD, 16));
+        	g2d.drawString("X", point.x, point.y);
+        	saveImgToFile(buf, "baseimage");
+        }
     }
 
     public Polygon getArea() {
