@@ -122,10 +122,15 @@ public class ImageAnalyzer {
         init();
     }
 
-    public ImageAnalyzer(BufferedImage bufImg, Point point){
+    public ImageAnalyzer(BufferedImage bufImg, Point point, HashMap<String, String> prefs){
+    	this.setPrefs(prefs);
         baseImage=bufImg;
         this.point=point;
         init();
+    }
+    
+    public ImageAnalyzer(BufferedImage bufImg, Point point){
+    	this(bufImg, point, new HashMap<String, String>());
     }
 
     protected void init() {

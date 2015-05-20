@@ -176,9 +176,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
         BufferedImage bufImage = getLayeredImage();
 
-        ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
-        imgAnalyzer.setPrefs(prefs);
-
+        ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint, prefs);
+        
         Polygon polygon = imgAnalyzer.getArea();
 
         if (polygon != null) {
