@@ -222,7 +222,7 @@ public class PreferencesPanel extends JPanel {
 
 		if (prefs.containsKey(ImageAnalyzer.KEY_ALGORITHM)) {
 			try {
-				algorithm.setSelectedIndex(Integer.parseInt(ImageAnalyzer.KEY_ALGORITHM));
+				algorithm.setSelectedIndex(Integer.parseInt(prefs.get(ImageAnalyzer.KEY_ALGORITHM)));
 			} catch (NumberFormatException e) {
 			}
 		}
