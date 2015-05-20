@@ -66,7 +66,7 @@ public class PreferencesPanel extends JPanel {
 		SpringLayout sl_panel = new SpringLayout();
 		this.setLayout(sl_panel);
 
-		String[] algorithms = { tr("Auto"), tr("Boofcv - high resolution"), tr("Custom - low resolution") };
+		String[] algorithms = { tr("Auto"), tr("Boofcv - high resolution images"), tr("Custom - low resolution images") };
 		algorithm = new JComboBox<>(algorithms);
 		algorithm.setSelectedIndex(0);
 
