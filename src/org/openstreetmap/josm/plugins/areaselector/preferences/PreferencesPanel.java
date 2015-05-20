@@ -113,7 +113,7 @@ public class PreferencesPanel extends JPanel {
 	protected void addCheckbox(String description, JCheckBox checkbox) {
 		SpringLayout sl_panel = (SpringLayout) this.getLayout();
 		
-		sl_panel.putConstraint(SpringLayout.WEST, checkbox, 20, SpringLayout.WEST, ref);
+		sl_panel.putConstraint(SpringLayout.WEST, checkbox, 0, SpringLayout.WEST, ref);
 		this.northConstraint(checkbox);
 		this.add(checkbox);
 
