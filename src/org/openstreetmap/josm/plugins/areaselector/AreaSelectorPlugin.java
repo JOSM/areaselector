@@ -33,8 +33,8 @@ public class AreaSelectorPlugin extends Plugin{
 
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         LoggerConfig config = ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-        config.addAppender(console, Level.DEBUG, null);
-        config.setLevel(Level.DEBUG);
+        config.addAppender(console, Level.INFO, null);
+        config.setLevel(Level.INFO);
         ctx.updateLoggers();
         
         areaSelectorAction=new AreaSelectorAction(Main.map);
