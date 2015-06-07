@@ -22,7 +22,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.ExtendedDialog;
 
@@ -37,7 +38,7 @@ public class BugReportDialog extends ExtendedDialog {
 
     public static final String ISSUESLINK="https://github.com/JOSM/JOSM-areaselector/issues";
 
-    protected static Logger log=Logger.getLogger(BugReportDialog.class);
+    protected static Logger log = LogManager.getLogger(BugReportDialog.class);
 
     /**
      * @param th

@@ -31,10 +31,13 @@ import marvin.plugin.MarvinAbstractImagePlugin;
 import marvin.plugin.MarvinImagePlugin;
 import marvin.util.MarvinPluginLoader;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import boofcv.alg.color.ColorHsv;
 import boofcv.alg.enhance.EnhanceImageOps;
@@ -65,7 +68,7 @@ import boofcv.struct.image.MultiSpectral;
  */
 public class ImageAnalyzer {
 
-    protected static Logger log = Logger.getLogger(ImageAnalyzer.class);
+    protected static Logger log = LogManager.getLogger(ImageAnalyzer.class);
 
     public static final String IMG_TYPE="PNG";
 
@@ -1139,7 +1142,6 @@ public class ImageAnalyzer {
 	public void setThinningIterations(int thinningIterations) {
 		this.thinningIterations = thinningIterations;
 	}
-	
     
     public void setPrefs(HashMap<String, String> prefs){
     	if(prefs.containsKey(KEY_DEBUG)){
@@ -1181,20 +1183,19 @@ public class ImageAnalyzer {
     	}
     }
 
-
-
     /**
      * @param args
      */
     public static void main(String[] args) {
-        ConsoleAppender console = new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n"),
-                ConsoleAppender.SYSTEM_OUT);
+        ConsoleAppender console = ConsoleAppender.newBuilder().setLayout(
+                PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
+                .build();
 
-        // BasicConfigurator.configure(console);
-        Logger.getRootLogger().addAppender(console);
-
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        LoggerConfig config = ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+        config.addAppender(console, Level.DEBUG, null);
+        config.setLevel(Level.DEBUG);
+        ctx.updateLoggers();
 
         // test/baseimage.png 419 308
         if (args.length < 3) {
@@ -1207,9 +1208,6 @@ public class ImageAnalyzer {
 
             Polygon polygon=imgAnalyzer.getArea();
             log.info("got polygon "+polygonToString(polygon));
-
         }
-
     }
-
 }

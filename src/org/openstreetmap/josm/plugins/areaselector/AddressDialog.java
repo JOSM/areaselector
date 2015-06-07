@@ -26,7 +26,8 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
@@ -81,7 +82,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
     
     protected Vector<Component> fields;
 
-    protected static Logger log = Logger.getLogger(AddressDialog.class);
+    protected static Logger log = LogManager.getLogger(AddressDialog.class);
 
     protected final void addLabelled(String str, Component c) {
         JLabel label = new JLabel(str);

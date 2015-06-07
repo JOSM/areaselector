@@ -1,10 +1,11 @@
 package org.openstreetmap.josm.plugins.areaselector;
 
-
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -14,7 +15,7 @@ import org.openstreetmap.josm.plugins.PluginInformation;
 import org.openstreetmap.josm.plugins.areaselector.preferences.AreaSelectorPreference;
 
 /**
- * This is the main class for the sumoconvert plugin.
+ * This is the main class for the AreaSelector plugin.
  * 
  */
 public class AreaSelectorPlugin extends Plugin{
@@ -26,13 +27,15 @@ public class AreaSelectorPlugin extends Plugin{
     public AreaSelectorPlugin(PluginInformation info) {
         super(info);
         
-        ConsoleAppender console = new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n"),
-                ConsoleAppender.SYSTEM_OUT);
+        ConsoleAppender console = ConsoleAppender.newBuilder().setLayout(
+                PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
+                .build();
 
-        // BasicConfigurator.configure(console);
-        Logger.getRootLogger().addAppender(console);
-        Logger.getRootLogger().setLevel(Level.INFO);
-
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        LoggerConfig config = ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+        config.addAppender(console, Level.DEBUG, null);
+        config.setLevel(Level.DEBUG);
+        ctx.updateLoggers();
         
         areaSelectorAction=new AreaSelectorAction(Main.map);
         MainMenu.add(Main.main.menu.moreToolsMenu, areaSelectorAction);

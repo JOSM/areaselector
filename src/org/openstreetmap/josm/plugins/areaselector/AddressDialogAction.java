@@ -14,7 +14,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
@@ -29,7 +30,7 @@ import org.openstreetmap.josm.tools.Shortcut;
  */
 public class AddressDialogAction extends MapMode implements MouseListener {
 
-    public static Logger log = Logger.getLogger(AddressDialogAction.class);
+    public static Logger log = LogManager.getLogger(AddressDialogAction.class);
 
     public static final String PLUGIN_NAME = "areaselector";
 

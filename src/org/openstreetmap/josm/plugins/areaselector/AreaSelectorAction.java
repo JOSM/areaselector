@@ -23,7 +23,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.MergeNodesAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
@@ -62,7 +63,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             PREF_VALUES = PLUGIN_NAME + ".values";
 
 
-    protected Logger log = Logger.getLogger(AreaSelectorAction.class.getCanonicalName());
+    protected Logger log = LogManager.getLogger(AreaSelectorAction.class.getCanonicalName());
 
     protected Point clickPoint=null;
     
