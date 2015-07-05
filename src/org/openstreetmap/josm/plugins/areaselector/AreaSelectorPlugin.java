@@ -27,7 +27,7 @@ public class AreaSelectorPlugin extends Plugin{
     public AreaSelectorPlugin(PluginInformation info) {
         super(info);
         
-        ConsoleAppender console = ConsoleAppender.newBuilder().setLayout(
+        ConsoleAppender console = ConsoleAppender.newBuilder().setName("console").setLayout(
                 PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
                 .build();
 

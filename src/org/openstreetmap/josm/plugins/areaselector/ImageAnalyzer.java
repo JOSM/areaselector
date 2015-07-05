@@ -1187,7 +1187,7 @@ public class ImageAnalyzer {
      * @param args
      */
     public static void main(String[] args) {
-        ConsoleAppender console = ConsoleAppender.newBuilder().setLayout(
+        ConsoleAppender console = ConsoleAppender.newBuilder().setName("console").setLayout(
                 PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
                 .build();
 
