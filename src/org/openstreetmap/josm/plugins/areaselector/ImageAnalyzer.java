@@ -965,9 +965,18 @@ public class ImageAnalyzer {
 
     public boolean saveImgToFile(BufferedImage buf,String filename){
         try {
-            ImageIO.write(buf, IMG_TYPE, new File("test/"+(fileCount<10?"0":"")+(fileCount++)+"_"+filename+"."+IMG_TYPE.toLowerCase()));
-            return true;
-        } catch (IOException e) {
+        	File folder=new File("test");
+        	if(!folder.exists() ){
+        		folder.mkdirs();
+        	}
+        	if(!folder.isDirectory()){
+        		log.warn("test is not a folder, but a file");
+        		return false;
+        	}else {
+		        ImageIO.write(buf, IMG_TYPE, new File("test/"+(fileCount<10?"0":"")+(fileCount++)+"_"+filename+"."+IMG_TYPE.toLowerCase()));
+		        return true;
+        	}
+        } catch (Exception e) {
             log.warn("unable to save image",e);
         }
         return false;
