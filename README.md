@@ -7,6 +7,8 @@ JOSM area selector is a plugin to help creating buildings and other areas from e
 
 You can find out more about how to use the plugin and how it works in the [project Wiki](https://github.com/JOSM/JOSM-areaselector/wiki).
 
+If you want to know how to configure the plugin, you can look at the [Configuration Wiki page](https://github.com/JOSM/JOSM-areaselector/wiki/Configuration).
+
 ## Building from source
 Checkout the JOSM source, compile it and checkout the plugin source:
 
