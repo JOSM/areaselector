@@ -19,7 +19,7 @@
 	<property name="plugin.main.version" value="7001" />
 
 	<!-- Configure these properties (replace "..." accordingly).
-         See http://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
+         See https://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
     -->
 	<property name="plugin.author" value="Paul Woelfel, Thomas Konrad" />
 	<property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin" />
