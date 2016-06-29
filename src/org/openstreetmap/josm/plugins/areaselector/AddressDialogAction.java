@@ -1,8 +1,4 @@
-/*
- * Created on Aug 3, 2014
- * Author: Paul Woelfel
- * Email: paul@woelfel.at
- */
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.areaselector;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
@@ -38,7 +34,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
         super(/* I18n: Add tag to element */ tr("Tag Element"), "addressdialog", tr("Select an item to tag."),
                 /* I18n: Add tag to building */
                 Shortcut.registerShortcut("tools:tagbuilding",
-                tr("Tools: {0}", tr("Tag Building")), KeyEvent.VK_B, Shortcut.ALT_CTRL), mapFrame, getCursor());
+                        tr("Tools: {0}", tr("Tag Building")), KeyEvent.VK_B, Shortcut.ALT_CTRL), mapFrame, getCursor());
     }
 
     private static Cursor getCursor() {
@@ -65,7 +61,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
     public void showAddressDialogFor(Point point) {
         MapView mapView = Main.map.mapView;
 
-                Predicate<OsmPrimitive> predicate = new Predicate<OsmPrimitive>() {
+        Predicate<OsmPrimitive> predicate = new Predicate<OsmPrimitive>() {
 
             @Override
             public boolean evaluate(OsmPrimitive object) {

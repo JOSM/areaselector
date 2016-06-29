@@ -1,3 +1,4 @@
+// License: GPL. For details, see LICENSE file.
 package org.openstreetmap.josm.plugins.areaselector;
 
 import org.apache.logging.log4j.Level;
@@ -16,17 +17,17 @@ import org.openstreetmap.josm.plugins.areaselector.preferences.AreaSelectorPrefe
 
 /**
  * This is the main class for the AreaSelector plugin.
- * 
+ *
  */
-public class AreaSelectorPlugin extends Plugin{
-    
+public class AreaSelectorPlugin extends Plugin {
+
     AreaSelectorAction areaSelectorAction;
-    
+
     AddressDialogAction addressDialogAction;
-    
+
     public AreaSelectorPlugin(PluginInformation info) {
         super(info);
-        
+
         ConsoleAppender console = ConsoleAppender.newBuilder().setName("console").setLayout(
                 PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
                 .build();
@@ -36,19 +37,19 @@ public class AreaSelectorPlugin extends Plugin{
         config.addAppender(console, Level.INFO, null);
         config.setLevel(Level.INFO);
         ctx.updateLoggers();
-        
-        areaSelectorAction=new AreaSelectorAction(Main.map);
+
+        areaSelectorAction = new AreaSelectorAction(Main.map);
         MainMenu.add(Main.main.menu.moreToolsMenu, areaSelectorAction);
-        
-        addressDialogAction=new AddressDialogAction(Main.map);
+
+        addressDialogAction = new AddressDialogAction(Main.map);
         MainMenu.add(Main.main.menu.moreToolsMenu, addressDialogAction);
     }
-    
+
     /**
-     * Called when the JOSM map frame is created or destroyed. 
+     * Called when the JOSM map frame is created or destroyed.
      */
     @Override
-    public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {             
+    public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {
         areaSelectorAction.updateMapFrame(oldFrame, newFrame);
     }
 
@@ -63,6 +64,4 @@ public class AreaSelectorPlugin extends Plugin{
     public AreaSelectorAction getAreaSelectorAction() {
         return areaSelectorAction;
     }
-
-
 }

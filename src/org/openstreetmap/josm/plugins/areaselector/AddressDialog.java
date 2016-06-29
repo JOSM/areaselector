@@ -46,28 +46,33 @@ import org.openstreetmap.josm.tools.GBC;
  */
 public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
-    public static final String TAG_HOUSENAME="name",TAG_HOUSENUM="addr:housenumber",TAG_STREETNAME="addr:street",TAG_CITY="addr:city",TAG_POSTCODE="addr:postcode",TAG_COUNTRY="addr:country",TAG_BUILDING="building";
+    public static final String TAG_HOUSENAME = "name";
+    public static final String TAG_HOUSENUM = "addr:housenumber";
+    public static final String TAG_STREETNAME = "addr:street";
+    public static final String TAG_CITY = "addr:city";
+    public static final String TAG_POSTCODE = "addr:postcode";
+    public static final String TAG_COUNTRY = "addr:country";
+    public static final String TAG_BUILDING = "building";
 
-    public static final String PREF=AreaSelectorAction.PLUGIN_NAME+".last.";
+    public static final String PREF = AreaSelectorAction.PLUGIN_NAME+".last.";
 
-    public static final String PREF_HOUSENUM=PREF+"housenum",
-        PREF_STREETNAME=PREF+"streetname",
-        PREF_CITY=PREF+"street",
-        PREF_POSTCODE=PREF+"postcode",
-        PREF_COUNTRY=PREF+"country",
-        PREF_BUILDING=PREF+"building",
-        PREF_TAGS=PREF+"tags",
-        PREF_HOUSENUM_CHANGE=PREF+"housenum.change",
-        PREF_DIALOG_X=PREF+"dialog.x",
-        PREF_DIALOG_Y=PREF+"dialog.y";
+    public static final String PREF_HOUSENUM = PREF+"housenum",
+            PREF_STREETNAME = PREF+"streetname",
+            PREF_CITY = PREF+"street",
+            PREF_POSTCODE = PREF+"postcode",
+            PREF_COUNTRY = PREF+"country",
+            PREF_BUILDING = PREF+"building",
+            PREF_TAGS = PREF+"tags",
+            PREF_HOUSENUM_CHANGE = PREF+"housenum.change",
+            PREF_DIALOG_X = PREF+"dialog.x",
+            PREF_DIALOG_Y = PREF+"dialog.y";
 
-
-    protected String houseNum, streetName, city, postCode, country, houseName,building,tags;
+    protected String houseNum, streetName, city, postCode, country, houseName, building, tags;
 
     protected JTextField houseNumField;
     protected ButtonGroup houseNumChange;
 
-    protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField,tagsField;
+    protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField;
 
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
     protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
@@ -78,8 +83,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
     protected static Collection<AutoCompletionListItem> aciTags;
 
-    protected int changeNum=0;
-    
+    protected int changeNum = 0;
+
     protected Vector<Component> fields;
 
     protected static Logger log = LogManager.getLogger(AddressDialog.class);
@@ -91,12 +96,10 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         panel.add(c, GBC.eol().fill(GBC.HORIZONTAL));
     }
 
-
-
     public AddressDialog(OsmPrimitive way) {
         super(Main.parent, tr("Building address"), BUTTON_TEXTS, true);
 
-        this.way=way;
+        this.way = way;
 
         contentInsets = new Insets(15, 15, 5, 15);
         setButtonIcons(BUTTON_ICONS);
@@ -110,30 +113,31 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
         houseNameField.setEditable(true);
 
-        houseNumField=new JTextField();
+        houseNumField = new JTextField();
         houseNumField.setPreferredSize(new Dimension(100, 24));
 
-        String numChange=Main.pref.get(PREF_HOUSENUM_CHANGE, "0");
-        try{
-            changeNum=Integer.parseInt(numChange);
-            if(changeNum!=0){
-            	String hn=Main.pref.get(PREF_HOUSENUM, "").replaceAll("^([0-9]*).*$", "$1");
+        String numChange = Main.pref.get(PREF_HOUSENUM_CHANGE, "0");
+        try {
+            changeNum = Integer.parseInt(numChange);
+            if (changeNum != 0) {
+                String hn = Main.pref.get(PREF_HOUSENUM, "").replaceAll("^([0-9]*).*$", "$1");
                 houseNumField.setText(Integer.toString(Integer.parseInt(hn)+changeNum));
             }
 
-        }catch(NumberFormatException e){}
+        } catch (NumberFormatException e) {
+            Main.debug(e);
+        }
 
-        JPanel houseNumPanel=new JPanel();
+        JPanel houseNumPanel = new JPanel();
         houseNumPanel.add(houseNumField);
-
 
         houseNumChange = new ButtonGroup();
 
-        for(int i=-2;i<=2;i++){
-            JRadioButton radio=new JRadioButton((i==0?tr("empty"):((i>0?"+":"")+Integer.toString(i))));
+        for (int i = -2; i <= 2; i++) {
+            JRadioButton radio = new JRadioButton((i == 0 ? tr("empty") : ((i > 0 ? "+" : "")+Integer.toString(i))));
             radio.setActionCommand(Integer.toString(i));
 
-            if(changeNum==i){
+            if (changeNum == i) {
                 radio.setSelected(true);
             }
             radio.addChangeListener(this);
@@ -141,35 +145,31 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
             houseNumPanel.add(radio);
         }
 
-
-
-        JButton skip=new JButton(tr("skip"));
+        JButton skip = new JButton(tr("skip"));
         skip.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(changeNum!=0){
+                if (changeNum != 0) {
                     try {
                         houseNumField.setText(Integer.toString(Integer.parseInt(houseNumField.getText())+changeNum));
-                    }catch(NumberFormatException ex){}
+                    } catch (NumberFormatException ex) {
+                        Main.debug(ex);
+                    }
                 }
             }
         });
         houseNumPanel.add(skip);
-
 
         streetNameField = new AutoCompletingComboBox();
         streetNameField.setPossibleACItems(acm.getValues(TAG_STREETNAME));
         streetNameField.setEditable(true);
         streetNameField.setSelectedItem(Main.pref.get(PREF_STREETNAME));
 
-
         cityField = new AutoCompletingComboBox();
         cityField.setPossibleACItems(acm.getValues(TAG_CITY));
         cityField.setEditable(true);
         cityField.setSelectedItem(Main.pref.get(PREF_CITY));
-
-
 
         postCodeField = new AutoCompletingComboBox();
         postCodeField.setPossibleACItems(acm.getValues(TAG_POSTCODE));
@@ -188,8 +188,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         buildingField.setSelectedItem(Main.pref.get(PREF_BUILDING));
 
 
-        if(aciTags==null){
-            aciTags=new ArrayList<>();
+        if (aciTags == null) {
+            aciTags = new ArrayList<>();
         }
 
         tagsField = new AutoCompletingComboBox();
@@ -217,84 +217,83 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         buildingField.setName(TAG_BUILDING);
         tagsField.setName("tags");
         houseNameField.setName(TAG_HOUSENAME);
-        
-        fields=new Vector<>();
-        Component []fieldArr={houseNumField, streetNameField, cityField, postCodeField, countryField, buildingField, tagsField, houseNameField};
+
+        fields = new Vector<>();
+        Component[] fieldArr = {
+                houseNumField, streetNameField, cityField, postCodeField,
+                countryField, buildingField, tagsField, houseNameField};
         fields.addAll(Arrays.asList(fieldArr));
 
-        
         this.setFocusTraversalPolicy(new FocusTraversalPolicy() {
-			
-			@Override
-			public Component getLastComponent(Container aContainer) {
-				return fields.get(fields.size()-1);
-			}
-			
-			@Override
-			public Component getFirstComponent(Container aContainer) {
-				return fields.get(0);
-			}
-			
-			@Override
-			public Component getDefaultComponent(Container aContainer) {
-				return fields.get(0);
-			}
-			
-			@Override
-			public Component getComponentBefore(Container aContainer, Component aComponent) {
-				int ix=getIndex(aComponent);
-				return fields.get(ix-1>=0?ix-1:fields.size()-1);
-			}
-			
-			@Override
-			public Component getComponentAfter(Container aContainer, Component aComponent) {
-				int ix=getIndex(aComponent);
-				return fields.get(ix+1<fields.size()?ix+1:0);
-			}
-			
-			public int getIndex(Component c){
-				for(int i=0;i<fields.size();i++){
-					
-					if(fields.get(i).equals(c)){
-						return i;
-					}else if(fields.get(i) instanceof AutoCompletingComboBox){
-						AutoCompletingComboBox ac=(AutoCompletingComboBox)fields.get(i);
-						if(Arrays.asList(ac.getComponents()).contains(c)){
-							return i;
-						}
-					}
-				}
-				return -1;
-			}
-		});
-        
 
+            @Override
+            public Component getLastComponent(Container aContainer) {
+                return fields.get(fields.size()-1);
+            }
+
+            @Override
+            public Component getFirstComponent(Container aContainer) {
+                return fields.get(0);
+            }
+
+            @Override
+            public Component getDefaultComponent(Container aContainer) {
+                return fields.get(0);
+            }
+
+            @Override
+            public Component getComponentBefore(Container aContainer, Component aComponent) {
+                int ix = getIndex(aComponent);
+                return fields.get(ix-1 >= 0 ? ix-1 : fields.size()-1);
+            }
+
+            @Override
+            public Component getComponentAfter(Container aContainer, Component aComponent) {
+                int ix = getIndex(aComponent);
+                return fields.get(ix+1 < fields.size() ? ix+1 : 0);
+            }
+
+            public int getIndex(Component c) {
+                for (int i = 0; i < fields.size(); i++) {
+
+                    if (fields.get(i).equals(c)) {
+                        return i;
+                    } else if (fields.get(i) instanceof AutoCompletingComboBox) {
+                        AutoCompletingComboBox ac = (AutoCompletingComboBox) fields.get(i);
+                        if (Arrays.asList(ac.getComponents()).contains(c)) {
+                            return i;
+                        }
+                    }
+                }
+                return -1;
+            }
+        });
 
         setContent(panel);
         setupDialog();
         this.setSize(630, 350);
 
-        try{
+        try {
             this.setLocation(Integer.parseInt(Main.pref.get(PREF_DIALOG_X)), Integer.parseInt(Main.pref.get(PREF_DIALOG_Y)));
-        }catch(NumberFormatException e){}
+        } catch (NumberFormatException e) {
+            Main.debug(e);
+        }
     }
 
-    protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box)
-    {
-       Object item = box.getSelectedItem();
-       if (item != null) {
-          if (item instanceof String) {
-             return (String) item;
-          }
-          if (item instanceof AutoCompletionListItem) {
-             return ((AutoCompletionListItem) item).getValue();
-          }
-          return item.toString();
-       } else {
-          return "";
-       }
+    protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box) {
+        Object item = box.getSelectedItem();
+        if (item != null) {
+            if (item instanceof String) {
+                return (String) item;
+            }
+            if (item instanceof AutoCompletionListItem) {
+                return ((AutoCompletionListItem) item).getValue();
+            }
+            return item.toString();
+        } else {
+            return "";
+        }
     }
-
 
     public final void saveValues() {
         houseName = getAutoCompletingComboBoxValue(houseNameField);
@@ -324,40 +323,39 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         updateTag(TAG_COUNTRY, country);
         updateTag(TAG_BUILDING, building);
 
-        if(!tags.isEmpty()){
-            AutoCompletionListItem aci=new AutoCompletionListItem(tags);
-            if(!aciTags.contains(aci)){
+        if (!tags.isEmpty()) {
+            AutoCompletionListItem aci = new AutoCompletionListItem(tags);
+            if (!aciTags.contains(aci)) {
                 aciTags.add(aci);
             }
 
-            String[] alltags=tags.split(" *; *");
-            for(int i=0;i<alltags.length;i++){
-                String[] kv=alltags[i].split(" *= *");
-                if(kv.length>=2){
-                    updateTag(kv[0],kv[1]);
+            String[] alltags = tags.split(" *; *");
+            for (int i = 0; i < alltags.length; i++) {
+                String[] kv = alltags[i].split(" *= *");
+                if (kv.length >= 2) {
+                    updateTag(kv[0], kv[1]);
                 }
             }
         }
-
     }
 
-    public void setHouseNumChange(int num){
+    public void setHouseNumChange(int num) {
         Main.pref.put(PREF_HOUSENUM_CHANGE, Integer.toString(num));
     }
 
-    public void updateTag(String tag,String value){
-        if(value==null||value.isEmpty()){
-            if(way.get(tag)!=null){
+    public void updateTag(String tag, String value) {
+        if (value == null || value.isEmpty()) {
+            if (way.get(tag) != null) {
                 way.remove(tag);
             }
-        }else {
+        } else {
             way.put(tag, value);
         }
     }
 
-    public OsmPrimitive showAndSave(){
+    public OsmPrimitive showAndSave() {
         this.showDialog();
-        if (this.getValue() == 1){
+        if (this.getValue() == 1) {
             this.saveValues();
             Collection<Command> cmds = new LinkedList<>();
             cmds.add(new ChangeCommand(way, way));
@@ -372,16 +370,14 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         return way;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
-     * a radio button changed it's event
-     */
     @Override
     public void stateChanged(ChangeEvent e) {
         try {
-            JRadioButton rb=(JRadioButton)e.getSource();
-            changeNum=Integer.parseInt(rb.getActionCommand());
+            JRadioButton rb = (JRadioButton) e.getSource();
+            changeNum = Integer.parseInt(rb.getActionCommand());
 
-        }catch(NumberFormatException ex){}
+        } catch (NumberFormatException ex) {
+            Main.debug(ex);
+        }
     }
 }
