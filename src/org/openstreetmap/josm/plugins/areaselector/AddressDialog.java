@@ -104,8 +104,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         setContent(panel);
         setDefaultButton(1);
 
-        AutoCompletionManager acm = Main.main.getCurrentDataSet().getAutoCompletionManager();
-
+        AutoCompletionManager acm = Main.getLayerManager().getEditDataSet().getAutoCompletionManager();
 
         houseNameField = new AutoCompletingComboBox();
         houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
@@ -364,7 +363,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
             cmds.add(new ChangeCommand(way, way));
             Command c = new SequenceCommand(tr("updated building info"), cmds);
             Main.main.undoRedo.add(c);
-            Main.main.getCurrentDataSet().setSelected(way);
+            Main.getLayerManager().getEditDataSet().setSelected(way);
         }
 
         Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
@@ -372,8 +371,6 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
         return way;
     }
-
-
 
     /* (non-Javadoc)
      * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)

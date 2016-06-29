@@ -150,13 +150,11 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
     public BufferedImage getLayeredImage(){
         MapView mapView = Main.map.mapView;
-        // Collection<Layer> layers=mapView.getAllLayers();
-        // Layer activeLayer=mapView.getActiveLayer();
 
         BufferedImage bufImage = new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D imgGraphics = bufImage.createGraphics();
 
-        Layer[] layers=mapView.getAllLayers().toArray(new Layer[0]);
+        Layer[] layers = mapView.getLayerManager().getLayers().toArray(new Layer[0]);
 
         for (int i=layers.length-1;i>=0;i--) {
             Layer layer=layers[i];
@@ -193,17 +191,15 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
                 cmds.add(new AddCommand(nodes.get(i)));
             }
-            // w.setKeys(ToolSettings.getTags());
             cmds.add(new AddCommand(way));
 
             Command c = new SequenceCommand(/* I18n: Name of command */ tr("Created area"), cmds);
             Main.main.undoRedo.add(c);
-            Main.main.getCurrentDataSet().setSelected(way);
+            Main.getLayerManager().getEditDataSet().setSelected(way);
 
             if(mergeNodes){
                 mergeNodes(way);
             }
-
 
             if(showAddressDialog){
                 showAddressDialog(way);
@@ -211,7 +207,6 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         }else {
             JOptionPane.showMessageDialog(Main.map, tr("Unable to detect a polygon where you clicked."), tr("Area Selector"), JOptionPane.WARNING_MESSAGE);
         }
-
     }
 
     public OsmPrimitive showAddressDialog(Way way) {
@@ -265,11 +260,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             if(selectedNodes.size()>1){
                 Node targetNode = MergeNodesAction.selectTargetNode(selectedNodes);
                 Node targetLocationNode = MergeNodesAction.selectTargetLocationNode(selectedNodes);
-                Command c = MergeNodesAction.mergeNodes(Main.main.getEditLayer(), selectedNodes, targetNode, targetLocationNode);
+                Command c = MergeNodesAction.mergeNodes(Main.getLayerManager().getEditLayer(), selectedNodes, targetNode, targetLocationNode);
 
                 if(c!= null){
-
-//                    commands.add(c);
                     Main.main.undoRedo.add(c);
                     for(PseudoCommand subCommand:c.getChildren()){
                         if(subCommand instanceof DeleteCommand){
@@ -287,30 +280,22 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             }
         }
 
-//        Command c = new SequenceCommand(/* I18n: Name of command */ tr("Merged to neighbor Nodes"), commands);
-
-//        Main.main.undoRedo.add(c);
-
-        return (Way) Main.main.getCurrentDataSet().getPrimitiveById(way.getId(), OsmPrimitiveType.WAY);
-
+        return (Way) Main.getLayerManager().getEditDataSet().getPrimitiveById(way.getId(), OsmPrimitiveType.WAY);
     }
-
 
     /**
      * merge node with neighbor nodes
      * @param node node to merge
      * @return true if node was merged
      */
-    public Command mergeNode(Node node){
-
+    public Command mergeNode(Node node) {
         List<Node> selectedNodes = new ArrayList<>();
         selectedNodes.add(node);
         List<Node> nearestNodes = Main.map.mapView.getNearestNodes(Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive.isUsablePredicate);
         selectedNodes.addAll(nearestNodes);
         Node targetNode = MergeNodesAction.selectTargetNode(selectedNodes);
         Node targetLocationNode = MergeNodesAction.selectTargetLocationNode(selectedNodes);
-        Command cmd = MergeNodesAction.mergeNodes(Main.main.getEditLayer(), selectedNodes, targetNode, targetLocationNode);
-        return cmd;
+        return MergeNodesAction.mergeNodes(Main.getLayerManager().getEditLayer(), selectedNodes, targetNode, targetLocationNode);
     }
 
 	/**
@@ -329,6 +314,4 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		Main.pref.putCollection(PREF_VALUES, prefs.values());
 		this.readPrefs();
 	}
-
-    
 }
