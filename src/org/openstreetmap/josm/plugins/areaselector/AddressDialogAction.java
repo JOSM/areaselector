@@ -18,7 +18,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ImageProvider;
-import org.openstreetmap.josm.tools.Predicate;
+import org.openstreetmap.josm.tools.Predicates;
 import org.openstreetmap.josm.tools.Shortcut;
 
 /**
@@ -60,23 +60,14 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 
     public void showAddressDialogFor(Point point) {
         MapView mapView = Main.map.mapView;
+        List<OsmPrimitive> elements = mapView.getNearestNodesOrWays(point, Predicates.<OsmPrimitive>alwaysTrue());
 
-        Predicate<OsmPrimitive> predicate = new Predicate<OsmPrimitive>() {
-
-            @Override
-            public boolean evaluate(OsmPrimitive object) {
-                return true;
-            }
-        };
-        List<OsmPrimitive> elements = mapView.getNearestNodesOrWays(point, predicate);
-
-        OsmPrimitive element = null;
-        if (elements.size() > 0) {
+        OsmPrimitive element;
+        if (!elements.isEmpty()) {
             element = elements.get(0);
             log.info("Found object " + element);
             Main.getLayerManager().getEditDataSet().setSelected(element);
             new AddressDialog(element).showAndSave();
-
         } else {
             log.info("Found no objects");
         }
