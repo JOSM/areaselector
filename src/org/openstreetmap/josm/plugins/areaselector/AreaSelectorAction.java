@@ -239,7 +239,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             List<Node> selectedNodes = new ArrayList<>();
             selectedNodes.add(node);
             List<Node> nearestNodes = Main.map.mapView.getNearestNodes(
-                    Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive.isUsablePredicate);
+                    Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive::isUsable);
 
             for (Node n: nearestNodes) {
                 if (!way.containsNode(n) && !deletedNodes.contains(n)) {
@@ -280,7 +280,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         List<Node> selectedNodes = new ArrayList<>();
         selectedNodes.add(node);
         List<Node> nearestNodes = Main.map.mapView.getNearestNodes(
-                Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive.isUsablePredicate);
+                Main.map.mapView.getPoint(selectedNodes.get(0)), selectedNodes, OsmPrimitive::isUsable);
         selectedNodes.addAll(nearestNodes);
         Node targetNode = MergeNodesAction.selectTargetNode(selectedNodes);
         Node targetLocationNode = MergeNodesAction.selectTargetLocationNode(selectedNodes);
