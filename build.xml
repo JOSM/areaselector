@@ -51,4 +51,8 @@
 			<compilerarg value="-Xlint:unchecked"/>
 		</javac>
 	</target>
+	
+	<target name="installPlugin" depends="clean, dist, install">
+		<echo>Installed areaselector plugin</echo>
+	</target>
 </project>
