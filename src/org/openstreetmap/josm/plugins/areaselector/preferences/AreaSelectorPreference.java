@@ -10,31 +10,31 @@ import org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin;
 
 public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
 
-    AreaSelectorPlugin areaSelectorPlugin;
-    PreferencesPanel prefPanel;
+	AreaSelectorPlugin areaSelectorPlugin;
+	PreferencesPanel prefPanel;
 
-    public AreaSelectorPreference(AreaSelectorPlugin plugin) {
-        super("areaselector",
-                "<html><p><b>"+tr("Area Selector - Preferences") + "</b></p></html>",
-                tr("Settings for the area detection algorithm."));
+	public AreaSelectorPreference(AreaSelectorPlugin plugin) {
+		super("areaselector",
+				"<html><p><b>"+tr("Area Selector - Preferences") + "</b></p></html>",
+				tr("Settings for the area detection algorithm."));
 
-        areaSelectorPlugin = plugin;
-    }
+		areaSelectorPlugin = plugin;
+	}
 
-    @Override
-    public void addGui(PreferenceTabbedPane gui) {
-        prefPanel = new PreferencesPanel();
+	@Override
+	public void addGui(PreferenceTabbedPane gui) {
+		prefPanel = new PreferencesPanel();
 
-        AreaSelectorAction areaSelectorAction = areaSelectorPlugin.getAreaSelectorAction();
-        prefPanel.setPrefs(areaSelectorAction.getPrefs());
+		AreaSelectorAction areaSelectorAction = areaSelectorPlugin.getAreaSelectorAction();
+		prefPanel.setPrefs(areaSelectorAction.getPrefs());
 
-        createPreferenceTabWithScrollPane(gui, prefPanel);
-    }
+		createPreferenceTabWithScrollPane(gui, prefPanel);
+	}
 
-    @Override
-    public boolean ok() {
-        AreaSelectorAction areaSelectorAction = areaSelectorPlugin.getAreaSelectorAction();
-        areaSelectorAction.setPrefs(prefPanel.getPrefs());
-        return false;
-    }
+	@Override
+	public boolean ok() {
+		AreaSelectorAction areaSelectorAction = areaSelectorPlugin.getAreaSelectorAction();
+		areaSelectorAction.setPrefs(prefPanel.getPrefs());
+		return false;
+	}
 }

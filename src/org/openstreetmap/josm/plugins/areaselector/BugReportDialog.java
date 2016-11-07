@@ -28,59 +28,59 @@ import org.openstreetmap.josm.gui.ExtendedDialog;
  */
 public class BugReportDialog extends ExtendedDialog {
 
-    protected static final String[] BUTTON_TEXTS = new String[] {tr("OK")};
+	protected static final String[] BUTTON_TEXTS = new String[] {tr("OK")};
 
-    protected static final String[] BUTTON_ICONS = new String[] {"ok.png"};
+	protected static final String[] BUTTON_ICONS = new String[] {"ok.png"};
 
-    public static final String ISSUESLINK = "https://github.com/JOSM/JOSM-areaselector/issues";
+	public static final String ISSUESLINK = "https://github.com/JOSM/JOSM-areaselector/issues";
 
-    protected static Logger log = LogManager.getLogger(BugReportDialog.class);
+	protected static Logger log = LogManager.getLogger(BugReportDialog.class);
 
-    public BugReportDialog(Throwable ex) {
-        super(Main.parent, tr("Error Report"), BUTTON_TEXTS, true);
-        setButtonIcons(BUTTON_ICONS);
-        JPanel panel = new JPanel(new BorderLayout());
-        StringBuilder html = new StringBuilder();
-        html.append("<html>");
-        html.append("<h1>" + tr("Something went wrong!") + "</h1>");
-        html.append("<p>" + tr("Please file a bug report on the github project page under")
-        + " <a href=\""+ISSUESLINK+"\">"+ISSUESLINK+"</a>.<br><br></p>");
-        html.append("<p>" +
-                tr("Let us know what you did and what happend add the following text to the bug report, so we can find the source of the issue.")
-        + "<br><br></p>");
+	public BugReportDialog(Throwable ex) {
+		super(Main.parent, tr("Error Report"), BUTTON_TEXTS, true);
+		setButtonIcons(BUTTON_ICONS);
+		JPanel panel = new JPanel(new BorderLayout());
+		StringBuilder html = new StringBuilder();
+		html.append("<html>");
+		html.append("<h1>" + tr("Something went wrong!") + "</h1>");
+		html.append("<p>" + tr("Please file a bug report on the github project page under")
+		+ " <a href=\""+ISSUESLINK+"\">"+ISSUESLINK+"</a>.<br><br></p>");
+		html.append("<p>" +
+				tr("Let us know what you did and what happend add the following text to the bug report, so we can find the source of the issue.")
+		+ "<br><br></p>");
 
-        html.append("</html>");
-        JLabel content = new JLabel(html.toString());
-        content.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                try {
-                    Desktop.getDesktop().browse(new URI(ISSUESLINK));
-                } catch (IOException | URISyntaxException ex) {
-                    log.error("could not open URI", ex);
-                }
-            }
-        });
+		html.append("</html>");
+		JLabel content = new JLabel(html.toString());
+		content.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					Desktop.getDesktop().browse(new URI(ISSUESLINK));
+				} catch (IOException | URISyntaxException ex) {
+					log.error("could not open URI", ex);
+				}
+			}
+		});
 
-        panel.add(content, BorderLayout.NORTH);
-        JTextArea stacktrace = new JTextArea();
-        stacktrace.setText("```\n"+getStacktraceAsString(ex)+"\n```");
-        panel.add(new JScrollPane(stacktrace), BorderLayout.CENTER);
-        setContent(panel);
+		panel.add(content, BorderLayout.NORTH);
+		JTextArea stacktrace = new JTextArea();
+		stacktrace.setText("```\n"+getStacktraceAsString(ex)+"\n```");
+		panel.add(new JScrollPane(stacktrace), BorderLayout.CENTER);
+		setContent(panel);
 
-        this.showDialog();
-    }
+		this.showDialog();
+	}
 
-    public static String getStacktraceAsString(Throwable th) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        th.printStackTrace(pw);
-        return sw.toString();
-    }
+	public static String getStacktraceAsString(Throwable th) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		th.printStackTrace(pw);
+		return sw.toString();
+	}
 
-    public static String getStackTraceAsHtml(Throwable th) {
-        String exception = getStacktraceAsString(th);
-        return exception.replaceAll("\n", "<br>\n");
-    }
+	public static String getStackTraceAsHtml(Throwable th) {
+		String exception = getStacktraceAsString(th);
+		return exception.replaceAll("\n", "<br>\n");
+	}
 
 }

@@ -4,9 +4,7 @@ package org.openstreetmap.josm.plugins.areaselector;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -21,47 +19,47 @@ import org.openstreetmap.josm.plugins.areaselector.preferences.AreaSelectorPrefe
  */
 public class AreaSelectorPlugin extends Plugin {
 
-    AreaSelectorAction areaSelectorAction;
+	AreaSelectorAction areaSelectorAction;
 
-    AddressDialogAction addressDialogAction;
+	AddressDialogAction addressDialogAction;
 
-    public AreaSelectorPlugin(PluginInformation info) {
-        super(info);
+	public AreaSelectorPlugin(PluginInformation info) {
+		super(info);
 
-        ConsoleAppender console = ConsoleAppender.newBuilder().setName("console").setLayout(
-                PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
-                .build();
+		//        ConsoleAppender console = ConsoleAppender.newBuilder().setName("console").setLayout(
+		//                PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
+		//                .build();
 
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        LoggerConfig config = ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
-        // config.addAppender(console, Level.INFO, null);
-        config.setLevel(Level.INFO);
-        ctx.updateLoggers();
+		LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+		LoggerConfig config = ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+		// config.addAppender(console, Level.INFO, null);
+		config.setLevel(Level.INFO);
+		ctx.updateLoggers();
 
-        areaSelectorAction = new AreaSelectorAction(Main.map);
-        MainMenu.add(Main.main.menu.moreToolsMenu, areaSelectorAction);
+		areaSelectorAction = new AreaSelectorAction(Main.map);
+		MainMenu.add(Main.main.menu.moreToolsMenu, areaSelectorAction);
 
-        addressDialogAction = new AddressDialogAction(Main.map);
-        MainMenu.add(Main.main.menu.moreToolsMenu, addressDialogAction);
-    }
+		addressDialogAction = new AddressDialogAction(Main.map);
+		MainMenu.add(Main.main.menu.moreToolsMenu, addressDialogAction);
+	}
 
-    /**
-     * Called when the JOSM map frame is created or destroyed.
-     */
-    @Override
-    public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {
-        areaSelectorAction.updateMapFrame(oldFrame, newFrame);
-    }
+	/**
+	 * Called when the JOSM map frame is created or destroyed.
+	 */
+	@Override
+	public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {
+		areaSelectorAction.updateMapFrame(oldFrame, newFrame);
+	}
 
-    @Override
-    public PreferenceSetting getPreferenceSetting() {
-        return new AreaSelectorPreference(this);
-    }
+	@Override
+	public PreferenceSetting getPreferenceSetting() {
+		return new AreaSelectorPreference(this);
+	}
 
-    /**
-     * @return the areaSelectorAction
-     */
-    public AreaSelectorAction getAreaSelectorAction() {
-        return areaSelectorAction;
-    }
+	/**
+	 * @return the areaSelectorAction
+	 */
+	public AreaSelectorAction getAreaSelectorAction() {
+		return areaSelectorAction;
+	}
 }

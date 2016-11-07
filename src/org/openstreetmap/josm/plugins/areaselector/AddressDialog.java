@@ -46,338 +46,338 @@ import org.openstreetmap.josm.tools.GBC;
  */
 public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
-    public static final String TAG_HOUSENAME = "name";
-    public static final String TAG_HOUSENUM = "addr:housenumber";
-    public static final String TAG_STREETNAME = "addr:street";
-    public static final String TAG_CITY = "addr:city";
-    public static final String TAG_POSTCODE = "addr:postcode";
-    public static final String TAG_COUNTRY = "addr:country";
-    public static final String TAG_BUILDING = "building";
+	public static final String TAG_HOUSENAME = "name";
+	public static final String TAG_HOUSENUM = "addr:housenumber";
+	public static final String TAG_STREETNAME = "addr:street";
+	public static final String TAG_CITY = "addr:city";
+	public static final String TAG_POSTCODE = "addr:postcode";
+	public static final String TAG_COUNTRY = "addr:country";
+	public static final String TAG_BUILDING = "building";
 
-    public static final String PREF = AreaSelectorAction.PLUGIN_NAME+".last.";
+	public static final String PREF = AreaSelectorAction.PLUGIN_NAME+".last.";
 
-    public static final String PREF_HOUSENUM = PREF+"housenum",
-            PREF_STREETNAME = PREF+"streetname",
-            PREF_CITY = PREF+"street",
-            PREF_POSTCODE = PREF+"postcode",
-            PREF_COUNTRY = PREF+"country",
-            PREF_BUILDING = PREF+"building",
-            PREF_TAGS = PREF+"tags",
-            PREF_HOUSENUM_CHANGE = PREF+"housenum.change",
-            PREF_DIALOG_X = PREF+"dialog.x",
-            PREF_DIALOG_Y = PREF+"dialog.y";
+	public static final String PREF_HOUSENUM = PREF+"housenum",
+			PREF_STREETNAME = PREF+"streetname",
+			PREF_CITY = PREF+"street",
+			PREF_POSTCODE = PREF+"postcode",
+			PREF_COUNTRY = PREF+"country",
+			PREF_BUILDING = PREF+"building",
+			PREF_TAGS = PREF+"tags",
+			PREF_HOUSENUM_CHANGE = PREF+"housenum.change",
+			PREF_DIALOG_X = PREF+"dialog.x",
+			PREF_DIALOG_Y = PREF+"dialog.y";
 
-    protected String houseNum, streetName, city, postCode, country, houseName, building, tags;
-
-    protected JTextField houseNumField;
-    protected ButtonGroup houseNumChange;
-
-    protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField;
-
-    protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
-    protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
-
-    protected final JPanel panel = new JPanel(new GridBagLayout());
-
-    protected OsmPrimitive way;
-
-    protected static Collection<AutoCompletionListItem> aciTags;
+	protected String houseNum, streetName, city, postCode, country, houseName, building, tags;
+
+	protected JTextField houseNumField;
+	protected ButtonGroup houseNumChange;
+
+	protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField;
+
+	protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
+	protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
+
+	protected final JPanel panel = new JPanel(new GridBagLayout());
+
+	protected OsmPrimitive way;
+
+	protected static Collection<AutoCompletionListItem> aciTags;
 
-    protected int changeNum = 0;
-
-    protected Vector<Component> fields;
-
-    protected static Logger log = LogManager.getLogger(AddressDialog.class);
+	protected int changeNum = 0;
+
+	protected Vector<Component> fields;
+
+	protected static Logger log = LogManager.getLogger(AddressDialog.class);
 
-    protected final void addLabelled(String str, Component c) {
-        JLabel label = new JLabel(str);
-        panel.add(label, GBC.std());
-        label.setLabelFor(c);
-        panel.add(c, GBC.eol().fill(GBC.HORIZONTAL));
-    }
-
-    public AddressDialog(OsmPrimitive way) {
-        super(Main.parent, tr("Building address"), BUTTON_TEXTS, true);
+	protected final void addLabelled(String str, Component c) {
+		JLabel label = new JLabel(str);
+		panel.add(label, GBC.std());
+		label.setLabelFor(c);
+		panel.add(c, GBC.eol().fill(GBC.HORIZONTAL));
+	}
+
+	public AddressDialog(OsmPrimitive way) {
+		super(Main.parent, tr("Building address"), BUTTON_TEXTS, true);
 
-        this.way = way;
-
-        contentInsets = new Insets(15, 15, 5, 15);
-        setButtonIcons(BUTTON_ICONS);
-
-        setContent(panel);
-        setDefaultButton(1);
-
-        AutoCompletionManager acm = Main.getLayerManager().getEditDataSet().getAutoCompletionManager();
-
-        houseNameField = new AutoCompletingComboBox();
-        houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
-        houseNameField.setEditable(true);
-
-        houseNumField = new JTextField();
-        houseNumField.setPreferredSize(new Dimension(100, 24));
-
-        String numChange = Main.pref.get(PREF_HOUSENUM_CHANGE, "0");
-        try {
-            changeNum = Integer.parseInt(numChange);
-            if (changeNum != 0) {
-                String hn = Main.pref.get(PREF_HOUSENUM, "").replaceAll("^([0-9]*).*$", "$1");
-                houseNumField.setText(Integer.toString(Integer.parseInt(hn)+changeNum));
-            }
-
-        } catch (NumberFormatException e) {
-            Main.debug(e);
-        }
-
-        JPanel houseNumPanel = new JPanel();
-        houseNumPanel.add(houseNumField);
-
-        houseNumChange = new ButtonGroup();
-
-        for (int i = -2; i <= 2; i++) {
-            JRadioButton radio = new JRadioButton((i == 0 ? tr("empty") : ((i > 0 ? "+" : "")+Integer.toString(i))));
-            radio.setActionCommand(Integer.toString(i));
-
-            if (changeNum == i) {
-                radio.setSelected(true);
-            }
-            radio.addChangeListener(this);
-            houseNumChange.add(radio);
-            houseNumPanel.add(radio);
-        }
-
-        JButton skip = new JButton(tr("skip"));
-        skip.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (changeNum != 0) {
-                    try {
-                        houseNumField.setText(Integer.toString(Integer.parseInt(houseNumField.getText())+changeNum));
-                    } catch (NumberFormatException ex) {
-                        Main.debug(ex);
-                    }
-                }
-            }
-        });
-        houseNumPanel.add(skip);
-
-        streetNameField = new AutoCompletingComboBox();
-        streetNameField.setPossibleACItems(acm.getValues(TAG_STREETNAME));
-        streetNameField.setEditable(true);
-        streetNameField.setSelectedItem(Main.pref.get(PREF_STREETNAME));
-
-        cityField = new AutoCompletingComboBox();
-        cityField.setPossibleACItems(acm.getValues(TAG_CITY));
-        cityField.setEditable(true);
-        cityField.setSelectedItem(Main.pref.get(PREF_CITY));
-
-        postCodeField = new AutoCompletingComboBox();
-        postCodeField.setPossibleACItems(acm.getValues(TAG_POSTCODE));
-        postCodeField.setEditable(true);
-        postCodeField.setSelectedItem(Main.pref.get(PREF_POSTCODE));
-
-        countryField = new AutoCompletingComboBox();
-        countryField.setPossibleACItems(acm.getValues(TAG_COUNTRY));
-        countryField.setEditable(true);
-        countryField.setSelectedItem(Main.pref.get(PREF_COUNTRY));
-
-
-        buildingField = new AutoCompletingComboBox();
-        buildingField.setPossibleACItems(acm.getValues(TAG_BUILDING));
-        buildingField.setEditable(true);
-        buildingField.setSelectedItem(Main.pref.get(PREF_BUILDING));
-
-
-        if (aciTags == null) {
-            aciTags = new ArrayList<>();
-        }
-
-        tagsField = new AutoCompletingComboBox();
-        tagsField.setPossibleACItems(aciTags);
-        tagsField.setEditable(true);
-        tagsField.setSelectedItem(Main.pref.get(PREF_TAGS));
-
-        JLabel houseNumLabel = new JLabel(tr("House number:"));
-        houseNumLabel.setLabelFor(houseNumField);
-        panel.add(houseNumLabel, GBC.std());
-        panel.add(houseNumPanel, GBC.eol().fill(GBC.HORIZONTAL));
-
-        addLabelled(tr("Street:"), streetNameField);
-        addLabelled(tr("City:"), cityField);
-        addLabelled(tr("Post code:"), postCodeField);
-        addLabelled(tr("Country:"), countryField);
-        addLabelled(tr("Building:"), buildingField);
-        addLabelled(tr("Tags:"), tagsField);
-
-        addLabelled(tr("Name:"), houseNameField);
-        houseNumField.setName(TAG_HOUSENUM);
-        streetNameField.setName(TAG_STREETNAME);
-        cityField.setName(TAG_CITY);
-        postCodeField.setName(TAG_POSTCODE);
-        buildingField.setName(TAG_BUILDING);
-        tagsField.setName("tags");
-        houseNameField.setName(TAG_HOUSENAME);
-
-        fields = new Vector<>();
-        Component[] fieldArr = {
-                houseNumField, streetNameField, cityField, postCodeField,
-                countryField, buildingField, tagsField, houseNameField};
-        fields.addAll(Arrays.asList(fieldArr));
-
-        this.setFocusTraversalPolicy(new FocusTraversalPolicy() {
-
-            @Override
-            public Component getLastComponent(Container aContainer) {
-                return fields.get(fields.size()-1);
-            }
-
-            @Override
-            public Component getFirstComponent(Container aContainer) {
-                return fields.get(0);
-            }
-
-            @Override
-            public Component getDefaultComponent(Container aContainer) {
-                return fields.get(0);
-            }
-
-            @Override
-            public Component getComponentBefore(Container aContainer, Component aComponent) {
-                int ix = getIndex(aComponent);
-                return fields.get(ix-1 >= 0 ? ix-1 : fields.size()-1);
-            }
-
-            @Override
-            public Component getComponentAfter(Container aContainer, Component aComponent) {
-                int ix = getIndex(aComponent);
-                return fields.get(ix+1 < fields.size() ? ix+1 : 0);
-            }
-
-            public int getIndex(Component c) {
-                for (int i = 0; i < fields.size(); i++) {
-
-                    if (fields.get(i).equals(c)) {
-                        return i;
-                    } else if (fields.get(i) instanceof AutoCompletingComboBox) {
-                        AutoCompletingComboBox ac = (AutoCompletingComboBox) fields.get(i);
-                        if (Arrays.asList(ac.getComponents()).contains(c)) {
-                            return i;
-                        }
-                    }
-                }
-                return -1;
-            }
-        });
-
-        setContent(panel);
-        setupDialog();
-        this.setSize(630, 350);
-
-        try {
-            this.setLocation(Integer.parseInt(Main.pref.get(PREF_DIALOG_X)), Integer.parseInt(Main.pref.get(PREF_DIALOG_Y)));
-        } catch (NumberFormatException e) {
-            Main.debug(e);
-        }
-    }
-
-    protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box) {
-        Object item = box.getSelectedItem();
-        if (item != null) {
-            if (item instanceof String) {
-                return (String) item;
-            }
-            if (item instanceof AutoCompletionListItem) {
-                return ((AutoCompletionListItem) item).getValue();
-            }
-            return item.toString();
-        } else {
-            return "";
-        }
-    }
-
-    public final void saveValues() {
-        houseName = getAutoCompletingComboBoxValue(houseNameField);
-        houseNum = houseNumField.getText();
-        streetName = getAutoCompletingComboBoxValue(streetNameField);
-        city = getAutoCompletingComboBoxValue(cityField);
-        postCode = getAutoCompletingComboBoxValue(postCodeField);
-        country = getAutoCompletingComboBoxValue(countryField);
-        building = getAutoCompletingComboBoxValue(buildingField);
-        tags = getAutoCompletingComboBoxValue(tagsField);
-
-        Main.pref.put(PREF_HOUSENUM, houseNum);
-        Main.pref.put(PREF_STREETNAME, streetName);
-        Main.pref.put(PREF_CITY, city);
-        Main.pref.put(PREF_POSTCODE, postCode);
-        Main.pref.put(PREF_COUNTRY, country);
-        Main.pref.put(PREF_BUILDING, building);
-        Main.pref.put(PREF_TAGS, tags);
-        Main.pref.put(PREF_HOUSENUM_CHANGE, houseNumChange.getSelection().getActionCommand());
-
-
-        updateTag(TAG_HOUSENAME, houseName);
-        updateTag(TAG_HOUSENUM, houseNum);
-        updateTag(TAG_STREETNAME, streetName);
-        updateTag(TAG_CITY, city);
-        updateTag(TAG_POSTCODE, postCode);
-        updateTag(TAG_COUNTRY, country);
-        updateTag(TAG_BUILDING, building);
-
-        if (!tags.isEmpty()) {
-            AutoCompletionListItem aci = new AutoCompletionListItem(tags);
-            if (!aciTags.contains(aci)) {
-                aciTags.add(aci);
-            }
-
-            String[] alltags = tags.split(" *; *");
-            for (int i = 0; i < alltags.length; i++) {
-                String[] kv = alltags[i].split(" *= *");
-                if (kv.length >= 2) {
-                    updateTag(kv[0], kv[1]);
-                }
-            }
-        }
-    }
-
-    public void setHouseNumChange(int num) {
-        Main.pref.put(PREF_HOUSENUM_CHANGE, Integer.toString(num));
-    }
-
-    public void updateTag(String tag, String value) {
-        if (value == null || value.isEmpty()) {
-            if (way.get(tag) != null) {
-                way.remove(tag);
-            }
-        } else {
-            way.put(tag, value);
-        }
-    }
-
-    public OsmPrimitive showAndSave() {
-        this.showDialog();
-        if (this.getValue() == 1) {
-            this.saveValues();
-            Collection<Command> cmds = new LinkedList<>();
-            cmds.add(new ChangeCommand(way, way));
-            Command c = new SequenceCommand(tr("updated building info"), cmds);
-            Main.main.undoRedo.add(c);
-            Main.getLayerManager().getEditDataSet().setSelected(way);
-        }
-
-        Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
-        Main.pref.put(PREF_DIALOG_Y, Integer.toString(this.getLocation().y));
-
-        return way;
-    }
-
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        try {
-            JRadioButton rb = (JRadioButton) e.getSource();
-            changeNum = Integer.parseInt(rb.getActionCommand());
-
-        } catch (NumberFormatException ex) {
-            Main.debug(ex);
-        }
-    }
+		this.way = way;
+
+		contentInsets = new Insets(15, 15, 5, 15);
+		setButtonIcons(BUTTON_ICONS);
+
+		setContent(panel);
+		setDefaultButton(1);
+
+		AutoCompletionManager acm = Main.getLayerManager().getEditDataSet().getAutoCompletionManager();
+
+		houseNameField = new AutoCompletingComboBox();
+		houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
+		houseNameField.setEditable(true);
+
+		houseNumField = new JTextField();
+		houseNumField.setPreferredSize(new Dimension(100, 24));
+
+		String numChange = Main.pref.get(PREF_HOUSENUM_CHANGE, "0");
+		try {
+			changeNum = Integer.parseInt(numChange);
+			if (changeNum != 0) {
+				String hn = Main.pref.get(PREF_HOUSENUM, "").replaceAll("^([0-9]*).*$", "$1");
+				houseNumField.setText(Integer.toString(Integer.parseInt(hn)+changeNum));
+			}
+
+		} catch (NumberFormatException e) {
+			Main.debug(e);
+		}
+
+		JPanel houseNumPanel = new JPanel();
+		houseNumPanel.add(houseNumField);
+
+		houseNumChange = new ButtonGroup();
+
+		for (int i = -2; i <= 2; i++) {
+			JRadioButton radio = new JRadioButton((i == 0 ? tr("empty") : ((i > 0 ? "+" : "")+Integer.toString(i))));
+			radio.setActionCommand(Integer.toString(i));
+
+			if (changeNum == i) {
+				radio.setSelected(true);
+			}
+			radio.addChangeListener(this);
+			houseNumChange.add(radio);
+			houseNumPanel.add(radio);
+		}
+
+		JButton skip = new JButton(tr("skip"));
+		skip.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (changeNum != 0) {
+					try {
+						houseNumField.setText(Integer.toString(Integer.parseInt(houseNumField.getText())+changeNum));
+					} catch (NumberFormatException ex) {
+						Main.debug(ex);
+					}
+				}
+			}
+		});
+		houseNumPanel.add(skip);
+
+		streetNameField = new AutoCompletingComboBox();
+		streetNameField.setPossibleACItems(acm.getValues(TAG_STREETNAME));
+		streetNameField.setEditable(true);
+		streetNameField.setSelectedItem(Main.pref.get(PREF_STREETNAME));
+
+		cityField = new AutoCompletingComboBox();
+		cityField.setPossibleACItems(acm.getValues(TAG_CITY));
+		cityField.setEditable(true);
+		cityField.setSelectedItem(Main.pref.get(PREF_CITY));
+
+		postCodeField = new AutoCompletingComboBox();
+		postCodeField.setPossibleACItems(acm.getValues(TAG_POSTCODE));
+		postCodeField.setEditable(true);
+		postCodeField.setSelectedItem(Main.pref.get(PREF_POSTCODE));
+
+		countryField = new AutoCompletingComboBox();
+		countryField.setPossibleACItems(acm.getValues(TAG_COUNTRY));
+		countryField.setEditable(true);
+		countryField.setSelectedItem(Main.pref.get(PREF_COUNTRY));
+
+
+		buildingField = new AutoCompletingComboBox();
+		buildingField.setPossibleACItems(acm.getValues(TAG_BUILDING));
+		buildingField.setEditable(true);
+		buildingField.setSelectedItem(Main.pref.get(PREF_BUILDING));
+
+
+		if (aciTags == null) {
+			aciTags = new ArrayList<>();
+		}
+
+		tagsField = new AutoCompletingComboBox();
+		tagsField.setPossibleACItems(aciTags);
+		tagsField.setEditable(true);
+		tagsField.setSelectedItem(Main.pref.get(PREF_TAGS));
+
+		JLabel houseNumLabel = new JLabel(tr("House number:"));
+		houseNumLabel.setLabelFor(houseNumField);
+		panel.add(houseNumLabel, GBC.std());
+		panel.add(houseNumPanel, GBC.eol().fill(GBC.HORIZONTAL));
+
+		addLabelled(tr("Street:"), streetNameField);
+		addLabelled(tr("City:"), cityField);
+		addLabelled(tr("Post code:"), postCodeField);
+		addLabelled(tr("Country:"), countryField);
+		addLabelled(tr("Building:"), buildingField);
+		addLabelled(tr("Tags:"), tagsField);
+
+		addLabelled(tr("Name:"), houseNameField);
+		houseNumField.setName(TAG_HOUSENUM);
+		streetNameField.setName(TAG_STREETNAME);
+		cityField.setName(TAG_CITY);
+		postCodeField.setName(TAG_POSTCODE);
+		buildingField.setName(TAG_BUILDING);
+		tagsField.setName("tags");
+		houseNameField.setName(TAG_HOUSENAME);
+
+		fields = new Vector<>();
+		Component[] fieldArr = {
+				houseNumField, streetNameField, cityField, postCodeField,
+				countryField, buildingField, tagsField, houseNameField};
+		fields.addAll(Arrays.asList(fieldArr));
+
+		this.setFocusTraversalPolicy(new FocusTraversalPolicy() {
+
+			@Override
+			public Component getLastComponent(Container aContainer) {
+				return fields.get(fields.size()-1);
+			}
+
+			@Override
+			public Component getFirstComponent(Container aContainer) {
+				return fields.get(0);
+			}
+
+			@Override
+			public Component getDefaultComponent(Container aContainer) {
+				return fields.get(0);
+			}
+
+			@Override
+			public Component getComponentBefore(Container aContainer, Component aComponent) {
+				int ix = getIndex(aComponent);
+				return fields.get(ix-1 >= 0 ? ix-1 : fields.size()-1);
+			}
+
+			@Override
+			public Component getComponentAfter(Container aContainer, Component aComponent) {
+				int ix = getIndex(aComponent);
+				return fields.get(ix+1 < fields.size() ? ix+1 : 0);
+			}
+
+			public int getIndex(Component c) {
+				for (int i = 0; i < fields.size(); i++) {
+
+					if (fields.get(i).equals(c)) {
+						return i;
+					} else if (fields.get(i) instanceof AutoCompletingComboBox) {
+						AutoCompletingComboBox ac = (AutoCompletingComboBox) fields.get(i);
+						if (Arrays.asList(ac.getComponents()).contains(c)) {
+							return i;
+						}
+					}
+				}
+				return -1;
+			}
+		});
+
+		setContent(panel);
+		setupDialog();
+		this.setSize(630, 350);
+
+		try {
+			this.setLocation(Integer.parseInt(Main.pref.get(PREF_DIALOG_X)), Integer.parseInt(Main.pref.get(PREF_DIALOG_Y)));
+		} catch (NumberFormatException e) {
+			Main.debug(e);
+		}
+	}
+
+	protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box) {
+		Object item = box.getSelectedItem();
+		if (item != null) {
+			if (item instanceof String) {
+				return (String) item;
+			}
+			if (item instanceof AutoCompletionListItem) {
+				return ((AutoCompletionListItem) item).getValue();
+			}
+			return item.toString();
+		} else {
+			return "";
+		}
+	}
+
+	public final void saveValues() {
+		houseName = getAutoCompletingComboBoxValue(houseNameField);
+		houseNum = houseNumField.getText();
+		streetName = getAutoCompletingComboBoxValue(streetNameField);
+		city = getAutoCompletingComboBoxValue(cityField);
+		postCode = getAutoCompletingComboBoxValue(postCodeField);
+		country = getAutoCompletingComboBoxValue(countryField);
+		building = getAutoCompletingComboBoxValue(buildingField);
+		tags = getAutoCompletingComboBoxValue(tagsField);
+
+		Main.pref.put(PREF_HOUSENUM, houseNum);
+		Main.pref.put(PREF_STREETNAME, streetName);
+		Main.pref.put(PREF_CITY, city);
+		Main.pref.put(PREF_POSTCODE, postCode);
+		Main.pref.put(PREF_COUNTRY, country);
+		Main.pref.put(PREF_BUILDING, building);
+		Main.pref.put(PREF_TAGS, tags);
+		Main.pref.put(PREF_HOUSENUM_CHANGE, houseNumChange.getSelection().getActionCommand());
+
+
+		updateTag(TAG_HOUSENAME, houseName);
+		updateTag(TAG_HOUSENUM, houseNum);
+		updateTag(TAG_STREETNAME, streetName);
+		updateTag(TAG_CITY, city);
+		updateTag(TAG_POSTCODE, postCode);
+		updateTag(TAG_COUNTRY, country);
+		updateTag(TAG_BUILDING, building);
+
+		if (!tags.isEmpty()) {
+			AutoCompletionListItem aci = new AutoCompletionListItem(tags);
+			if (!aciTags.contains(aci)) {
+				aciTags.add(aci);
+			}
+
+			String[] alltags = tags.split(" *; *");
+			for (int i = 0; i < alltags.length; i++) {
+				String[] kv = alltags[i].split(" *= *");
+				if (kv.length >= 2) {
+					updateTag(kv[0], kv[1]);
+				}
+			}
+		}
+	}
+
+	public void setHouseNumChange(int num) {
+		Main.pref.put(PREF_HOUSENUM_CHANGE, Integer.toString(num));
+	}
+
+	public void updateTag(String tag, String value) {
+		if (value == null || value.isEmpty()) {
+			if (way.get(tag) != null) {
+				way.remove(tag);
+			}
+		} else {
+			way.put(tag, value);
+		}
+	}
+
+	public OsmPrimitive showAndSave() {
+		this.showDialog();
+		if (this.getValue() == 1) {
+			this.saveValues();
+			Collection<Command> cmds = new LinkedList<>();
+			cmds.add(new ChangeCommand(way, way));
+			Command c = new SequenceCommand(tr("updated building info"), cmds);
+			Main.main.undoRedo.add(c);
+			Main.getLayerManager().getEditDataSet().setSelected(way);
+		}
+
+		Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
+		Main.pref.put(PREF_DIALOG_Y, Integer.toString(this.getLocation().y));
+
+		return way;
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		try {
+			JRadioButton rb = (JRadioButton) e.getSource();
+			changeNum = Integer.parseInt(rb.getActionCommand());
+
+		} catch (NumberFormatException ex) {
+			Main.debug(ex);
+		}
+	}
 }

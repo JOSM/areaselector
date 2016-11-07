@@ -25,67 +25,67 @@ import org.openstreetmap.josm.tools.Shortcut;
  */
 public class AddressDialogAction extends MapMode implements MouseListener {
 
-    public static Logger log = LogManager.getLogger(AddressDialogAction.class);
+	public static Logger log = LogManager.getLogger(AddressDialogAction.class);
 
-    public static final String PLUGIN_NAME = "areaselector";
+	public static final String PLUGIN_NAME = "areaselector";
 
-    public AddressDialogAction(MapFrame mapFrame) {
-        super(/* I18n: Add tag to element */ tr("Tag Element"), "addressdialog", tr("Select an item to tag."),
-                /* I18n: Add tag to building */
-                Shortcut.registerShortcut("tools:tagbuilding",
-                        tr("Tools: {0}", tr("Tag Building")), KeyEvent.VK_B, Shortcut.ALT_CTRL), mapFrame, getCursor());
-    }
+	public AddressDialogAction(MapFrame mapFrame) {
+		super(/* I18n: Add tag to element */ tr("Tag Element"), "addressdialog", tr("Select an item to tag."),
+				/* I18n: Add tag to building */
+				Shortcut.registerShortcut("tools:tagbuilding",
+						tr("Tools: {0}", tr("Tag Building")), KeyEvent.VK_B, Shortcut.ALT_CTRL), mapFrame, getCursor());
+	}
 
-    private static Cursor getCursor() {
-        return ImageProvider.getCursor("crosshair", "addressdialog");
-    }
+	private static Cursor getCursor() {
+		return ImageProvider.getCursor("crosshair", "addressdialog");
+	}
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openstreetmap.josm.actions.mapmode.MapMode#mouseClicked(java.awt.event.MouseEvent)
-     */
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        super.mouseClicked(e);
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.openstreetmap.josm.actions.mapmode.MapMode#mouseClicked(java.awt.event.MouseEvent)
+	 */
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		super.mouseClicked(e);
 
-        try {
-            showAddressDialogFor(e.getPoint());
-        } catch (Exception th) {
-            log.warn("show Address Dialog failed", th);
-            new BugReportDialog(th);
-        }
-    }
+		try {
+			showAddressDialogFor(e.getPoint());
+		} catch (Exception th) {
+			log.warn("show Address Dialog failed", th);
+			new BugReportDialog(th);
+		}
+	}
 
-    public void showAddressDialogFor(Point point) {
-        MapView mapView = Main.map.mapView;
-        List<OsmPrimitive> elements = mapView.getNearestNodesOrWays(point, o -> true);
+	public void showAddressDialogFor(Point point) {
+		MapView mapView = Main.map.mapView;
+		List<OsmPrimitive> elements = mapView.getNearestNodesOrWays(point, o -> true);
 
-        OsmPrimitive element;
-        if (!elements.isEmpty()) {
-            element = elements.get(0);
-            log.info("Found object " + element);
-            Main.getLayerManager().getEditDataSet().setSelected(element);
-            new AddressDialog(element).showAndSave();
-        } else {
-            log.info("Found no objects");
-        }
-    }
+		OsmPrimitive element;
+		if (!elements.isEmpty()) {
+			element = elements.get(0);
+			log.info("Found object " + element);
+			Main.getLayerManager().getEditDataSet().setSelected(element);
+			new AddressDialog(element).showAndSave();
+		} else {
+			log.info("Found no objects");
+		}
+	}
 
-    @Override
-    public void enterMode() {
-        if (!isEnabled()) {
-            return;
-        }
-        super.enterMode();
-        Main.map.mapView.setCursor(getCursor());
-        Main.map.mapView.addMouseListener(this);
-    }
+	@Override
+	public void enterMode() {
+		if (!isEnabled()) {
+			return;
+		}
+		super.enterMode();
+		Main.map.mapView.setCursor(getCursor());
+		Main.map.mapView.addMouseListener(this);
+	}
 
-    @Override
-    public void exitMode() {
-        super.exitMode();
-        Main.map.mapView.removeMouseListener(this);
-    }
+	@Override
+	public void exitMode() {
+		super.exitMode();
+		Main.map.mapView.removeMouseListener(this);
+	}
 
 }
