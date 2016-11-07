@@ -150,10 +150,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		BufferedImage bufImage = new BufferedImage(mapView.getWidth(), mapView.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D imgGraphics = bufImage.createGraphics();
 
-		Layer[] layers = mapView.getLayerManager().getLayers().toArray(new Layer[0]);
-
-		for (int i = layers.length-1; i >= 0; i--) {
-			Layer layer = layers[i];
+		for (Layer layer: mapView.getLayerManager().getVisibleLayersInZOrder()) {
 			if (layer.isVisible() && layer.isBackgroundLayer()) {
 				Composite translucent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) layer.getOpacity());
 				imgGraphics.setComposite(translucent);
