@@ -172,6 +172,19 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
         ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint, prefs);
 
+		// adjust distance to pixel instead of meters
+		double distMeters = ImageAnalyzer.DEFAULT_TOLERANCEDIST;
+		if(prefs.containsKey(ImageAnalyzer.KEY_TOLERANCEDIST)){
+			try {
+				distMeters = Double.parseDouble(prefs.get(ImageAnalyzer.KEY_TOLERANCEDIST));
+			} catch (NumberFormatException ex) {
+				Main.debug(ex);
+			}
+		}
+		double toleranceInPixel = distMeters * 100 / mapView.getDist100Pixel();
+		// log.info("tolerance in m: "+distMeters + " in pixel: "+toleranceInPixel + " 100px in m: "+mapView.getDist100Pixel());
+		imgAnalyzer.setToleranceDist(toleranceInPixel);
+
         Polygon polygon = imgAnalyzer.getArea();
 
         if (polygon != null) {

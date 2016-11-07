@@ -84,9 +84,9 @@ public class ImageAnalyzer {
     protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 
     // Polynomial fitting tolerances
-    // default for border = 4
-    public static final double DEFAULT_TOLERANCEDIST = 4.5d;
-    public static final String KEY_TOLERANCEDIST = "TOLERANCEDIST";
+    // default for border = 1
+    public static final double DEFAULT_TOLERANCEDIST = 1.0d;
+    public static final String KEY_TOLERANCEDIST = "TOLERANCEDISTM";
     double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 
     // default for border = Math.PI / 8

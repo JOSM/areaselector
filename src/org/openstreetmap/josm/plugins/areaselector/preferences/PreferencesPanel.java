@@ -73,9 +73,9 @@ public class PreferencesPanel extends JPanel {
                 tr("Algorithm"), algorithm);
 
         txtToleranceDist = new JTextField();
-        this.addInput(
-                tr("Maximum pixels a point can be away from a line and still be considered as a member of this line (Default: {0}).",
-                        ImageAnalyzer.DEFAULT_TOLERANCEDIST), tr("Distance Tolerance"), txtToleranceDist);
+		this.addInput(
+				tr("Maximum distance in meters between a point and the line to be considered as a member of this line (Default: {0}).",
+						ImageAnalyzer.DEFAULT_TOLERANCEDIST), tr("Distance Tolerance"), txtToleranceDist);
 
         txtToleranceAngle = new JTextField();
         this.addInput(
