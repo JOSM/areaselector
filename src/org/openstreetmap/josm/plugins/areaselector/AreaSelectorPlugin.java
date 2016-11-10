@@ -37,10 +37,10 @@ public class AreaSelectorPlugin extends Plugin {
 		ctx.updateLoggers();
 
 		areaSelectorAction = new AreaSelectorAction(Main.map);
-		MainMenu.add(Main.main.menu.moreToolsMenu, areaSelectorAction);
+		MainMenu.add(Main.main.menu.toolsMenu, areaSelectorAction);
 
 		addressDialogAction = new AddressDialogAction(Main.map);
-		MainMenu.add(Main.main.menu.moreToolsMenu, addressDialogAction);
+		MainMenu.add(Main.main.menu.toolsMenu, addressDialogAction);
 	}
 
 	/**
