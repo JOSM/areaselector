@@ -3,8 +3,6 @@ package org.openstreetmap.josm.plugins.areaselector.preferences;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
-import java.util.HashMap;
-
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -14,6 +12,9 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.preferences.BooleanProperty;
+import org.openstreetmap.josm.data.preferences.DoubleProperty;
+import org.openstreetmap.josm.data.preferences.IntegerProperty;
 import org.openstreetmap.josm.plugins.areaselector.AreaSelectorAction;
 import org.openstreetmap.josm.plugins.areaselector.ImageAnalyzer;
 
@@ -43,8 +44,6 @@ public class PreferencesPanel extends JPanel {
 	private JComboBox<String> algorithm;
 
 	protected JComponent ref;
-
-	protected HashMap<String, String> prefs;
 
 	/**
 	 * Constructs a new {@code PreferencesPanel}.
@@ -162,77 +161,43 @@ public class PreferencesPanel extends JPanel {
 	}
 
 	/**
-	 * @return the prefs
+	 * save the preferences
 	 */
-	public HashMap<String, String> getPrefs() {
-		// make sure prefs are up to date
-		prefs.put(ImageAnalyzer.KEY_COLORTHRESHOLD, txtColorThreshold.getText());
-		prefs.put(ImageAnalyzer.KEY_THINNING_ITERATIONS, txtThinningIterations.getText());
+	public void savePreferences() {
+		new IntegerProperty(ImageAnalyzer.KEY_COLORTHRESHOLD, ImageAnalyzer.DEFAULT_COLORTHRESHOLD).parseAndPut(txtColorThreshold.getText());
+		new IntegerProperty(ImageAnalyzer.KEY_THINNING_ITERATIONS, ImageAnalyzer.DEFAULT_THINNING_ITERATIONS).parseAndPut(txtThinningIterations.getText());
+		new IntegerProperty(ImageAnalyzer.KEY_ALGORITHM, ImageAnalyzer.DEFAULT_ALGORITHM).put(algorithm.getSelectedIndex());
+
 		try {
-			prefs.put(ImageAnalyzer.KEY_TOLERANCEANGLE, Double.toString(Math.toRadians(Double.parseDouble(txtToleranceAngle.getText()))));
+			new DoubleProperty(ImageAnalyzer.KEY_TOLERANCEANGLE, ImageAnalyzer.DEFAULT_TOLERANCEANGLE).put(Math.toRadians(Double.parseDouble(txtToleranceAngle.getText())));
 		} catch (NumberFormatException e) {
 			Main.debug(e);
 		}
-		prefs.put(ImageAnalyzer.KEY_TOLERANCEDIST, txtToleranceDist.getText());
-		prefs.put(AreaSelectorAction.KEY_MERGENODES, ckbxMergeNodes.isSelected() ? "true" : "false");
-		prefs.put(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, ckbxShowAddressDialog.isSelected() ? "true" : "false");
-		prefs.put(ImageAnalyzer.KEY_HSV, ckbxHSV.isSelected() ? "true" : "false");
-		prefs.put(ImageAnalyzer.KEY_ALGORITHM, Integer.toString(algorithm.getSelectedIndex()));
-		prefs.put(ImageAnalyzer.KEY_DEBUG, debug.isSelected() ? "true" : "false");
-		return prefs;
+		new DoubleProperty(ImageAnalyzer.KEY_TOLERANCEDIST, ImageAnalyzer.DEFAULT_TOLERANCEDIST).parseAndPut(txtToleranceDist.getText());
+		new BooleanProperty(AreaSelectorAction.KEY_MERGENODES, true).put(ckbxMergeNodes.isSelected());
+		new BooleanProperty(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, true).put(ckbxShowAddressDialog.isSelected());
+		new BooleanProperty(ImageAnalyzer.KEY_HSV, false).put(ckbxHSV.isSelected());
+		new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).put(ckbxHSV.isSelected());
 	}
 
 	/**
 	 * @param prefs
 	 *            the prefs to set
 	 */
-	public void setPrefs(HashMap<String, String> prefs) {
-		this.prefs = prefs;
-		if (prefs.containsKey(ImageAnalyzer.KEY_COLORTHRESHOLD)) {
-			txtColorThreshold.setText(prefs.get(ImageAnalyzer.KEY_COLORTHRESHOLD));
-		}
-		if (prefs.containsKey(ImageAnalyzer.KEY_THINNING_ITERATIONS)) {
-			txtThinningIterations.setText(prefs.get(ImageAnalyzer.KEY_THINNING_ITERATIONS));
-		}
-		if (prefs.containsKey(ImageAnalyzer.KEY_TOLERANCEANGLE)) {
-			try {
-				txtToleranceAngle
-				.setText(Double.toString(Math.floor(Math.toDegrees(Double.parseDouble(prefs.get(ImageAnalyzer.KEY_TOLERANCEANGLE))))));
-			} catch (NumberFormatException e) {
-				Main.debug(e);
-			}
-		}
-		if (prefs.containsKey(ImageAnalyzer.KEY_TOLERANCEDIST)) {
-			txtToleranceDist.setText(prefs.get(ImageAnalyzer.KEY_TOLERANCEDIST));
-		}
-		if (prefs.containsKey(AreaSelectorAction.KEY_MERGENODES)) {
-			ckbxMergeNodes.setSelected(prefs.get(AreaSelectorAction.KEY_MERGENODES).compareTo("true") == 0);
-		} else {
-			ckbxMergeNodes.setSelected(true);
-		}
-		if (prefs.containsKey(AreaSelectorAction.KEY_SHOWADDRESSDIALOG)) {
-			ckbxShowAddressDialog.setSelected(prefs.get(AreaSelectorAction.KEY_SHOWADDRESSDIALOG).compareTo("true") == 0);
-		} else {
-			ckbxShowAddressDialog.setSelected(true);
-		}
-		if (prefs.containsKey(ImageAnalyzer.KEY_HSV)) {
-			ckbxHSV.setSelected(prefs.get(ImageAnalyzer.KEY_HSV).compareTo("true") == 0);
-		} else {
-			ckbxHSV.setSelected(false);
-		}
+	public void readPreferences() {
+		txtColorThreshold.setText(Integer.toString(new IntegerProperty(ImageAnalyzer.KEY_COLORTHRESHOLD, ImageAnalyzer.DEFAULT_COLORTHRESHOLD).get()));
+		txtThinningIterations.setText(Integer.toString(new IntegerProperty(ImageAnalyzer.KEY_THINNING_ITERATIONS, ImageAnalyzer.DEFAULT_THINNING_ITERATIONS).get()));
+		txtToleranceAngle.setText(Double.toString(Math.floor(Math.toDegrees(new DoubleProperty(ImageAnalyzer.KEY_TOLERANCEANGLE, ImageAnalyzer.DEFAULT_TOLERANCEANGLE).get()))));
+		txtToleranceDist.setText(Double.toString(new DoubleProperty(ImageAnalyzer.KEY_TOLERANCEDIST, ImageAnalyzer.DEFAULT_TOLERANCEDIST).get()));
 
-		if (prefs.containsKey(ImageAnalyzer.KEY_ALGORITHM)) {
-			try {
-				algorithm.setSelectedIndex(Integer.parseInt(prefs.get(ImageAnalyzer.KEY_ALGORITHM)));
-			} catch (NumberFormatException e) {
-				Main.debug(e);
-			}
-		}
+		ckbxMergeNodes.setSelected(new BooleanProperty(AreaSelectorAction.KEY_MERGENODES, true).get());
+		ckbxShowAddressDialog.setSelected(new BooleanProperty(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, true).get());
+		ckbxHSV.setSelected(new BooleanProperty(ImageAnalyzer.KEY_HSV, false).get());
 
-		if (prefs.containsKey(ImageAnalyzer.KEY_DEBUG)) {
-			debug.setSelected(prefs.get(ImageAnalyzer.KEY_DEBUG).compareTo("true") == 0);
-		} else {
-			debug.setSelected(false);
-		}
+		int algorithmIdx = new IntegerProperty(ImageAnalyzer.KEY_ALGORITHM, ImageAnalyzer.DEFAULT_ALGORITHM).get();
+		algorithm.setSelectedIndex(algorithmIdx < algorithm.getMaximumRowCount() ? algorithmIdx : ImageAnalyzer.DEFAULT_ALGORITHM);
+
+		debug.setSelected(new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).get());
+
 	}
 }

@@ -15,7 +15,6 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,6 +34,8 @@ import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.OsmPrimitiveType;
 import org.openstreetmap.josm.data.osm.Way;
+import org.openstreetmap.josm.data.preferences.BooleanProperty;
+import org.openstreetmap.josm.data.preferences.DoubleProperty;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -55,17 +56,13 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public static final String PLUGIN_NAME = "areaselector";
 
 	public static final String
-	KEY_SHOWADDRESSDIALOG = "showaddressdialog",
-	KEY_MERGENODES = "mergenodes",
-	PREF_KEYS = PLUGIN_NAME+".keys",
-	PREF_VALUES = PLUGIN_NAME + ".values";
+	KEY_SHOWADDRESSDIALOG = PLUGIN_NAME + ".showaddressdialog",
+	KEY_MERGENODES = PLUGIN_NAME + ".mergenodes";
 
 
 	protected Logger log = LogManager.getLogger(AreaSelectorAction.class.getCanonicalName());
 
 	protected Point clickPoint = null;
-
-	protected HashMap<String, String> prefs = null;
 
 	public AreaSelectorAction(MapFrame mapFrame) {
 		super(tr("Area Selection"), "areaselector", tr("Select an area (e.g. building) from an underlying image."),
@@ -77,23 +74,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	}
 
 	protected void readPrefs() {
-		String[] keys = Main.pref.getCollection(PREF_KEYS).toArray(new String[0]);
-		String[] values = Main.pref.getCollection(PREF_VALUES).toArray(new String[0]);
-		prefs = new HashMap<>();
-		if (keys == null || values == null || keys.length != values.length) {
-			//use default prefs
-		} else {
-			for (int i = 0; i < keys.length; i++) {
-				prefs.put(keys[i], values[i]);
-			}
-		}
-
-		if (prefs.containsKey(KEY_MERGENODES)) {
-			this.mergeNodes = prefs.get(KEY_MERGENODES).compareTo("true") == 0;
-		}
-		if (prefs.containsKey(KEY_SHOWADDRESSDIALOG)) {
-			this.showAddressDialog = prefs.get(KEY_SHOWADDRESSDIALOG).compareTo("true") == 0;
-		}
+		this.mergeNodes = new BooleanProperty(KEY_MERGENODES, true).get();
+		this.showAddressDialog = new BooleanProperty(KEY_SHOWADDRESSDIALOG, true).get();
 	}
 
 	private static Cursor getCursor() {
@@ -168,17 +150,11 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 		BufferedImage bufImage = getLayeredImage();
 
-		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint, prefs);
+		ImageAnalyzer imgAnalyzer = new ImageAnalyzer(bufImage, clickPoint);
 
 		// adjust distance to pixel instead of meters
-		double distMeters = ImageAnalyzer.DEFAULT_TOLERANCEDIST;
-		if(prefs.containsKey(ImageAnalyzer.KEY_TOLERANCEDIST)){
-			try {
-				distMeters = Double.parseDouble(prefs.get(ImageAnalyzer.KEY_TOLERANCEDIST));
-			} catch (NumberFormatException ex) {
-				Main.debug(ex);
-			}
-		}
+		double distMeters = new DoubleProperty(ImageAnalyzer.KEY_TOLERANCEDIST,ImageAnalyzer.DEFAULT_TOLERANCEDIST).get();
+
 		double toleranceInPixel = distMeters * 100 / mapView.getDist100Pixel();
 		// log.info("tolerance in m: "+distMeters + " in pixel: "+toleranceInPixel + " 100px in m: "+mapView.getDist100Pixel());
 		imgAnalyzer.setToleranceDist(toleranceInPixel);
@@ -299,19 +275,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	}
 
 	/**
-	 * @return the prefs
-	 */
-	public HashMap<String, String> getPrefs() {
-		return prefs;
-	}
-
-	/**
 	 * @param prefs the prefs to set
 	 */
-	public void setPrefs(HashMap<String, String> prefs) {
-		this.prefs = prefs;
-		Main.pref.putCollection(PREF_KEYS, prefs.keySet());
-		Main.pref.putCollection(PREF_VALUES, prefs.values());
+	public void setPrefs() {
 		this.readPrefs();
 	}
 }

@@ -25,16 +25,16 @@ public class AreaSelectorPreference extends DefaultTabPreferenceSetting {
 	public void addGui(PreferenceTabbedPane gui) {
 		prefPanel = new PreferencesPanel();
 
-		AreaSelectorAction areaSelectorAction = areaSelectorPlugin.getAreaSelectorAction();
-		prefPanel.setPrefs(areaSelectorAction.getPrefs());
+		prefPanel.readPreferences();
 
 		createPreferenceTabWithScrollPane(gui, prefPanel);
 	}
 
 	@Override
 	public boolean ok() {
+		prefPanel.savePreferences();
 		AreaSelectorAction areaSelectorAction = areaSelectorPlugin.getAreaSelectorAction();
-		areaSelectorAction.setPrefs(prefPanel.getPrefs());
+		areaSelectorAction.setPrefs();
 		return false;
 	}
 }

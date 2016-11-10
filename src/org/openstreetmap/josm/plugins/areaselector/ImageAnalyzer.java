@@ -25,7 +25,9 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.data.preferences.BooleanProperty;
+import org.openstreetmap.josm.data.preferences.DoubleProperty;
+import org.openstreetmap.josm.data.preferences.IntegerProperty;
 
 import boofcv.alg.color.ColorHsv;
 import boofcv.alg.enhance.EnhanceImageOps;
@@ -75,62 +77,55 @@ public class ImageAnalyzer {
 
 	protected Point point;
 
-	public static final String KEY_DEBUG = "DEBUG";
+	public static final String KEY_DEBUG = "areaselector.debug";
 	protected boolean debug = false;
 
 	// Algorithm params
 	public static final int DEFAULT_COLORTHRESHOLD = 14;
-	public static final String KEY_COLORTHRESHOLD = "COLORTHRESHOLD";
+	public static final String KEY_COLORTHRESHOLD = "areaselector.colorthreshold";
 	protected int colorThreshold = DEFAULT_COLORTHRESHOLD;
 
 	// Polynomial fitting tolerances
 	// default for border = 1
-	public static final double DEFAULT_TOLERANCEDIST = 1.0d;
-	public static final String KEY_TOLERANCEDIST = "TOLERANCEDISTM";
+	public static final double DEFAULT_TOLERANCEDIST = 0.5d;
+	public static final String KEY_TOLERANCEDIST = "areaselector.tolerancedist";
 	double toleranceDist = DEFAULT_TOLERANCEDIST; // original: 2
 
 	// default for border = Math.PI / 8
 	public static final double DEFAULT_TOLERANCEANGLE = 0.42d;
-	public static final String KEY_TOLERANCEANGLE = "TOLERANCEANGLE";
+	public static final String KEY_TOLERANCEANGLE = "areaselector.toleranceangle";
 	double toleranceAngle = DEFAULT_TOLERANCEANGLE; // original Math.PI/10
 
 	// gaussian blur radius = 10
 	public static final int DEFAULT_BLURRADIUS = 10;
-	public static final String KEY_BLURRADIUS = "BLURRADIUS";
+	public static final String KEY_BLURRADIUS = "areaselector.blurradius";
 	protected int blurRadius = DEFAULT_BLURRADIUS;
 
 	// default thinning iterations = 3
 	public static final int DEFAULT_THINNING_ITERATIONS = 2;
-	public static final String KEY_THINNING_ITERATIONS = "THINNING_ITERATIONS";
+	public static final String KEY_THINNING_ITERATIONS = "areaselector.thinning_iterations";
 	protected int thinningIterations = DEFAULT_THINNING_ITERATIONS;
 
 	protected boolean useHSV = false;
-	public static final String KEY_HSV = "HSV";
+	public static final String KEY_HSV = "areaselector.use_hsv";
 
-	public static final String KEY_ALGORITHM = "ALGORITHM";
+	public static final String KEY_ALGORITHM = "areaselector.algorithm";
 	public static final int ALGORITHM_AUTO = 0, ALGORITHM_BOOFCV = 1, ALGORITHM_CUSTOM = 2;
+	public static final int DEFAULT_ALGORITHM = ALGORITHM_AUTO;
 	protected int algorithm = ALGORITHM_AUTO;
 
 	public ImageAnalyzer(String filename, Point point) {
-		log.info("Loading from " + filename);
-		baseImage = getImgFromFile(filename);
-		this.point = point;
-		init();
+		this(getImgFromFile(filename), point);
 	}
 
-	public ImageAnalyzer(BufferedImage bufImg, Point point, HashMap<String, String> prefs) {
-		this.setPrefs(prefs);
+	public ImageAnalyzer(BufferedImage bufImg, Point point) {
 		baseImage = bufImg;
 		this.point = point;
 		init();
 	}
 
-	public ImageAnalyzer(BufferedImage bufImg, Point point) {
-		this(bufImg, point, new HashMap<String, String>());
-	}
-
 	protected void init() {
-
+		readPreferences();
 		if (debug) {
 			BufferedImage buf = deepCopy(baseImage);
 			Graphics2D g2d = buf.createGraphics();
@@ -909,7 +904,7 @@ public class ImageAnalyzer {
 		return false;
 	}
 
-	public BufferedImage getImgFromFile(String filename) {
+	public static BufferedImage getImgFromFile(String filename) {
 		try {
 			return ImageIO.read(new File(filename+"."+IMG_TYPE.toLowerCase()));
 		} catch (IOException e) {
@@ -1060,56 +1055,15 @@ public class ImageAnalyzer {
 		this.thinningIterations = thinningIterations;
 	}
 
-	public void setPrefs(HashMap<String, String> prefs) {
-		if (prefs.containsKey(KEY_DEBUG)) {
-			debug = prefs.get(KEY_DEBUG).compareTo("true") == 0;
-		}
-
-		if (prefs.containsKey(KEY_COLORTHRESHOLD)) {
-			try {
-				this.colorThreshold = Integer.parseInt(prefs.get(KEY_COLORTHRESHOLD));
-			} catch (NumberFormatException ex) {
-				Main.debug(ex);
-			}
-		}
-		if (prefs.containsKey(KEY_TOLERANCEDIST)) {
-			try {
-				this.toleranceDist = Double.parseDouble(prefs.get(KEY_TOLERANCEDIST));
-			} catch (NumberFormatException ex) {
-				Main.debug(ex);
-			}
-		}
-		if (prefs.containsKey(KEY_TOLERANCEANGLE)) {
-			try {
-				this.toleranceAngle = Double.parseDouble(prefs.get(KEY_TOLERANCEANGLE));
-			} catch (NumberFormatException ex) {
-				Main.debug(ex);
-			}
-		}
-		if (prefs.containsKey(KEY_BLURRADIUS)) {
-			try {
-				this.blurRadius = Integer.parseInt(prefs.get(KEY_BLURRADIUS));
-			} catch (NumberFormatException ex) {
-				Main.debug(ex);
-			}
-		}
-		if (prefs.containsKey(KEY_THINNING_ITERATIONS)) {
-			try {
-				this.thinningIterations = Integer.parseInt(prefs.get(KEY_THINNING_ITERATIONS));
-			} catch (NumberFormatException ex) {
-				Main.debug(ex);
-			}
-		}
-		if (prefs.containsKey(KEY_HSV)) {
-			useHSV = prefs.get(KEY_HSV).compareTo("true") == 0;
-		}
-		if (prefs.containsKey(KEY_ALGORITHM)) {
-			try {
-				algorithm = Integer.parseInt(prefs.get(KEY_ALGORITHM));
-			} catch (NumberFormatException e) {
-				Main.debug(e);
-			}
-		}
+	public void readPreferences() {
+		debug = new BooleanProperty(KEY_DEBUG, false).get();
+		colorThreshold = new IntegerProperty(KEY_COLORTHRESHOLD, DEFAULT_COLORTHRESHOLD).get();
+		toleranceDist = new DoubleProperty(KEY_TOLERANCEDIST, DEFAULT_TOLERANCEDIST).get();
+		toleranceAngle = new DoubleProperty(KEY_TOLERANCEANGLE, DEFAULT_TOLERANCEANGLE).get();
+		blurRadius = new IntegerProperty(KEY_BLURRADIUS, DEFAULT_BLURRADIUS).get();
+		thinningIterations = new IntegerProperty(KEY_THINNING_ITERATIONS, DEFAULT_THINNING_ITERATIONS).get();
+		useHSV = new BooleanProperty(KEY_HSV, false).get();
+		algorithm = new IntegerProperty(KEY_ALGORITHM, DEFAULT_ALGORITHM).get();
 	}
 
 	public static void main(String[] args) {
