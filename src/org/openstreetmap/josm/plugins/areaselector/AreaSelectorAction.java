@@ -229,7 +229,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 */
 	public OsmPrimitive fetchAddress(OsmPrimitive selectedObject){
 		try{
-			return new AustriaAddressHelperAction().loadAddress(selectedObject);
+			return AustriaAddressHelperAction.loadAddress(selectedObject);
 		}catch(Throwable t){
 			Main.warn("Something went wrong with Austria Adress Helper");
 			Main.warn(t);
