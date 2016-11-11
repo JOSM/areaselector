@@ -2,6 +2,7 @@
 package org.openstreetmap.josm.plugins.areaselector;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
+import static org.openstreetmap.josm.tools.I18n.trn;
 
 import java.awt.AlphaComposite;
 import java.awt.Composite;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
 
@@ -26,6 +28,7 @@ import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.MergeNodesAction;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.command.AddCommand;
+import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.DeleteCommand;
 import org.openstreetmap.josm.command.PseudoCommand;
@@ -39,6 +42,7 @@ import org.openstreetmap.josm.data.preferences.DoubleProperty;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.layer.Layer;
+import org.openstreetmap.josm.plugins.austriaaddresshelper.AustriaAddressHelperAction;
 import org.openstreetmap.josm.tools.ImageProvider;
 import org.openstreetmap.josm.tools.Shortcut;
 
@@ -51,13 +55,14 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected int colorThreshold = ImageAnalyzer.DEFAULT_COLORTHRESHOLD, thinningIterations = ImageAnalyzer.DEFAULT_THINNING_ITERATIONS;
 	protected double toleranceDist = ImageAnalyzer.DEFAULT_TOLERANCEDIST, toleranceAngle = ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
 
-	protected boolean showAddressDialog = true, mergeNodes = true;
+	protected boolean showAddressDialog = true, mergeNodes = true, useAustriaAdressHelper = false;
 
 	public static final String PLUGIN_NAME = "areaselector";
 
 	public static final String
 	KEY_SHOWADDRESSDIALOG = PLUGIN_NAME + ".showaddressdialog",
-	KEY_MERGENODES = PLUGIN_NAME + ".mergenodes";
+	KEY_MERGENODES = PLUGIN_NAME + ".mergenodes",
+	KEY_AAH = PLUGIN_NAME + ".austriaadresshelper";
 
 
 	protected Logger log = LogManager.getLogger(AreaSelectorAction.class.getCanonicalName());
@@ -76,6 +81,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected void readPrefs() {
 		this.mergeNodes = new BooleanProperty(KEY_MERGENODES, true).get();
 		this.showAddressDialog = new BooleanProperty(KEY_SHOWADDRESSDIALOG, true).get();
+		useAustriaAdressHelper = new BooleanProperty(KEY_AAH, false).get();
 	}
 
 	private static Cursor getCursor() {
@@ -162,10 +168,21 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		Polygon polygon = imgAnalyzer.getArea();
 
 		if (polygon != null) {
-			Way way = createWayFromPolygon(mapView, polygon);
+			Way way = createWayFromPolygon(mapView, polygon), newWay = null;
 
 			way.put(AddressDialog.TAG_BUILDING, "yes");
-
+			ArrayList<String> sources = new ArrayList<>();
+			for (Layer layer: mapView.getLayerManager().getVisibleLayersInZOrder()) {
+				if (layer.isVisible() && layer.isBackgroundLayer()) {
+					sources.add(layer.getName());
+				}
+			}
+			String source = sources.stream().
+					map(Object::toString).
+					collect(Collectors.joining("; ")).toString();
+			if (!source.isEmpty()){
+				way.put(AddressDialog.TAG_SOURCE, source);
+			}
 
 			Collection<Command> cmds = new LinkedList<>();
 			List<Node> nodes = way.getNodes();
@@ -183,8 +200,23 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				mergeNodes(way);
 			}
 
+			if (useAustriaAdressHelper){
+				log.info("trying to fetch address ");
+				newWay = (Way) fetchAddress(way);
+				if(newWay != null){
+					if(!showAddressDialog){
+						final List<Command> commands = new ArrayList<>();
+						commands.add(new ChangeCommand(way, newWay));
+						Main.main.undoRedo.add(new SequenceCommand(trn("Add address", "Add addresses", commands.size()), commands));
+					}
+				}
+			}
+
 			if (showAddressDialog) {
-				showAddressDialog(way);
+				if (newWay == null){
+					newWay = way;
+				}
+				new AddressDialog(newWay, way).showAndSave();
 			}
 		} else {
 			JOptionPane.showMessageDialog(Main.map,
@@ -192,8 +224,17 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		}
 	}
 
-	public OsmPrimitive showAddressDialog(Way way) {
-		return new AddressDialog(way).showAndSave();
+	/**
+	 * fetch Address using Austria Adress Helper
+	 */
+	public OsmPrimitive fetchAddress(OsmPrimitive selectedObject){
+		try{
+			return new AustriaAddressHelperAction().loadAddress(selectedObject);
+		}catch(Throwable t){
+			Main.warn("Something went wrong with Austria Adress Helper");
+			Main.warn(t);
+		}
+		return null;
 	}
 
 	public Way createWayFromPolygon(MapView mapView, Polygon polygon) {

@@ -25,5 +25,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-log4j"/>
 	<classpathentry kind="lib" path="../../dist/log4j.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-austriaaddresshelper"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

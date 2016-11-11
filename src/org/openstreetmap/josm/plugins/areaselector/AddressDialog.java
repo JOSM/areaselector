@@ -53,6 +53,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 	public static final String TAG_POSTCODE = "addr:postcode";
 	public static final String TAG_COUNTRY = "addr:country";
 	public static final String TAG_BUILDING = "building";
+	public static final String TAG_SOURCE = "source";
+	public static final String[] TAGS = {TAG_HOUSENAME, TAG_HOUSENUM, TAG_STREETNAME, TAG_CITY, TAG_POSTCODE, TAG_COUNTRY, TAG_BUILDING, TAG_SOURCE};
 
 	public static final String PREF = AreaSelectorAction.PLUGIN_NAME+".last.";
 
@@ -64,22 +66,21 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			PREF_BUILDING = PREF+"building",
 			PREF_TAGS = PREF+"tags",
 			PREF_HOUSENUM_CHANGE = PREF+"housenum.change",
+			PREF_SOURCE = PREF + "source",
 			PREF_DIALOG_X = PREF+"dialog.x",
 			PREF_DIALOG_Y = PREF+"dialog.y";
-
-	protected String houseNum, streetName, city, postCode, country, houseName, building, tags;
 
 	protected JTextField houseNumField;
 	protected ButtonGroup houseNumChange;
 
-	protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField;
+	protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField, sourceField;
 
 	protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
 	protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
 
 	protected final JPanel panel = new JPanel(new GridBagLayout());
 
-	protected OsmPrimitive way;
+	protected OsmPrimitive originalOsmObject, osmObject;
 
 	protected static Collection<AutoCompletionListItem> aciTags;
 
@@ -96,10 +97,16 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		panel.add(c, GBC.eol().fill(GBC.HORIZONTAL));
 	}
 
-	public AddressDialog(OsmPrimitive way) {
+	public AddressDialog(OsmPrimitive selectedOsmObject){
+		this(selectedOsmObject, null);
+	}
+
+	public AddressDialog(OsmPrimitive selectedOsmObject, OsmPrimitive originalOsmObject) {
 		super(Main.parent, tr("Building address"), BUTTON_TEXTS, true);
 
-		this.way = way;
+		this.originalOsmObject = originalOsmObject != null ? originalOsmObject : selectedOsmObject;
+		this.osmObject = selectedOsmObject;
+		//		this.osmObject = selectedOsmObject instanceof Node ? new Node(((Node) selectedOsmObject)) : selectedOsmObject instanceof Way ? new Way((Way) selectedOsmObject) : selectedOsmObject instanceof Relation ? new Relation((Relation) selectedOsmObject): selectedOsmObject;
 
 		contentInsets = new Insets(15, 15, 5, 15);
 		setButtonIcons(BUTTON_ICONS);
@@ -197,6 +204,12 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		tagsField.setEditable(true);
 		tagsField.setSelectedItem(Main.pref.get(PREF_TAGS));
 
+		sourceField = new AutoCompletingComboBox();
+		sourceField.setPossibleACItems(acm.getValues(TAG_SOURCE));
+		sourceField.setEditable(true);
+		sourceField.setPreferredSize(new Dimension(400, 24));
+		sourceField.setSelectedItem(Main.pref.get(TAG_SOURCE));
+
 		JLabel houseNumLabel = new JLabel(tr("House number:"));
 		houseNumLabel.setLabelFor(houseNumField);
 		panel.add(houseNumLabel, GBC.std());
@@ -208,6 +221,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		addLabelled(tr("Country:"), countryField);
 		addLabelled(tr("Building:"), buildingField);
 		addLabelled(tr("Tags:"), tagsField);
+		addLabelled(tr("Source:"), sourceField);
 
 		addLabelled(tr("Name:"), houseNameField);
 		houseNumField.setName(TAG_HOUSENUM);
@@ -217,12 +231,27 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		buildingField.setName(TAG_BUILDING);
 		tagsField.setName("tags");
 		houseNameField.setName(TAG_HOUSENAME);
+		sourceField.setName(TAG_SOURCE);
 
 		fields = new Vector<>();
 		Component[] fieldArr = {
 				houseNumField, streetNameField, cityField, postCodeField,
-				countryField, buildingField, tagsField, houseNameField};
+				countryField, buildingField, tagsField, houseNameField, sourceField};
 		fields.addAll(Arrays.asList(fieldArr));
+
+		for (Component field: fields){
+			if (field instanceof AutoCompletingComboBox){
+				AutoCompletingComboBox combox = (AutoCompletingComboBox) field;
+				if (selectedOsmObject.hasKey(combox.getName())){
+					combox.setSelectedItem(selectedOsmObject.get(combox.getName()));
+				}
+			}else if (field instanceof JTextField){
+				JTextField textField = (JTextField) field;
+				if (selectedOsmObject.hasKey(textField.getName())){
+					textField.setText(selectedOsmObject.get(textField.getName()));
+				}
+			}
+		}
 
 		this.setFocusTraversalPolicy(new FocusTraversalPolicy() {
 
@@ -271,7 +300,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
 		setContent(panel);
 		setupDialog();
-		this.setSize(630, 350);
+		this.setSize(700, 400);
 
 		try {
 			this.setLocation(Integer.parseInt(Main.pref.get(PREF_DIALOG_X)), Integer.parseInt(Main.pref.get(PREF_DIALOG_Y)));
@@ -296,32 +325,26 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 	}
 
 	public final void saveValues() {
-		houseName = getAutoCompletingComboBoxValue(houseNameField);
-		houseNum = houseNumField.getText();
-		streetName = getAutoCompletingComboBoxValue(streetNameField);
-		city = getAutoCompletingComboBoxValue(cityField);
-		postCode = getAutoCompletingComboBoxValue(postCodeField);
-		country = getAutoCompletingComboBoxValue(countryField);
-		building = getAutoCompletingComboBoxValue(buildingField);
-		tags = getAutoCompletingComboBoxValue(tagsField);
+		String tags = getAutoCompletingComboBoxValue(tagsField);
 
-		Main.pref.put(PREF_HOUSENUM, houseNum);
-		Main.pref.put(PREF_STREETNAME, streetName);
-		Main.pref.put(PREF_CITY, city);
-		Main.pref.put(PREF_POSTCODE, postCode);
-		Main.pref.put(PREF_COUNTRY, country);
-		Main.pref.put(PREF_BUILDING, building);
+		Main.pref.put(PREF_HOUSENUM, houseNumField.getText());
+		Main.pref.put(PREF_STREETNAME, getAutoCompletingComboBoxValue(streetNameField));
+		Main.pref.put(PREF_CITY, getAutoCompletingComboBoxValue(cityField));
+		Main.pref.put(PREF_POSTCODE, getAutoCompletingComboBoxValue(postCodeField));
+		Main.pref.put(PREF_COUNTRY, getAutoCompletingComboBoxValue(countryField));
+		Main.pref.put(PREF_BUILDING, getAutoCompletingComboBoxValue(buildingField));
+		Main.pref.put(PREF_SOURCE, getAutoCompletingComboBoxValue(sourceField));
 		Main.pref.put(PREF_TAGS, tags);
 		Main.pref.put(PREF_HOUSENUM_CHANGE, houseNumChange.getSelection().getActionCommand());
 
 
-		updateTag(TAG_HOUSENAME, houseName);
-		updateTag(TAG_HOUSENUM, houseNum);
-		updateTag(TAG_STREETNAME, streetName);
-		updateTag(TAG_CITY, city);
-		updateTag(TAG_POSTCODE, postCode);
-		updateTag(TAG_COUNTRY, country);
-		updateTag(TAG_BUILDING, building);
+		updateTag(TAG_HOUSENAME, getAutoCompletingComboBoxValue(houseNameField));
+		updateTag(TAG_HOUSENUM, houseNumField.getText());
+		updateTag(TAG_STREETNAME, getAutoCompletingComboBoxValue(streetNameField));
+		updateTag(TAG_CITY, getAutoCompletingComboBoxValue(cityField));
+		updateTag(TAG_POSTCODE, getAutoCompletingComboBoxValue(postCodeField));
+		updateTag(TAG_COUNTRY, getAutoCompletingComboBoxValue(countryField));
+		updateTag(TAG_BUILDING, getAutoCompletingComboBoxValue(buildingField));
 
 		if (!tags.isEmpty()) {
 			AutoCompletionListItem aci = new AutoCompletionListItem(tags);
@@ -345,11 +368,11 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
 	public void updateTag(String tag, String value) {
 		if (value == null || value.isEmpty()) {
-			if (way.get(tag) != null) {
-				way.remove(tag);
+			if (osmObject.get(tag) != null) {
+				osmObject.remove(tag);
 			}
 		} else {
-			way.put(tag, value);
+			osmObject.put(tag, value);
 		}
 	}
 
@@ -358,16 +381,17 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		if (this.getValue() == 1) {
 			this.saveValues();
 			Collection<Command> cmds = new LinkedList<>();
-			cmds.add(new ChangeCommand(way, way));
+			log.info("updated properties "+osmObject + "\n" + osmObject.getKeys());
+			cmds.add(new ChangeCommand(originalOsmObject, osmObject));
 			Command c = new SequenceCommand(tr("updated building info"), cmds);
 			Main.main.undoRedo.add(c);
-			Main.getLayerManager().getEditDataSet().setSelected(way);
+			Main.getLayerManager().getEditDataSet().setSelected(osmObject);
 		}
 
 		Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
 		Main.pref.put(PREF_DIALOG_Y, Integer.toString(this.getLocation().y));
 
-		return way;
+		return osmObject;
 	}
 
 	@Override

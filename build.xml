@@ -8,51 +8,52 @@
 
 	<!-- Configure these properties (replace "..." accordingly).
          See https://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
-    -->
-	<property name="plugin.author" value="Paul Woelfel, Thomas Konrad" />
-	<property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin" />
-	<property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at." />
-	<property name="plugin.icon" value="images/mapmode/areaselector.png" />
-	<property name="plugin.link" value="https://github.com/JOSM/JOSM-areaselector"/>
-	<property name="plugin.requires" value="log4j"/>
+     -->
+     <property name="plugin.author" value="Paul Woelfel, Thomas Konrad" />
+     <property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin" />
+     <property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at." />
+     <property name="plugin.icon" value="images/mapmode/areaselector.png" />
+     <property name="plugin.link" value="https://github.com/JOSM/JOSM-areaselector"/>
+     <property name="plugin.requires" value="log4j"/>
 
-	<property name="josm" location="../../core/dist/josm-custom.jar" />
-	<property name="plugin.dist.dir" value="../../dist" />
-	
-	<property name="plugin.canloadatruntime" value="true"/>
+     <property name="josm" location="../../core/dist/josm-custom.jar" />
+     <property name="plugin.dist.dir" value="../../dist" />
+     
+     <property name="plugin.canloadatruntime" value="true"/>
 
-	<!-- ** include targets that all plugins have in common ** -->
-	<import file="../build-common.xml" />
+     <!-- ** include targets that all plugins have in common ** -->
+     <import file="../build-common.xml" />
 
-    <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
-        <include name="log4j.jar"/>
-    </fileset>
+     <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
+     	<include name="log4j.jar"/>
+     </fileset>
 
 	<!--
     **********************************************************
     ** compile - complies the source tree
     * and includes log4j.jar
     **********************************************************
-    -->
-	<target name="compile" depends="init">
-		<echo message="compiling sources for  ${plugin.jar} ... "/>
-		<javac srcdir="src" classpath="${josm}" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
-      <classpath>
-          <pathelement location="${josm}"/>
-        <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
-            <include name="log4j.jar"/>
-        </fileset>
-    		<fileset dir="lib">
-    				<include name="**/*.jar"/>
-    		</fileset>
+-->
+<target name="compile" depends="init">
+	<echo message="compiling sources for  ${plugin.jar} ... "/>
+	<javac srcdir="src" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
+		<classpath>
+			<pathelement location="${josm}"/>
+			<fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
+				<include name="log4j.jar"/>
+			</fileset>
+			<fileset dir="lib">
+				<include name="**/*.jar"/>
+			</fileset>
+			<fileset file="${plugin.dist.dir}/austriaaddresshelper.jar"  />
 
-      </classpath>
-			<compilerarg value="-Xlint:deprecation"/>
-			<compilerarg value="-Xlint:unchecked"/>
-		</javac>
-	</target>
-	
-	<target name="installPlugin" depends="clean, dist, install">
-		<echo>Installed areaselector plugin</echo>
-	</target>
+		</classpath>
+		<compilerarg value="-Xlint:deprecation"/>
+		<compilerarg value="-Xlint:unchecked"/>
+	</javac>
+</target>
+
+<target name="installPlugin" depends="clean, dist, install">
+	<echo>Installed areaselector plugin</echo>
+</target>
 </project>
