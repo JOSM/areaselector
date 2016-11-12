@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +34,7 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.DeleteCommand;
 import org.openstreetmap.josm.command.PseudoCommand;
 import org.openstreetmap.josm.command.SequenceCommand;
+import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.OsmPrimitiveType;
@@ -41,6 +43,7 @@ import org.openstreetmap.josm.data.preferences.BooleanProperty;
 import org.openstreetmap.josm.data.preferences.DoubleProperty;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
+import org.openstreetmap.josm.gui.Notification;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.plugins.austriaaddresshelper.AustriaAddressHelperAction;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -122,15 +125,31 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		requestFocusInMapView();
 		updateKeyModifiers(e);
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			try {
-				clickPoint = e.getPoint();
-				createArea();
-			} catch (Exception ex) {
-				log.error("failed to add area", ex);
-				new BugReportDialog(ex);
-			}
+			clickPoint = e.getPoint();
+			LatLon coordinates = Main.map.mapView.getLatLon(clickPoint.x, clickPoint.y);
+			new Notification(
+					"<strong>" + tr("Area Selector") + "</strong><br />" +
+							tr("Trying to detect an area at:") + "<br>" +
+							coordinates.getX() + ", " + coordinates.getY()
+					)
+			.setIcon(JOptionPane.INFORMATION_MESSAGE)
+			.show();
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						createArea();
+					} catch (Exception ex) {
+						log.error("failed to add area", ex);
+						new BugReportDialog(ex);
+					}
+				}
+			});
+
 		}
 	}
+
 
 	public BufferedImage getLayeredImage() {
 		MapView mapView = Main.map.mapView;
