@@ -208,7 +208,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		sourceField.setPossibleACItems(acm.getValues(TAG_SOURCE));
 		sourceField.setEditable(true);
 		sourceField.setPreferredSize(new Dimension(400, 24));
-		sourceField.setSelectedItem(Main.pref.get(TAG_SOURCE));
+		sourceField.setSelectedItem(Main.pref.get(PREF_SOURCE));
 
 		JLabel houseNumLabel = new JLabel(tr("House number:"));
 		houseNumLabel.setLabelFor(houseNumField);
@@ -236,7 +236,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		fields = new Vector<>();
 		Component[] fieldArr = {
 				houseNumField, streetNameField, cityField, postCodeField,
-				countryField, buildingField, tagsField, houseNameField, sourceField};
+				countryField, buildingField, tagsField, sourceField, houseNameField};
 		fields.addAll(Arrays.asList(fieldArr));
 
 		for (Component field: fields){
