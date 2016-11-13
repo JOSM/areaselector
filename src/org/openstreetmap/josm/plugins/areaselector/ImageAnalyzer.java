@@ -688,6 +688,8 @@ public class ImageAnalyzer {
 		GrayU8 gray = ConvertBufferedImage.convertFrom(image, (GrayU8) null);
 		GrayU8 edgeImage = new GrayU8(gray.width, gray.height);
 
+		saveImgToFile(ConvertBufferedImage.extractBuffered(gray), "gray");
+
 		// Create a canny edge detector which will dynamically compute the threshold based on maximum edge intensity
 		// It has also been configured to save the trace as a graph.  This is the graph created while performing
 		// hysteresis thresholding.
@@ -695,6 +697,7 @@ public class ImageAnalyzer {
 
 		// The edge image is actually an optional parameter.  If you don't need it just pass in null
 		canny.process(gray, 0.1f, 0.3f, edgeImage);
+		saveImgToFile(ConvertBufferedImage.extractBuffered(edgeImage), "edgeImage");
 
 		// First get the contour created by canny
 		// List<EdgeContour> edgeContours = canny.getContours();
@@ -702,7 +705,7 @@ public class ImageAnalyzer {
 		// the contours from the binary image, which will produce a single loop for each connected cluster of pixels.
 		// Note that you are only interested in external contours.
 		List<Contour> contours = BinaryImageOps.contour(edgeImage, ConnectRule.EIGHT, null);
-
+		log.info("contours: "+contours);
 
 		Polygon innerPolygon = searchPolygon(contours, image);
 		if (innerPolygon != null) {
