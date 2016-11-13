@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="areaselector" default="dist" basedir=".">
+<project name="areaselector" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<!-- enter the SVN commit message -->
 	<property name="commit.message" value="Commit message" />
@@ -20,6 +20,11 @@
 	<property name="plugin.dist.dir" value="../../dist" />
 	
 	<property name="plugin.canloadatruntime" value="true"/>
+	
+	<property name="lib.base" value="lib" />
+	
+	<path id="ivy.lib.path" path="ant/ivy-2.4.0.jar" />
+	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
 
 	<!-- ** include targets that all plugins have in common ** -->
 	<import file="../build-common.xml" />
@@ -34,7 +39,7 @@
     * and includes log4j.jar
     **********************************************************
     -->
-	<target name="compile" depends="init">
+	<target name="compile" depends="init, fetch_dependencies">
 		<echo message="compiling sources for  ${plugin.jar} ... "/>
 		<javac srcdir="src" classpath="${josm}" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
       <classpath>
@@ -42,9 +47,10 @@
         <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
             <include name="log4j.jar"/>
         </fileset>
-    		<fileset dir="lib">
-    				<include name="**/*.jar"/>
-    		</fileset>
+		<fileset dir="lib">
+			<include name="custom/**/*.jar"/>
+			<include name="jar/**/*.jar"/>
+		</fileset>
 
       </classpath>
 			<compilerarg value="-Xlint:deprecation"/>
@@ -52,6 +58,19 @@
 		</javac>
 	</target>
 	
+	<target name="fetch_dependencies" depends="clean_ivy">
+		<ivy:retrieve pattern="${lib.base}/[type]/[artifact].[ext]" conf="default" />
+	</target>
+
+	<target name="clean_ivy">
+		<delete failonerror="false">
+			<fileset dir="${lib.base}">
+				<include name="**/*.jar"/>
+				<exclude name="custom/**/*.jar" />
+			</fileset>
+		</delete>
+	</target>
+
 	<target name="installPlugin" depends="clean, dist, install">
 		<echo>Installed areaselector plugin</echo>
 	</target>

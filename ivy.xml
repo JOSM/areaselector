@@ -1,0 +1,18 @@
+<ivy-module version="2.0">
+	<info organisation="org.openstreetmap.josm.plugins" module="areaselector" revision="2.2.0" />
+	<configurations defaultconf="default" defaultconfmapping="default->default,sources,javadoc">
+		<conf name="default" />
+	</configurations>
+	<dependencies>
+		<dependency org="org.boofcv" name="all" rev="0.19"/>
+		<dependency org="org.boofcv" name="feature" rev="0.19"/>
+		<dependency org="org.boofcv" name="visualize" rev="0.19"/>
+		<dependency org="org.boofcv" name="ip" rev="0.19"/>
+<!-- 		<dependency org="org.boofcv" name="WebcamCapture" rev="0.19"/> -->
+<!-- 		<dependency org="org.boofcv" name="openkinect" rev="0.19"/> -->
+<!-- 		<dependency org="org.boofcv" name="android" rev="0.19"/> -->
+		
+<!-- 		<dependency org="org.boofcv" name="jcodec" rev="0.19"/> -->
+		
+	</dependencies>
+</ivy-module>

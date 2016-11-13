@@ -2,3 +2,6 @@ bin
 .svn
 build
 test
+lib/jar
+lib/javadoc
+lib/source

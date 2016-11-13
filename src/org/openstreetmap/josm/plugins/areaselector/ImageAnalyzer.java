@@ -33,19 +33,19 @@ import boofcv.alg.color.ColorHsv;
 import boofcv.alg.enhance.EnhanceImageOps;
 import boofcv.alg.feature.detect.edge.CannyEdge;
 import boofcv.alg.feature.detect.edge.EdgeContour;
-import boofcv.alg.feature.shapes.ShapeFittingOps;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.Contour;
 import boofcv.alg.filter.binary.ThresholdImageOps;
 import boofcv.alg.filter.blur.GBlurImageOps;
 import boofcv.alg.filter.derivative.GradientSobel;
 import boofcv.alg.misc.ImageStatistics;
-import boofcv.core.image.ConvertBufferedImage;
+import boofcv.alg.shapes.ShapeFittingOps;
 import boofcv.core.image.GeneralizedImageOps;
 import boofcv.factory.feature.detect.edge.FactoryEdgeDetectors;
 import boofcv.gui.binary.VisualizeBinaryData;
 import boofcv.gui.feature.VisualizeShapes;
 import boofcv.gui.image.VisualizeImageData;
+import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.ConnectRule;
 import boofcv.struct.PointIndex_I32;
 import boofcv.struct.image.ImageFloat32;
@@ -233,7 +233,7 @@ public class ImageAnalyzer {
 		ImageUInt8 filtered = BinaryImageOps.erode4(binary, 1, null);
 		filtered = BinaryImageOps.dilate4(filtered, 1, null);
 
-		return VisualizeBinaryData.renderBinary(filtered, null);
+		return VisualizeBinaryData.renderBinary(filtered, false, null);
 	}
 
 	/**
@@ -258,7 +258,7 @@ public class ImageAnalyzer {
 		ImageUInt8 filtered;
 		filtered = BinaryImageOps.dilate4(binary, 1, null);
 
-		return VisualizeBinaryData.renderBinary(filtered, null);
+		return VisualizeBinaryData.renderBinary(filtered, false, null);
 	}
 
 	public BufferedImage binarize(BufferedImage workImage) {
@@ -273,7 +273,7 @@ public class ImageAnalyzer {
 		// create a binary image by thresholding
 		ThresholdImageOps.threshold(input, binary, (float) mean, true);
 
-		return VisualizeBinaryData.renderBinary(binary, null);
+		return VisualizeBinaryData.renderBinary(binary, false, null);
 	}
 
 	/**
@@ -448,12 +448,13 @@ public class ImageAnalyzer {
 		// the contours from the binary image, which will produce a single loop for each connected cluster of pixels.
 		// Note that you are only interested in external contours.
 		List<Contour> contours = BinaryImageOps.contour(edgeImage, ConnectRule.EIGHT, null);
-		BufferedImage visualBinary = VisualizeBinaryData.renderBinary(edgeImage, null);
+		BufferedImage visualBinary = VisualizeBinaryData.renderBinary(edgeImage, false, null);
 		if (debug) {
 			BufferedImage visualCannyContour = VisualizeBinaryData.renderContours(edgeContours, null,
 					gray.width, gray.height, null);
-			BufferedImage visualEdgeContour = VisualizeBinaryData.renderExternal(contours, null,
-					gray.width, gray.height, null);
+			int[] colors = null;
+			BufferedImage visualEdgeContour = new BufferedImage(gray.width, gray.height, BufferedImage.TYPE_INT_ARGB);
+			VisualizeBinaryData.renderExternal(contours, colors, visualEdgeContour);
 			saveImgToFile(visualBinary, "canny_binary");
 			saveImgToFile(visualCannyContour, "canny_contour");
 			saveImgToFile(visualEdgeContour, "canny_edge");

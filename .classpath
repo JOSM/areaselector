@@ -3,25 +3,27 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JOSM"/>
-	<classpathentry kind="lib" path="lib/marvinplugins.jar"/>
-	<classpathentry kind="lib" path="lib/marvin.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-calibration-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-feature-0.17.jar" sourcepath="lib/BoofCV-feature-0.17-sources.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-geo-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-io-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-ip-0.17.jar" sourcepath="lib/BoofCV-ip-0.17-sources.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-openkinect-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-recognition-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-sfm-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-v4l4j-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-visualize-0.17.jar" sourcepath="lib/BoofCV-visualize-0.17-sources.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-WebcamCapture-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/BoofCV-xuggler-0.17.jar"/>
-	<classpathentry kind="lib" path="lib/ddogleg-0.5.jar"/>
-	<classpathentry kind="lib" path="lib/georegression-0.6.jar"/>
-	<classpathentry kind="lib" path="lib/xmlpull-1.1.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-1.4.7.jar"/>
+	<classpathentry kind="lib" path="lib/jar/core.jar"/>
+	<classpathentry kind="lib" path="lib/jar/ddogleg.jar"/>
+	<classpathentry kind="lib" path="lib/jar/dense64.jar"/>
+	<classpathentry kind="lib" path="lib/jar/equation.jar"/>
+	<classpathentry kind="lib" path="lib/jar/feature.jar"/>
+	<classpathentry kind="lib" path="lib/jar/georegression.jar"/>
+	<classpathentry kind="lib" path="lib/jar/ip.jar" sourcepath="lib/source/ip.jar"/>
+	<classpathentry kind="lib" path="lib/jar/simple.jar"/>
+	<classpathentry kind="lib" path="lib/custom/marvin.jar"/>
+	<classpathentry kind="lib" path="lib/custom/marvinplugins.jar"/>
+	<classpathentry kind="lib" path="lib/jar/all.jar"/>
+	<classpathentry kind="lib" path="lib/jar/geo.jar"/>
+	<classpathentry kind="lib" path="lib/jar/io.jar"/>
+	<classpathentry kind="lib" path="lib/jar/calibration.jar"/>
+	<classpathentry kind="lib" path="lib/jar/learning.jar"/>
+	<classpathentry kind="lib" path="lib/jar/recognition.jar"/>
+	<classpathentry kind="lib" path="lib/jar/sfm.jar"/>
+	<classpathentry kind="lib" path="lib/jar/visualize.jar" sourcepath="lib/source/visualize.jar"/>
+	<classpathentry kind="lib" path="lib/jar/xmlpull.jar"/>
+	<classpathentry kind="lib" path="lib/jar/xpp3_min.jar"/>
+	<classpathentry kind="lib" path="lib/jar/xstream.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-log4j"/>
 	<classpathentry kind="lib" path="../../dist/log4j.jar"/>
