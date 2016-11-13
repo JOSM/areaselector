@@ -47,9 +47,9 @@
         <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
             <include name="log4j.jar"/>
         </fileset>
-		<fileset dir="lib">
-			<include name="custom/**/*.jar"/>
-			<include name="jar/**/*.jar"/>
+		<fileset dir="${lib.base}">
+			<include name="*-custom.jar"/>
+			<include name="*-jar.jar"/>
 		</fileset>
 
       </classpath>
@@ -59,14 +59,14 @@
 	</target>
 	
 	<target name="fetch_dependencies" depends="clean_ivy">
-		<ivy:retrieve pattern="${lib.base}/[type]/[artifact].[ext]" conf="default" />
+		<ivy:retrieve pattern="${plugin.lib.dir}/[artifact]-[type].[ext]" conf="default" />
 	</target>
 
 	<target name="clean_ivy">
 		<delete failonerror="false">
 			<fileset dir="${lib.base}">
 				<include name="**/*.jar"/>
-				<exclude name="custom/**/*.jar" />
+				<exclude name="**/*-custom.jar" />
 			</fileset>
 		</delete>
 	</target>

@@ -177,7 +177,7 @@ public class PreferencesPanel extends JPanel {
 		new BooleanProperty(AreaSelectorAction.KEY_MERGENODES, true).put(ckbxMergeNodes.isSelected());
 		new BooleanProperty(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, true).put(ckbxShowAddressDialog.isSelected());
 		new BooleanProperty(ImageAnalyzer.KEY_HSV, false).put(ckbxHSV.isSelected());
-		new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).put(ckbxHSV.isSelected());
+		new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).put(debug.isSelected());
 	}
 
 	/**
@@ -196,7 +196,6 @@ public class PreferencesPanel extends JPanel {
 
 		int algorithmIdx = new IntegerProperty(ImageAnalyzer.KEY_ALGORITHM, ImageAnalyzer.DEFAULT_ALGORITHM).get();
 		algorithm.setSelectedIndex(algorithmIdx < algorithm.getMaximumRowCount() ? algorithmIdx : ImageAnalyzer.DEFAULT_ALGORITHM);
-
 		debug.setSelected(new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).get());
 
 	}

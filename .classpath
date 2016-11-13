@@ -15,7 +15,7 @@
 	<classpathentry kind="lib" path="lib/custom/marvinplugins.jar"/>
 	<classpathentry kind="lib" path="lib/jar/all.jar"/>
 	<classpathentry kind="lib" path="lib/jar/geo.jar"/>
-	<classpathentry kind="lib" path="lib/jar/io.jar"/>
+	<classpathentry kind="lib" path="lib/jar/io.jar" sourcepath="lib/source/io.jar"/>
 	<classpathentry kind="lib" path="lib/jar/calibration.jar"/>
 	<classpathentry kind="lib" path="lib/jar/learning.jar"/>
 	<classpathentry kind="lib" path="lib/jar/recognition.jar"/>

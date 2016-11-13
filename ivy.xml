@@ -4,15 +4,16 @@
 		<conf name="default" />
 	</configurations>
 	<dependencies>
-		<dependency org="org.boofcv" name="all" rev="0.19"/>
-		<dependency org="org.boofcv" name="feature" rev="0.19"/>
-		<dependency org="org.boofcv" name="visualize" rev="0.19"/>
-		<dependency org="org.boofcv" name="ip" rev="0.19"/>
-<!-- 		<dependency org="org.boofcv" name="WebcamCapture" rev="0.19"/> -->
-<!-- 		<dependency org="org.boofcv" name="openkinect" rev="0.19"/> -->
-<!-- 		<dependency org="org.boofcv" name="android" rev="0.19"/> -->
+		<dependency org="org.boofcv" name="core" rev="0.24.1"/>
+		<dependency org="org.boofcv" name="feature" rev="0.24.1"/>
+		<dependency org="org.boofcv" name="visualize" rev="0.24.1"/>
+		<dependency org="org.boofcv" name="ip" rev="0.24.1"/>
+		<dependency org="org.boofcv" name="io" rev="0.24.1"/>
+<!-- 		<dependency org="org.boofcv" name="WebcamCapture" rev="0.24.1"/> -->
+<!-- 		<dependency org="org.boofcv" name="openkinect" rev="0.24.1"/> -->
+<!-- 		<dependency org="org.boofcv" name="android" rev="0.24.1"/> -->
 		
-<!-- 		<dependency org="org.boofcv" name="jcodec" rev="0.19"/> -->
+<!-- 		<dependency org="org.boofcv" name="jcodec" rev="0.24.1"/> -->
 		
 	</dependencies>
 </ivy-module>
