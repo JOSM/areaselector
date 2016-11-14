@@ -2,3 +2,11 @@ bin
 .svn
 build
 test
+lib/jar
+lib/javadoc
+lib/source
+lib/*-javadoc.jar
+lib/*-source.jar
+lib/*-jar.jar
+lib/*-maven-plugin.jar
+lib/*-bundle.jar
