@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -48,10 +49,10 @@ import boofcv.gui.image.VisualizeImageData;
 import boofcv.io.image.ConvertBufferedImage;
 import boofcv.struct.ConnectRule;
 import boofcv.struct.PointIndex_I32;
-import boofcv.struct.image.ImageFloat32;
-import boofcv.struct.image.ImageSInt16;
-import boofcv.struct.image.ImageUInt8;
-import boofcv.struct.image.MultiSpectral;
+import boofcv.struct.image.GrayF32;
+import boofcv.struct.image.GrayS16;
+import boofcv.struct.image.GrayU8;
+import boofcv.struct.image.Planar;
 import georegression.metric.UtilAngle;
 import georegression.struct.point.Point2D_I32;
 import marvin.image.MarvinColorModelConverter;
@@ -218,8 +219,8 @@ public class ImageAnalyzer {
 	 */
 	public BufferedImage erodeAndDilate(BufferedImage workImage) {
 		log.info("Erode and Dilate");
-		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
-		ImageUInt8 binary = new ImageUInt8(input.width, input.height);
+		GrayF32 input = ConvertBufferedImage.convertFromSingle(workImage, null, GrayF32.class);
+		GrayU8 binary = new GrayU8(input.width, input.height);
 
 		// the mean pixel value is often a reasonable threshold when creating a binary image
 		double mean = ImageStatistics.mean(input);
@@ -230,7 +231,7 @@ public class ImageAnalyzer {
 		// remove small blobs through erosion and dilation
 		// The null in the input indicates that it should internally declare the work image it needs
 		// this is less efficient, but easier to code.
-		ImageUInt8 filtered = BinaryImageOps.erode4(binary, 1, null);
+		GrayU8 filtered = BinaryImageOps.erode4(binary, 1, null);
 		filtered = BinaryImageOps.dilate4(filtered, 1, null);
 
 		return VisualizeBinaryData.renderBinary(filtered, false, null);
@@ -243,8 +244,8 @@ public class ImageAnalyzer {
 	 */
 	public BufferedImage dilate(BufferedImage workImage) {
 		log.info("Dilate");
-		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
-		ImageUInt8 binary = new ImageUInt8(input.width, input.height);
+		GrayF32 input = ConvertBufferedImage.convertFromSingle(workImage, null, GrayF32.class);
+		GrayU8 binary = new GrayU8(input.width, input.height);
 
 		// the mean pixel value is often a reasonable threshold when creating a binary image
 		double mean = ImageStatistics.mean(input);
@@ -255,7 +256,7 @@ public class ImageAnalyzer {
 		// remove small blobs through erosion and dilation
 		// The null in the input indicates that it should internally declare the work image it needs
 		// this is less efficient, but easier to code.
-		ImageUInt8 filtered;
+		GrayU8 filtered;
 		filtered = BinaryImageOps.dilate4(binary, 1, null);
 
 		return VisualizeBinaryData.renderBinary(filtered, false, null);
@@ -264,8 +265,8 @@ public class ImageAnalyzer {
 	public BufferedImage binarize(BufferedImage workImage) {
 		log.info("Binarize");
 
-		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(workImage, null, ImageFloat32.class);
-		ImageUInt8 binary = new ImageUInt8(input.width, input.height);
+		GrayF32 input = ConvertBufferedImage.convertFromSingle(workImage, null, GrayF32.class);
+		GrayU8 binary = new GrayU8(input.width, input.height);
 
 		// the mean pixel value is often a reasonable threshold when creating a binary image
 		double mean = ImageStatistics.mean(input);
@@ -300,8 +301,8 @@ public class ImageAnalyzer {
 	 */
 	public BufferedImage gaussian(BufferedImage image) {
 		log.info("gaussian filter");
-		ImageFloat32 input = ConvertBufferedImage.convertFrom(image, (ImageFloat32) null);
-		ImageFloat32 output = GeneralizedImageOps.createSingleBand(ImageFloat32.class, input.width, input.height);
+		GrayF32 input = ConvertBufferedImage.convertFrom(image, (GrayF32) null);
+		GrayF32 output = GeneralizedImageOps.createSingleBand(GrayF32.class, input.width, input.height);
 
 		GBlurImageOps.gaussian(input, output, -1, blurRadius, null);
 
@@ -324,8 +325,8 @@ public class ImageAnalyzer {
 		float hue = color[0];
 		float saturation = color[1];
 
-		MultiSpectral<ImageFloat32> input = ConvertBufferedImage.convertFromMulti(image, null, true, ImageFloat32.class);
-		MultiSpectral<ImageFloat32> hsv = new MultiSpectral<>(ImageFloat32.class, input.width, input.height, 3);
+		Planar<GrayF32> input = ConvertBufferedImage.convertFromMulti(image, null, true, GrayF32.class);
+		Planar<GrayF32> hsv = new Planar<>(GrayF32.class, input.width, input.height, 3);
 
 		// Convert into HSV
 		ColorHsv.rgbToHsv_F32(input, hsv);
@@ -334,8 +335,8 @@ public class ImageAnalyzer {
 		float maxDist2 = 0.4f*0.4f;
 
 		// Extract hue and saturation bands which are independent of intensity
-		ImageFloat32 H = hsv.getBand(0);
-		ImageFloat32 S = hsv.getBand(1);
+		GrayF32 H = hsv.getBand(0);
+		GrayF32 S = hsv.getBand(1);
 
 		// Adjust the relative importance of Hue and Saturation.
 		// Hue has a range of 0 to 2*PI and Saturation from 0 to 1.
@@ -368,10 +369,10 @@ public class ImageAnalyzer {
 	public BufferedImage histogram(BufferedImage image) {
 		log.info("Histogram adjustment");
 
-		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image, (ImageUInt8) null);
+		GrayU8 gray = ConvertBufferedImage.convertFrom(image, (GrayU8) null);
 		if (debug) saveImgToFile(ConvertBufferedImage.convertTo(gray, null), "histogram_gray");
 
-		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
+		GrayU8 adjusted = new GrayU8(gray.width, gray.height);
 
 		int[] histogram = new int[256];
 		int[] transform = new int[256];
@@ -380,7 +381,7 @@ public class ImageAnalyzer {
 		EnhanceImageOps.equalize(histogram, transform);
 		EnhanceImageOps.applyTransform(gray, transform, adjusted);
 
-		ImageUInt8 binary = new ImageUInt8(gray.width, gray.height);
+		GrayU8 binary = new GrayU8(gray.width, gray.height);
 		// the mean pixel value is often a reasonable threshold when creating a binary image
 		double mean = ImageStatistics.mean(adjusted);
 		// create a binary image by thresholding
@@ -396,10 +397,10 @@ public class ImageAnalyzer {
 	 */
 	public BufferedImage sharpen(BufferedImage image) {
 		log.info("sharpen");
-		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image, (ImageUInt8) null);
+		GrayU8 gray = ConvertBufferedImage.convertFrom(image, (GrayU8) null);
 		if (debug) saveImgToFile(ConvertBufferedImage.convertTo(gray, null), "gray");
 
-		ImageUInt8 adjusted = new ImageUInt8(gray.width, gray.height);
+		GrayU8 adjusted = new GrayU8(gray.width, gray.height);
 
 		EnhanceImageOps.sharpen4(gray, adjusted);
 		if (debug) saveImgToFile(ConvertBufferedImage.convertTo(adjusted, null), "sharpen4");
@@ -413,13 +414,13 @@ public class ImageAnalyzer {
 	 * @return processed Image
 	 */
 	public BufferedImage sobel(BufferedImage image) {
-		ImageUInt8 input = ConvertBufferedImage.convertFrom(image, (ImageUInt8) null);
-		ImageSInt16 derivX = new ImageSInt16(input.width, input.height);
-		ImageSInt16 derivY = new ImageSInt16(input.width, input.height);
+		GrayU8 input = ConvertBufferedImage.convertFrom(image, (GrayU8) null);
+		GrayS16 derivX = new GrayS16(input.width, input.height);
+		GrayS16 derivY = new GrayS16(input.width, input.height);
 		GradientSobel.process(input, derivX, derivY, null);
 		if (debug) saveImgToFile(ConvertBufferedImage.convertTo(derivX, null), "derivX");
 		if (debug) saveImgToFile(ConvertBufferedImage.convertTo(derivY, null), "derivY");
-		ImageSInt16 combined = new ImageSInt16(input.width, input.height);
+		GrayS16 combined = new GrayS16(input.width, input.height);
 
 		for (int y = 0; y < input.height; y++) {
 			for (int x = 0; x < input.width; x++) {
@@ -431,13 +432,13 @@ public class ImageAnalyzer {
 	}
 
 	public BufferedImage canny(BufferedImage image) {
-		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image, (ImageUInt8) null);
-		ImageUInt8 edgeImage = new ImageUInt8(gray.width, gray.height);
+		GrayU8 gray = ConvertBufferedImage.convertFrom(image, (GrayU8) null);
+		GrayU8 edgeImage = new GrayU8(gray.width, gray.height);
 
 		// Create a canny edge detector which will dynamically compute the threshold based on maximum edge intensity
 		// It has also been configured to save the trace as a graph.  This is the graph created while performing
 		// hysteresis thresholding.
-		CannyEdge<ImageUInt8, ImageSInt16> canny = FactoryEdgeDetectors.canny(2, true, true, ImageUInt8.class, ImageSInt16.class);
+		CannyEdge<GrayU8, GrayS16> canny = FactoryEdgeDetectors.canny(2, true, true, GrayU8.class, GrayS16.class);
 
 		// The edge image is actually an optional parameter.  If you don't need it just pass in null
 		canny.process(gray, 0.1f, 0.3f, edgeImage);
@@ -685,15 +686,15 @@ public class ImageAnalyzer {
 	 */
 	public Polygon detectCannyArea(BufferedImage image, Point point) {
 
-		ImageUInt8 gray = ConvertBufferedImage.convertFrom(image, (ImageUInt8) null);
-		ImageUInt8 edgeImage = new ImageUInt8(gray.width, gray.height);
+		GrayU8 gray = ConvertBufferedImage.convertFrom(image, (GrayU8) null);
+		GrayU8 edgeImage = gray.createSameShape();
 
 		if(debug) saveImgToFile(ConvertBufferedImage.extractBuffered(gray), "gray");
 
 		// Create a canny edge detector which will dynamically compute the threshold based on maximum edge intensity
 		// It has also been configured to save the trace as a graph.  This is the graph created while performing
 		// hysteresis thresholding.
-		CannyEdge<ImageUInt8, ImageSInt16> canny = FactoryEdgeDetectors.canny(2, true, true, ImageUInt8.class, ImageSInt16.class);
+		CannyEdge<GrayU8, GrayS16> canny = FactoryEdgeDetectors.canny(2, true, true, GrayU8.class, GrayS16.class);
 
 		// The edge image is actually an optional parameter.  If you don't need it just pass in null
 		canny.process(gray, 0.1f, 0.3f, edgeImage);
@@ -706,6 +707,22 @@ public class ImageAnalyzer {
 		// Note that you are only interested in external contours.
 		List<Contour> contours = BinaryImageOps.contour(edgeImage, ConnectRule.EIGHT, null);
 		log.info("contours: "+contours);
+		//		contours.forEach( c -> c.external.forEach(p -> log.info(p.getY()+":"+p.getY())));
+		//		BufferedImage visualEdgeContour = new BufferedImage(gray.width, gray.height,BufferedImage.TYPE_INT_RGB);
+		//		if(debug) saveImgToFile(visualEdgeContour, "visualEdgeContour");
+
+		if(debug){
+			BufferedImage contourImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+			Random rand = new Random(234);
+			contours.forEach(c -> {
+				int color = new Color(rand.nextInt()).getRGB();
+				c.external.forEach( p -> {
+					contourImage.setRGB(p.getX(), p.getY(), color);
+				});
+			});
+			saveImgToFile(contourImage, "contours");
+		}
+
 
 		Polygon innerPolygon = searchPolygon(contours, image);
 		if (innerPolygon != null) {
@@ -723,8 +740,8 @@ public class ImageAnalyzer {
 	 */
 	public Polygon detectArea(BufferedImage image, Point point) {
 
-		ImageFloat32 input = ConvertBufferedImage.convertFromSingle(image, null, ImageFloat32.class);
-		ImageUInt8 binary = new ImageUInt8(input.width, input.height);
+		GrayF32 input = ConvertBufferedImage.convertFromSingle(image, null, GrayF32.class);
+		GrayU8 binary = new GrayU8(input.width, input.height);
 
 		// the mean pixel value is often a reasonable threshold when creating a binary image
 		double mean = ImageStatistics.mean(input);
@@ -733,7 +750,7 @@ public class ImageAnalyzer {
 		ThresholdImageOps.threshold(input, binary, (float) mean, true);
 
 		// reduce noise with some filtering
-		//        ImageUInt8 filtered = BinaryImageOps.erode8(binary, 1, null);
+		//        GrayU8 filtered = BinaryImageOps.erode8(binary, 1, null);
 		//        filtered = BinaryImageOps.dilate8(filtered, 1, null);
 
 		// Find the contour around the shapes
