@@ -53,6 +53,9 @@
 			<include name="*-custom.jar"/>
 			<include name="*-jar.jar"/>
 		</fileset>
+        <fileset dir="${plugin.dist.dir}">
+            <include name="austriaaddresshelper.jar"/>
+        </fileset>
 
       </classpath>
 			<compilerarg value="-Xlint:deprecation"/>
