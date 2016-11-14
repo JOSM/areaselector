@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="lib/ddogleg-jar.jar"/>
 	<classpathentry kind="lib" path="lib/dense64-jar.jar"/>
 	<classpathentry kind="lib" path="lib/equation-jar.jar"/>
-	<classpathentry kind="lib" path="lib/feature-jar.jar"/>
+	<classpathentry kind="lib" path="lib/feature-jar.jar" sourcepath="lib/feature-source.jar"/>
 	<classpathentry kind="lib" path="lib/geo-jar.jar"/>
 	<classpathentry kind="lib" path="lib/georegression-jar.jar"/>
 	<classpathentry kind="lib" path="lib/io-jar.jar" sourcepath="lib/io-source.jar"/>

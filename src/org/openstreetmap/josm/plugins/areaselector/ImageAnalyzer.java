@@ -39,7 +39,7 @@ import boofcv.alg.filter.binary.ThresholdImageOps;
 import boofcv.alg.filter.blur.GBlurImageOps;
 import boofcv.alg.filter.derivative.GradientSobel;
 import boofcv.alg.misc.ImageStatistics;
-import boofcv.alg.shapes.ShapeFittingOps;
+import boofcv.alg.shapes.PolygonShapeFittingOps;
 import boofcv.core.image.GeneralizedImageOps;
 import boofcv.factory.feature.detect.edge.FactoryEdgeDetectors;
 import boofcv.gui.binary.VisualizeBinaryData;
@@ -762,7 +762,7 @@ public class ImageAnalyzer {
 
 		for (Contour c : contours) {
 			// Fit the polygon to the found external contour.  Note loop = true
-			List<PointIndex_I32> vertexes = ShapeFittingOps.fitPolygon(c.external, true, toleranceDist, toleranceAngle, 100);
+			List<PointIndex_I32> vertexes = PolygonShapeFittingOps.fitPolygon(c.external, true, toleranceDist, toleranceAngle, 100);
 
 			Polygon poly = toPolygon(vertexes);
 			if (poly.contains(point)) {
@@ -776,7 +776,7 @@ public class ImageAnalyzer {
 					g2.setColor(Color.BLUE);
 				}
 				for (List<Point2D_I32> internal : c.internal) {
-					vertexes = ShapeFittingOps.fitPolygon(internal, true, toleranceDist, toleranceAngle, 100);
+					vertexes = PolygonShapeFittingOps.fitPolygon(internal, true, toleranceDist, toleranceAngle, 100);
 					poly = toPolygon(vertexes);
 					if (poly.contains(point)) {
 						polygons.add(poly);
