@@ -26,5 +26,6 @@
 	<classpathentry kind="lib" path="lib/xstream-jar.jar"/>
 	<classpathentry kind="lib" path="lib/marvin-custom.jar"/>
 	<classpathentry kind="lib" path="lib/marvinplugins-custom.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-austriaaddresshelper"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

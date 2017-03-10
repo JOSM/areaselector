@@ -41,6 +41,8 @@ public class PreferencesPanel extends JPanel {
 
 	protected JCheckBox debug;
 
+	protected JCheckBox ckbxAustriaAdressHelper;
+
 	private JComboBox<String> algorithm;
 
 	protected JComponent ref;
@@ -99,6 +101,9 @@ public class PreferencesPanel extends JPanel {
 
 		ckbxMergeNodes = new JCheckBox("<html><p><b>" + tr("merge nodes") + "</b></p></html>");
 		this.addCheckbox(tr("Merge nodes with existing nodes"), ckbxMergeNodes);
+
+		ckbxAustriaAdressHelper = new JCheckBox("<html><p><b>" + tr("use austria address helper") + "</b></p></html>");
+		this.addCheckbox(tr("Automatically try to find the correct address via Austria Address Helper plugin"), ckbxAustriaAdressHelper);
 
 		debug = new JCheckBox("<html><p><b>" + tr("Debug") + "</b></p></html>");
 		this.addCheckbox(tr("Debugging mode will write images for each processing step."), debug);
@@ -178,6 +183,7 @@ public class PreferencesPanel extends JPanel {
 		new BooleanProperty(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, true).put(ckbxShowAddressDialog.isSelected());
 		new BooleanProperty(ImageAnalyzer.KEY_HSV, false).put(ckbxHSV.isSelected());
 		new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).put(debug.isSelected());
+		new BooleanProperty(AreaSelectorAction.KEY_AAH, false).put(ckbxAustriaAdressHelper.isSelected());
 	}
 
 	/**
@@ -193,6 +199,7 @@ public class PreferencesPanel extends JPanel {
 		ckbxMergeNodes.setSelected(new BooleanProperty(AreaSelectorAction.KEY_MERGENODES, true).get());
 		ckbxShowAddressDialog.setSelected(new BooleanProperty(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, true).get());
 		ckbxHSV.setSelected(new BooleanProperty(ImageAnalyzer.KEY_HSV, false).get());
+		ckbxAustriaAdressHelper.setSelected(new BooleanProperty(AreaSelectorAction.KEY_AAH, false).get());
 
 		int algorithmIdx = new IntegerProperty(ImageAnalyzer.KEY_ALGORITHM, ImageAnalyzer.DEFAULT_ALGORITHM).get();
 		algorithm.setSelectedIndex(algorithmIdx < algorithm.getMaximumRowCount() ? algorithmIdx : ImageAnalyzer.DEFAULT_ALGORITHM);

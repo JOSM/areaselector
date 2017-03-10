@@ -8,7 +8,8 @@
 
 	<!-- Configure these properties (replace "..." accordingly).
          See https://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
-    -->
+     -->
+
 	<property name="plugin.author" value="Paul Woelfel, Thomas Konrad" />
 	<property name="plugin.class" value="org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin" />
 	<property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at." />
@@ -38,6 +39,7 @@
     ** compile - complies the source tree
     * and includes log4j.jar
     **********************************************************
+
     -->
 	<target name="compile" depends="init, fetch_dependencies">
 		<echo message="compiling sources for  ${plugin.jar} ... "/>
@@ -51,6 +53,9 @@
 			<include name="*-custom.jar"/>
 			<include name="*-jar.jar"/>
 		</fileset>
+        <fileset dir="${plugin.dist.dir}">
+            <include name="austriaaddresshelper.jar"/>
+        </fileset>
 
       </classpath>
 			<compilerarg value="-Xlint:deprecation"/>
