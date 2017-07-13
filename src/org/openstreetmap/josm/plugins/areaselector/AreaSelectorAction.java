@@ -75,7 +75,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	public AreaSelectorAction(MapFrame mapFrame) {
 		super(tr("Area Selection"), "areaselector", tr("Select an area (e.g. building) from an underlying image."),
 				Shortcut.registerShortcut("tools:areaselector",
-						tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A, Shortcut.ALT_CTRL), mapFrame, getCursor());
+						tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A, Shortcut.ALT_CTRL), getCursor());
 
 		// load prefs
 		this.readPrefs();

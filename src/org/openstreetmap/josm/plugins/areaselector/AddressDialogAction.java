@@ -33,7 +33,7 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 		super(/* I18n: Add tag to element */ tr("Tag Element"), "addressdialog", tr("Select an item to tag."),
 				/* I18n: Add tag to building */
 				Shortcut.registerShortcut("tools:tagbuilding",
-						tr("Tools: {0}", tr("Tag Building")), KeyEvent.VK_B, Shortcut.ALT_CTRL), mapFrame, getCursor());
+						tr("Tools: {0}", tr("Tag Building")), KeyEvent.VK_B, Shortcut.ALT_CTRL), getCursor());
 	}
 
 	private static Cursor getCursor() {
