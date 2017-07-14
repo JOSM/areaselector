@@ -402,7 +402,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			Collection<Command> cmds = new LinkedList<>();
 			log.info("updated properties "+osmObject + "\n" + osmObject.getKeys());
 			cmds.add(new ChangeCommand(originalOsmObject, osmObject));
-			Command c = new SequenceCommand(tr("updated building info"), cmds);
+			Command c = new SequenceCommand(tr("update building info"), cmds);
 			Main.main.undoRedo.add(c);
 			Main.getLayerManager().getEditDataSet().setSelected(osmObject);
 		}

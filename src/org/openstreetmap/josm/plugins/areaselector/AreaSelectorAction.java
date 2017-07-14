@@ -218,7 +218,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			}
 			cmds.add(new AddCommand(way));
 
-			Command c = new SequenceCommand(/* I18n: Name of command */ tr("Created area"), cmds);
+			Command c = new SequenceCommand(/* I18n: Name of command */ tr("create building"), cmds);
 			Main.main.undoRedo.add(c);
 			Main.getLayerManager().getEditDataSet().setSelected(way);
 
