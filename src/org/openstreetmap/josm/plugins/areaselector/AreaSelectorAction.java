@@ -213,22 +213,20 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Collection<Command> cmds = new LinkedList<>();
 			List<Node> nodes = way.getNodes();
 			for (int i = 0; i < nodes.size() - 1; i++) {
-
 				cmds.add(new AddCommand(nodes.get(i)));
 			}
 			cmds.add(new AddCommand(way));
-
-			Command c = new SequenceCommand(/* I18n: Name of command */ tr("create building"), cmds);
-			Main.main.undoRedo.add(c);
-			Main.getLayerManager().getEditDataSet().setSelected(way);
+			Main.main.undoRedo.add(new SequenceCommand(/* I18n: Name of command */ tr("create building"), cmds));
 
 			if (replaceBuildings && existingWay != null){
 				if (way.getBBox().bounds(existingWay.getBBox().getCenter())){
 					log.info("existing way is inside of new building: "+existingWay.toString() + " is in " + way.toString());
-					Main.main.undoRedo.add(replaceWay(existingWay, way));
+					Main.main.undoRedo.add(new SequenceCommand(tr("replace building"), replaceWay(existingWay, way)));
 					way = existingWay;
 				}
 			}
+
+			Main.getLayerManager().getEditDataSet().setSelected(way);
 
 			if (mergeNodes) {
 				mergeNodes(way);
@@ -282,7 +280,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 * @param newWay new way
 	 * @return replaced way
 	 */
-	public Command replaceWay(Way existingWay, Way newWay){
+	public List<Command> replaceWay(Way existingWay, Way newWay){
 		if (existingWay == null || newWay == null){
 			return null;
 		}
@@ -290,22 +288,23 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 		cmds.add(new RemoveNodesCommand(existingWay, existingWay.getNodes()));
 
+		int i = 1;
 		for (Node existingNode : existingWay.getNodes()){
-			if (existingNode.getParentWays().size() == 1){
+			if (i < existingWay.getNodesCount() && existingNode.getParentWays().size() == 1 && !existingNode.isDeleted() && !existingNode.isNew()){
+				//				log.info("delete node "+existingNode.toString());
 				cmds.add(new DeleteCommand(existingNode));
 			}
-		}
-		if(existingWay.getNodesCount() > 2 && existingWay.getRealNodesCount() > 1){
-			// do not try to delete the first node again, as it will be twice in the way
-			cmds.remove(cmds.size()-1);
+			i++;
 		}
 
 		for (Node newNode : newWay.getNodes()){
 			existingWay.addNode(newNode);
 		}
-		cmds.add(new DeleteCommand(newWay));
+		if(newWay.isNew() && !newWay.isDeleted()){
+			cmds.add(new DeleteCommand(newWay));
+		}
 
-		return new SequenceCommand(tr("replace bauilding"), cmds);
+		return cmds;
 	}
 
 	public Way createWayFromPolygon(MapView mapView, Polygon polygon) {
