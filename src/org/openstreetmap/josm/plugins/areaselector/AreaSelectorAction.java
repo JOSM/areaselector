@@ -226,6 +226,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				if (way.getBBox().bounds(existingWay.getBBox().getCenter())){
 					log.info("existing way is inside of new building: "+existingWay.toString() + " is in " + way.toString());
 					Main.main.undoRedo.add(replaceWay(existingWay, way));
+					way = existingWay;
 				}
 			}
 
@@ -302,6 +303,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		for (Node newNode : newWay.getNodes()){
 			existingWay.addNode(newNode);
 		}
+		cmds.add(new DeleteCommand(newWay));
 
 		return new SequenceCommand(tr("replace bauilding"), cmds);
 	}
