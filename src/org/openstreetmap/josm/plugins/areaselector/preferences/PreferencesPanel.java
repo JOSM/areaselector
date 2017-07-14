@@ -39,13 +39,15 @@ public class PreferencesPanel extends JPanel {
 
 	private JCheckBox ckbxHSV;
 
-	protected JCheckBox debug;
+	protected JCheckBox ckbxDebug;
 
 	protected JCheckBox ckbxAustriaAdressHelper;
 
 	private JComboBox<String> algorithm;
 
 	protected JComponent ref;
+
+	private JCheckBox ckbxReplaceBuilding;
 
 	/**
 	 * Constructs a new {@code PreferencesPanel}.
@@ -105,8 +107,11 @@ public class PreferencesPanel extends JPanel {
 		ckbxAustriaAdressHelper = new JCheckBox("<html><p><b>" + tr("use austria address helper") + "</b></p></html>");
 		this.addCheckbox(tr("Automatically try to find the correct address via Austria Address Helper plugin"), ckbxAustriaAdressHelper);
 
-		debug = new JCheckBox("<html><p><b>" + tr("Debug") + "</b></p></html>");
-		this.addCheckbox(tr("Debugging mode will write images for each processing step."), debug);
+		ckbxReplaceBuilding = new JCheckBox("<html><p><b>" + tr("Replace existing buildings") + "</b></p></html>");
+		this.addCheckbox(tr("Replace an existing building with the new one."), ckbxReplaceBuilding);
+
+		ckbxDebug = new JCheckBox("<html><p><b>" + tr("Debug") + "</b></p></html>");
+		this.addCheckbox(tr("Debugging mode will write images for each processing step."), ckbxDebug);
 
 	}
 
@@ -182,8 +187,9 @@ public class PreferencesPanel extends JPanel {
 		new BooleanProperty(AreaSelectorAction.KEY_MERGENODES, true).put(ckbxMergeNodes.isSelected());
 		new BooleanProperty(AreaSelectorAction.KEY_SHOWADDRESSDIALOG, true).put(ckbxShowAddressDialog.isSelected());
 		new BooleanProperty(ImageAnalyzer.KEY_HSV, false).put(ckbxHSV.isSelected());
-		new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).put(debug.isSelected());
+		new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).put(ckbxDebug.isSelected());
 		new BooleanProperty(AreaSelectorAction.KEY_AAH, false).put(ckbxAustriaAdressHelper.isSelected());
+		new BooleanProperty(AreaSelectorAction.KEY_REPLACEBUILDINGS, true).put(ckbxReplaceBuilding.isSelected());
 	}
 
 	/**
@@ -203,7 +209,7 @@ public class PreferencesPanel extends JPanel {
 
 		int algorithmIdx = new IntegerProperty(ImageAnalyzer.KEY_ALGORITHM, ImageAnalyzer.DEFAULT_ALGORITHM).get();
 		algorithm.setSelectedIndex(algorithmIdx < algorithm.getMaximumRowCount() ? algorithmIdx : ImageAnalyzer.DEFAULT_ALGORITHM);
-		debug.setSelected(new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).get());
-
+		ckbxDebug.setSelected(new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).get());
+		ckbxReplaceBuilding.setSelected(new BooleanProperty(AreaSelectorAction.KEY_REPLACEBUILDINGS, true).get());
 	}
 }

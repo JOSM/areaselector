@@ -34,6 +34,7 @@ import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.DeleteCommand;
 import org.openstreetmap.josm.command.PseudoCommand;
+import org.openstreetmap.josm.command.RemoveNodesCommand;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.coor.LatLon;
 import org.openstreetmap.josm.data.osm.Node;
@@ -61,12 +62,13 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	protected double toleranceDist = ImageAnalyzer.DEFAULT_TOLERANCEDIST,
 			toleranceAngle = ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
 
-	protected boolean showAddressDialog = true, mergeNodes = true, useAustriaAdressHelper = false;
+	protected boolean showAddressDialog = true, mergeNodes = true, useAustriaAdressHelper = false, replaceBuildings = true;
 
 	public static final String PLUGIN_NAME = "areaselector";
 
 	public static final String KEY_SHOWADDRESSDIALOG = PLUGIN_NAME + ".showaddressdialog",
-			KEY_MERGENODES = PLUGIN_NAME + ".mergenodes", KEY_AAH = PLUGIN_NAME + ".austriaadresshelper";
+			KEY_MERGENODES = PLUGIN_NAME + ".mergenodes", KEY_AAH = PLUGIN_NAME + ".austriaadresshelper",
+			KEY_REPLACEBUILDINGS = PLUGIN_NAME + ".replacebuildings";
 
 	protected Logger log = LogManager.getLogger(AreaSelectorAction.class.getCanonicalName());
 
@@ -86,6 +88,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		this.mergeNodes = new BooleanProperty(KEY_MERGENODES, true).get();
 		this.showAddressDialog = new BooleanProperty(KEY_SHOWADDRESSDIALOG, true).get();
 		useAustriaAdressHelper = new BooleanProperty(KEY_AAH, false).get();
+		replaceBuildings = new BooleanProperty(KEY_REPLACEBUILDINGS, true).get();
 	}
 
 	private static Cursor getCursor() {
@@ -187,6 +190,8 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 		Polygon polygon = imgAnalyzer.getArea();
 
 		if (polygon != null) {
+			Way existingWay = Main.map.mapView.getNearestWay(clickPoint, OsmPrimitive::isUsable);
+
 			Way way = createWayFromPolygon(mapView, polygon), newWay = null;
 
 			way.put(AddressDialog.TAG_BUILDING, "yes");
@@ -216,6 +221,13 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			Command c = new SequenceCommand(/* I18n: Name of command */ tr("Created area"), cmds);
 			Main.main.undoRedo.add(c);
 			Main.getLayerManager().getEditDataSet().setSelected(way);
+
+			if (replaceBuildings && existingWay != null){
+				if (way.getBBox().bounds(existingWay.getBBox().getCenter())){
+					log.info("existing way is inside of new building: "+existingWay.toString() + " is in " + way.toString());
+					Main.main.undoRedo.add(replaceWay(existingWay, way));
+				}
+			}
 
 			if (mergeNodes) {
 				mergeNodes(way);
@@ -261,6 +273,37 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * replace an existing way with the new detected one
+	 * @param existingWay old way
+	 * @param newWay new way
+	 * @return replaced way
+	 */
+	public Command replaceWay(Way existingWay, Way newWay){
+		if (existingWay == null || newWay == null){
+			return null;
+		}
+		ArrayList<Command> cmds = new ArrayList<>();
+
+		cmds.add(new RemoveNodesCommand(existingWay, existingWay.getNodes()));
+
+		for (Node existingNode : existingWay.getNodes()){
+			if (existingNode.getParentWays().size() == 1){
+				cmds.add(new DeleteCommand(existingNode));
+			}
+		}
+		if(existingWay.getNodesCount() > 2 && existingWay.getRealNodesCount() > 1){
+			// do not try to delete the first node again, as it will be twice in the way
+			cmds.remove(cmds.size()-1);
+		}
+
+		for (Node newNode : newWay.getNodes()){
+			existingWay.addNode(newNode);
+		}
+
+		return new SequenceCommand(tr("replace bauilding"), cmds);
 	}
 
 	public Way createWayFromPolygon(MapView mapView, Polygon polygon) {
