@@ -46,8 +46,7 @@
 		<javac srcdir="src" classpath="${josm}" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
       <classpath>
           <pathelement location="${josm}"/>
-        <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
-            <include name="log4j.jar"/>
+        <fileset refid="plugin.requires.jars">
         </fileset>
 		<fileset dir="${lib.base}">
 			<include name="*-custom.jar"/>
@@ -76,7 +75,10 @@
 		</delete>
 	</target>
 
-	<target name="installPlugin" depends="clean, dist, install">
+	<target name="install-plugin" depends="clean, dist, install">
 		<echo>Installed areaselector plugin</echo>
+	</target>
+	
+	<target name="test-run" depends="install-plugin, runjosm">
 	</target>
 </project>
