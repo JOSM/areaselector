@@ -14,8 +14,11 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -34,6 +37,7 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ExtendedDialog;
+import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletingComboBox;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionListItem;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionManager;
@@ -205,7 +209,21 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		tagsField.setSelectedItem(Main.pref.get(PREF_TAGS));
 
 		sourceField = new AutoCompletingComboBox();
-		sourceField.setPossibleACItems(acm.getValues(TAG_SOURCE));
+		List<AutoCompletionListItem> sourceValues = acm.getValues(TAG_SOURCE);
+
+		ArrayList<String> sources = new ArrayList<>();
+		for (Layer layer : Main.map.mapView.getLayerManager().getVisibleLayersInZOrder()) {
+			if (layer.isVisible() && layer.isBackgroundLayer()) {
+				sources.add(layer.getName());
+			}
+		}
+		Collections.reverse(sources);
+		String source = sources.stream().map(Object::toString).collect(Collectors.joining("; ")).toString();
+		if (!source.isEmpty()) {
+			sourceValues.add(0, new AutoCompletionListItem(source));
+		}
+
+		sourceField.setPossibleACItems(sourceValues);
 		sourceField.setEditable(true);
 		sourceField.setPreferredSize(new Dimension(400, 24));
 		sourceField.setSelectedItem(Main.pref.get(PREF_SOURCE));
@@ -345,6 +363,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		updateTag(TAG_POSTCODE, getAutoCompletingComboBoxValue(postCodeField));
 		updateTag(TAG_COUNTRY, getAutoCompletingComboBoxValue(countryField));
 		updateTag(TAG_BUILDING, getAutoCompletingComboBoxValue(buildingField));
+		updateTag(TAG_SOURCE, getAutoCompletingComboBoxValue(sourceField));
 
 		if (!tags.isEmpty()) {
 			AutoCompletionListItem aci = new AutoCompletionListItem(tags);
