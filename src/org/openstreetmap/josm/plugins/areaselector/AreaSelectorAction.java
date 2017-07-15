@@ -233,7 +233,6 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			}
 
 			if (useAustriaAdressHelper) {
-				log.info("trying to fetch address ");
 				newWay = (Way) fetchAddress(way);
 				if (newWay != null) {
 					if (!showAddressDialog) {
@@ -262,13 +261,13 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 	 */
 	public OsmPrimitive fetchAddress(OsmPrimitive selectedObject) {
 		try {
+			log.info("trying to fetch address ");
 			return AustriaAddressHelperAction.loadAddress(selectedObject);
-		} catch (Throwable t) {
-			if (t instanceof NoClassDefFoundError) {
-				Main.warn("Austria Address Helper not loaded");
+		} catch (Throwable th) {
+			if (th instanceof NoClassDefFoundError) {
+				log.warn("Austria Address Helper not loaded");
 			} else {
-				Main.warn("Something went wrong with Austria Adress Helper");
-				Main.warn(t);
+				log.warn("Something went wrong with Austria Adress Helper", th);
 			}
 		}
 		return null;

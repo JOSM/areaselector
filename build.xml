@@ -15,7 +15,7 @@
 	<property name="plugin.description" value="Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at." />
 	<property name="plugin.icon" value="images/mapmode/areaselector.png" />
 	<property name="plugin.link" value="https://github.com/JOSM/JOSM-areaselector"/>
-	<property name="plugin.requires" value="log4j"/>
+	<property name="plugin.requires" value="log4j;austriaaddresshelper"/>
 
 	<property name="josm" location="../../core/dist/josm-custom.jar" />
 	<property name="plugin.dist.dir" value="../../dist" />
@@ -32,6 +32,7 @@
 
     <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
         <include name="log4j.jar"/>
+    	<include name="austriaaddresshelper.jar"/>
     </fileset>
 
 	<!--
@@ -52,9 +53,6 @@
 			<include name="*-custom.jar"/>
 			<include name="*-jar.jar"/>
 		</fileset>
-        <fileset dir="${plugin.dist.dir}">
-            <include name="austriaaddresshelper.jar"/>
-        </fileset>
 
       </classpath>
 			<compilerarg value="-Xlint:deprecation"/>
