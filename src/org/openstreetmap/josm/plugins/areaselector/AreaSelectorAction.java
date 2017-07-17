@@ -235,6 +235,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 			if (useAustriaAdressHelper) {
 				newWay = (Way) fetchAddress(way);
 				if (newWay != null) {
+					log.info("Found attributes: {}", newWay.getKeys());
 					if (!showAddressDialog) {
 						final List<Command> commands = new ArrayList<>();
 						commands.add(new ChangeCommand(way, newWay));
