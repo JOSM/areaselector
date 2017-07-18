@@ -12,6 +12,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -989,7 +990,7 @@ public class ImageAnalyzer {
 
 		try {
 			Class<?> classObject = Class.forName(pluginClassName);
-			Object classInstance = classObject.newInstance();
+			Object classInstance = classObject.getConstructor().newInstance();
 
 			if (classInstance instanceof MarvinImagePlugin) {
 				// this is a correct plugin
@@ -999,7 +1000,7 @@ public class ImageAnalyzer {
 				log.error("The class "+pluginClassName+" is not a MarvinPlugin");
 			}
 
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			log.error("could not load marvin plugin", e);
 		}
 
