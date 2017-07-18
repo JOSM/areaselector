@@ -16,13 +16,8 @@
 	<property name="plugin.icon" value="images/mapmode/areaselector.png" />
 	<property name="plugin.link" value="https://github.com/JOSM/JOSM-areaselector"/>
 	<property name="plugin.requires" value="log4j;austriaaddresshelper"/>
-
-	<property name="josm" location="../../core/dist/josm-custom.jar" />
-	<property name="plugin.dist.dir" value="../../dist" />
 	
 	<property name="plugin.canloadatruntime" value="true"/>
-	
-	<property name="lib.base" value="lib" />
 	
 	<path id="ivy.lib.path" path="ant/ivy-2.4.0.jar" />
 	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
@@ -35,38 +30,18 @@
     	<include name="austriaaddresshelper.jar"/>
     </fileset>
 
-	<!--
-    **********************************************************
-    ** compile - complies the source tree
-    * and includes log4j.jar
-    **********************************************************
-
-    -->
-	<target name="compile" depends="init, fetch_dependencies">
-		<echo message="compiling sources for  ${plugin.jar} ... "/>
-		<javac srcdir="src" classpath="${josm}" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
-      <classpath>
-          <pathelement location="${josm}"/>
-        <fileset refid="plugin.requires.jars">
-        </fileset>
-		<fileset dir="${lib.base}">
-			<include name="*-custom.jar"/>
-			<include name="*-jar.jar"/>
-		</fileset>
-
-      </classpath>
-			<compilerarg value="-Xlint:deprecation"/>
-			<compilerarg value="-Xlint:unchecked"/>
-		</javac>
-	</target>
+    <target name="pre-compile" depends="fetch_dependencies">
+        <!-- include fetch_dependencies task -->
+    </target>
 	
 	<target name="fetch_dependencies" depends="clean_ivy">
+		<echo>fetching dependencies with ivy</echo>
 		<ivy:retrieve pattern="${plugin.lib.dir}/[artifact]-[type].[ext]" conf="default" />
 	</target>
 
 	<target name="clean_ivy">
 		<delete failonerror="false">
-			<fileset dir="${lib.base}">
+			<fileset dir="${plugin.lib.dir}">
 				<include name="**/*.jar"/>
 				<exclude name="**/*-custom.jar" />
 			</fileset>
