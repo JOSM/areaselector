@@ -202,11 +202,29 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		if (aciTags == null) {
 			aciTags = new ArrayList<>();
 		}
+		aciTags.add(new AutoCompletionListItem(Main.pref.get(PREF_TAGS)));
+
+		StringBuilder tagsSB = new StringBuilder();
+
+		List<String> fieldTags = Arrays.asList(TAGS);
+		for (String key : selectedOsmObject.keySet()){
+			if (!fieldTags.contains(key)){
+				tagsSB.append(key);
+				tagsSB.append("=");
+				tagsSB.append(selectedOsmObject.get(key));
+				tagsSB.append(";");
+			}
+		}
+		String otherTags = tagsSB.toString();
+		if (otherTags.length()>0){
+			aciTags.add(new AutoCompletionListItem(otherTags));
+		}
+
 
 		tagsField = new AutoCompletingComboBox();
 		tagsField.setPossibleACItems(aciTags);
 		tagsField.setEditable(true);
-		tagsField.setSelectedItem(Main.pref.get(PREF_TAGS));
+		tagsField.setSelectedItem(otherTags.length() > 0 ? otherTags : Main.pref.get(PREF_TAGS));
 
 		sourceField = new AutoCompletingComboBox();
 		List<AutoCompletionListItem> sourceValues = acm.getValues(TAG_SOURCE);
