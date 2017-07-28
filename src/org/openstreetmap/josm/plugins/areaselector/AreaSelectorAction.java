@@ -43,6 +43,7 @@ import org.openstreetmap.josm.data.osm.OsmPrimitiveType;
 import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.preferences.BooleanProperty;
 import org.openstreetmap.josm.data.preferences.DoubleProperty;
+import org.openstreetmap.josm.data.preferences.StringProperty;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.Notification;
@@ -194,7 +195,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
 			Way way = createWayFromPolygon(mapView, polygon), newWay = null;
 
-			way.put(AddressDialog.TAG_BUILDING, "yes");
+			way.put(AddressDialog.TAG_BUILDING, new StringProperty(AddressDialog.PREF_BUILDING, "yes").get());
 
 			if (!showAddressDialog) {
 				ArrayList<String> sources = new ArrayList<>();
