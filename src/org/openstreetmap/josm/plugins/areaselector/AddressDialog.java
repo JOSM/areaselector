@@ -37,11 +37,13 @@ import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.gui.ExtendedDialog;
+import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletingComboBox;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionListItem;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionManager;
 import org.openstreetmap.josm.tools.GBC;
+import org.openstreetmap.josm.tools.Logging;
 
 /**
  * based on AdressDialog from building_tools.<br>
@@ -118,7 +120,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		setContent(panel);
 		setDefaultButton(1);
 
-		AutoCompletionManager acm = Main.getLayerManager().getEditDataSet().getAutoCompletionManager();
+		AutoCompletionManager acm = MainApplication.getLayerManager().getEditDataSet().getAutoCompletionManager();
 
 		houseNameField = new AutoCompletingComboBox();
 		houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
@@ -136,7 +138,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			}
 
 		} catch (NumberFormatException e) {
-			Main.debug(e);
+			Logging.debug(e);
 		}
 
 		JPanel houseNumPanel = new JPanel();
@@ -165,7 +167,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 					try {
 						houseNumField.setText(Integer.toString(Integer.parseInt(houseNumField.getText())+changeNum));
 					} catch (NumberFormatException ex) {
-						Main.debug(ex);
+						Logging.debug(ex);
 					}
 				}
 			}
@@ -216,7 +218,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			}
 		}
 		String otherTags = tagsSB.toString();
-		if (otherTags.length()>0){
+		if (!otherTags.isEmpty()) {
 			aciTags.add(new AutoCompletionListItem(otherTags));
 		}
 
@@ -230,7 +232,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		List<AutoCompletionListItem> sourceValues = acm.getValues(TAG_SOURCE);
 
 		ArrayList<String> sources = new ArrayList<>();
-		for (Layer layer : Main.map.mapView.getLayerManager().getVisibleLayersInZOrder()) {
+		for (Layer layer : MainApplication.getLayerManager().getVisibleLayersInZOrder()) {
 			if (layer.isVisible() && layer.isBackgroundLayer()) {
 				sources.add(layer.getName());
 			}
@@ -341,7 +343,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		try {
 			this.setLocation(Integer.parseInt(Main.pref.get(PREF_DIALOG_X)), Integer.parseInt(Main.pref.get(PREF_DIALOG_Y)));
 		} catch (NumberFormatException e) {
-			Main.debug(e);
+			Logging.debug(e);
 		}
 	}
 
@@ -421,8 +423,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			log.info("updated properties "+osmObject + "\n" + osmObject.getKeys());
 			cmds.add(new ChangeCommand(originalOsmObject, osmObject));
 			Command c = new SequenceCommand(tr("update building info"), cmds);
-			Main.main.undoRedo.add(c);
-			Main.getLayerManager().getEditDataSet().setSelected(osmObject);
+			MainApplication.undoRedo.add(c);
+			MainApplication.getLayerManager().getEditDataSet().setSelected(osmObject);
 		}
 
 		Main.pref.put(PREF_DIALOG_X, Integer.toString(this.getLocation().x));
@@ -438,7 +440,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			changeNum = Integer.parseInt(rb.getActionCommand());
 
 		} catch (NumberFormatException ex) {
-			Main.debug(ex);
+			Logging.debug(ex);
 		}
 	}
 }

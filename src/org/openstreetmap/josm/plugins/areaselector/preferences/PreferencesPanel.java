@@ -11,12 +11,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.data.preferences.BooleanProperty;
 import org.openstreetmap.josm.data.preferences.DoubleProperty;
 import org.openstreetmap.josm.data.preferences.IntegerProperty;
 import org.openstreetmap.josm.plugins.areaselector.AreaSelectorAction;
 import org.openstreetmap.josm.plugins.areaselector.ImageAnalyzer;
+import org.openstreetmap.josm.tools.Logging;
 
 /**
  * Area Selector Preferences JPanel
@@ -181,7 +181,7 @@ public class PreferencesPanel extends JPanel {
 		try {
 			new DoubleProperty(ImageAnalyzer.KEY_TOLERANCEANGLE, ImageAnalyzer.DEFAULT_TOLERANCEANGLE).put(Math.toRadians(Double.parseDouble(txtToleranceAngle.getText())));
 		} catch (NumberFormatException e) {
-			Main.debug(e);
+			Logging.debug(e);
 		}
 		new DoubleProperty(ImageAnalyzer.KEY_TOLERANCEDIST, ImageAnalyzer.DEFAULT_TOLERANCEDIST).parseAndPut(txtToleranceDist.getText());
 		new BooleanProperty(AreaSelectorAction.KEY_MERGENODES, true).put(ckbxMergeNodes.isSelected());

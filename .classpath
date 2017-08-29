@@ -7,7 +7,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-log4j"/>
 	<classpathentry kind="lib" path="../../dist/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/calibration-jar.jar"/>
-	<classpathentry kind="lib" path="lib/core-jar.jar"/>
+	<classpathentry kind="lib" path="lib/core-jar.jar" sourcepath="lib/core-source.jar"/>
 	<classpathentry kind="lib" path="lib/ddogleg-jar.jar"/>
 	<classpathentry kind="lib" path="lib/dense64-jar.jar"/>
 	<classpathentry kind="lib" path="lib/equation-jar.jar"/>
@@ -15,12 +15,12 @@
 	<classpathentry kind="lib" path="lib/geo-jar.jar"/>
 	<classpathentry kind="lib" path="lib/georegression-jar.jar"/>
 	<classpathentry kind="lib" path="lib/io-jar.jar" sourcepath="lib/io-source.jar"/>
-	<classpathentry kind="lib" path="lib/ip-jar.jar"/>
+	<classpathentry kind="lib" path="lib/ip-jar.jar" sourcepath="lib/ip-source.jar"/>
 	<classpathentry kind="lib" path="lib/learning-jar.jar"/>
 	<classpathentry kind="lib" path="lib/recognition-jar.jar"/>
 	<classpathentry kind="lib" path="lib/sfm-jar.jar"/>
 	<classpathentry kind="lib" path="lib/simple-jar.jar"/>
-	<classpathentry kind="lib" path="lib/visualize-jar.jar"/>
+	<classpathentry kind="lib" path="lib/visualize-jar.jar" sourcepath="lib/visualize-source.jar"/>
 	<classpathentry kind="lib" path="lib/xmlpull-jar.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3_min-jar.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-jar.jar"/>

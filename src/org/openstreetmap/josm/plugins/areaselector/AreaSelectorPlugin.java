@@ -10,7 +10,7 @@ import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
-import org.openstreetmap.josm.Main;
+import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.preferences.PreferenceSetting;
@@ -33,11 +33,11 @@ public class AreaSelectorPlugin extends Plugin {
 
 		setupLogging();
 
-		areaSelectorAction = new AreaSelectorAction(Main.map);
-		MainMenu.add(Main.main.menu.toolsMenu, areaSelectorAction);
+		areaSelectorAction = new AreaSelectorAction(MainApplication.getMap());
+		MainMenu.add(MainApplication.getMenu().toolsMenu, areaSelectorAction);
 
-		addressDialogAction = new AddressDialogAction(Main.map);
-		MainMenu.add(Main.main.menu.toolsMenu, addressDialogAction);
+		addressDialogAction = new AddressDialogAction(MainApplication.getMap());
+		MainMenu.add(MainApplication.getMenu().toolsMenu, addressDialogAction);
 	}
 
 	/**

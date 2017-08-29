@@ -12,9 +12,9 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openstreetmap.josm.Main;
 import org.openstreetmap.josm.actions.mapmode.MapMode;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.tools.ImageProvider;
@@ -51,21 +51,21 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 
 		try {
 			showAddressDialogFor(e.getPoint());
-		} catch (Exception th) {
-			log.warn("show Address Dialog failed", th);
-			new BugReportDialog(th);
+		} catch (Exception ex) {
+			log.warn("show Address Dialog failed", ex);
+			new BugReportDialog(ex);
 		}
 	}
 
 	public void showAddressDialogFor(Point point) {
-		MapView mapView = Main.map.mapView;
+		MapView mapView = MainApplication.getMap().mapView;
 		List<OsmPrimitive> elements = mapView.getNearestNodesOrWays(point, o -> true);
 
 		OsmPrimitive element;
 		if (!elements.isEmpty()) {
 			element = elements.get(0);
 			log.info("Found object " + element);
-			Main.getLayerManager().getEditDataSet().setSelected(element);
+			MainApplication.getLayerManager().getEditDataSet().setSelected(element);
 			new AddressDialog(element).showAndSave();
 		} else {
 			log.info("Found no objects");
@@ -78,14 +78,14 @@ public class AddressDialogAction extends MapMode implements MouseListener {
 			return;
 		}
 		super.enterMode();
-		Main.map.mapView.setCursor(getCursor());
-		Main.map.mapView.addMouseListener(this);
+		MainApplication.getMap().mapView.setCursor(getCursor());
+		MainApplication.getMap().mapView.addMouseListener(this);
 	}
 
 	@Override
 	public void exitMode() {
 		super.exitMode();
-		Main.map.mapView.removeMouseListener(this);
+		MainApplication.getMap().mapView.removeMouseListener(this);
 	}
 
 }
