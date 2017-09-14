@@ -36,6 +36,7 @@ import org.openstreetmap.josm.command.PseudoCommand;
 import org.openstreetmap.josm.command.RemoveNodesCommand;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.coor.LatLon;
+import org.openstreetmap.josm.data.osm.DataSet;
 import org.openstreetmap.josm.data.osm.Node;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
 import org.openstreetmap.josm.data.osm.OsmPrimitiveType;
@@ -211,12 +212,13 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				}
 			}
 
+			DataSet ds = MainApplication.getLayerManager().getEditDataSet();
 			Collection<Command> cmds = new LinkedList<>();
 			List<Node> nodes = way.getNodes();
 			for (int i = 0; i < nodes.size() - 1; i++) {
-				cmds.add(new AddCommand(nodes.get(i)));
+				cmds.add(new AddCommand(ds, nodes.get(i)));
 			}
-			cmds.add(new AddCommand(way));
+			cmds.add(new AddCommand(ds, way));
 			MainApplication.undoRedo.add(new SequenceCommand(/* I18n: Name of command */ tr("create building"), cmds));
 
 			if (replaceBuildings && existingWay != null) {
@@ -227,7 +229,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 				}
 			}
 
-			MainApplication.getLayerManager().getEditDataSet().setSelected(way);
+			ds.setSelected(way);
 
 			if (mergeNodes) {
 				mergeNodes(way);

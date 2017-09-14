@@ -36,11 +36,12 @@ import org.openstreetmap.josm.command.ChangeCommand;
 import org.openstreetmap.josm.command.Command;
 import org.openstreetmap.josm.command.SequenceCommand;
 import org.openstreetmap.josm.data.osm.OsmPrimitive;
+import org.openstreetmap.josm.data.tagging.ac.AutoCompletionItem;
+import org.openstreetmap.josm.data.tagging.ac.AutoCompletionSet;
 import org.openstreetmap.josm.gui.ExtendedDialog;
 import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.layer.Layer;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletingComboBox;
-import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionListItem;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionManager;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.Logging;
@@ -88,7 +89,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
 	protected OsmPrimitive originalOsmObject, osmObject;
 
-	protected static Collection<AutoCompletionListItem> aciTags;
+	protected static Collection<AutoCompletionItem> aciTags;
 
 	protected int changeNum = 0;
 
@@ -120,10 +121,10 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		setContent(panel);
 		setDefaultButton(1);
 
-		AutoCompletionManager acm = MainApplication.getLayerManager().getEditDataSet().getAutoCompletionManager();
+		AutoCompletionManager acm = AutoCompletionManager.of(Main.main.getEditDataSet());
 
 		houseNameField = new AutoCompletingComboBox();
-		houseNameField.setPossibleACItems(acm.getValues(TAG_HOUSENAME));
+		houseNameField.setPossibleAcItems(acm.getTagValues(TAG_HOUSENAME));
 		houseNameField.setEditable(true);
 
 		houseNumField = new JTextField();
@@ -175,28 +176,28 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		houseNumPanel.add(skip);
 
 		streetNameField = new AutoCompletingComboBox();
-		streetNameField.setPossibleACItems(acm.getValues(TAG_STREETNAME));
+		streetNameField.setPossibleAcItems(acm.getTagValues(TAG_STREETNAME));
 		streetNameField.setEditable(true);
 		streetNameField.setSelectedItem(Main.pref.get(PREF_STREETNAME));
 
 		cityField = new AutoCompletingComboBox();
-		cityField.setPossibleACItems(acm.getValues(TAG_CITY));
+		cityField.setPossibleAcItems(acm.getTagValues(TAG_CITY));
 		cityField.setEditable(true);
 		cityField.setSelectedItem(Main.pref.get(PREF_CITY));
 
 		postCodeField = new AutoCompletingComboBox();
-		postCodeField.setPossibleACItems(acm.getValues(TAG_POSTCODE));
+		postCodeField.setPossibleAcItems(acm.getTagValues(TAG_POSTCODE));
 		postCodeField.setEditable(true);
 		postCodeField.setSelectedItem(Main.pref.get(PREF_POSTCODE));
 
 		countryField = new AutoCompletingComboBox();
-		countryField.setPossibleACItems(acm.getValues(TAG_COUNTRY));
+		countryField.setPossibleAcItems(acm.getTagValues(TAG_COUNTRY));
 		countryField.setEditable(true);
 		countryField.setSelectedItem(Main.pref.get(PREF_COUNTRY));
 
 
 		buildingField = new AutoCompletingComboBox();
-		buildingField.setPossibleACItems(acm.getValues(TAG_BUILDING));
+		buildingField.setPossibleAcItems(acm.getTagValues(TAG_BUILDING));
 		buildingField.setEditable(true);
 		buildingField.setSelectedItem(Main.pref.get(PREF_BUILDING));
 
@@ -204,13 +205,13 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		if (aciTags == null) {
 			aciTags = new ArrayList<>();
 		}
-		aciTags.add(new AutoCompletionListItem(Main.pref.get(PREF_TAGS)));
+		aciTags.add(new AutoCompletionItem(Main.pref.get(PREF_TAGS)));
 
 		StringBuilder tagsSB = new StringBuilder();
 
 		List<String> fieldTags = Arrays.asList(TAGS);
-		for (String key : selectedOsmObject.keySet()){
-			if (!fieldTags.contains(key)){
+		for (String key : selectedOsmObject.keySet()) {
+			if (!fieldTags.contains(key)) {
 				tagsSB.append(key);
 				tagsSB.append("=");
 				tagsSB.append(selectedOsmObject.get(key));
@@ -219,17 +220,17 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		}
 		String otherTags = tagsSB.toString();
 		if (!otherTags.isEmpty()) {
-			aciTags.add(new AutoCompletionListItem(otherTags));
+			aciTags.add(new AutoCompletionItem(otherTags));
 		}
 
 
 		tagsField = new AutoCompletingComboBox();
-		tagsField.setPossibleACItems(aciTags);
+		tagsField.setPossibleAcItems(aciTags);
 		tagsField.setEditable(true);
 		tagsField.setSelectedItem(otherTags.length() > 0 ? otherTags : Main.pref.get(PREF_TAGS));
 
 		sourceField = new AutoCompletingComboBox();
-		List<AutoCompletionListItem> sourceValues = acm.getValues(TAG_SOURCE);
+		AutoCompletionSet sourceValues = acm.getTagValues(TAG_SOURCE);
 
 		ArrayList<String> sources = new ArrayList<>();
 		for (Layer layer : MainApplication.getLayerManager().getVisibleLayersInZOrder()) {
@@ -240,10 +241,10 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		Collections.reverse(sources);
 		String source = sources.stream().map(Object::toString).collect(Collectors.joining("; ")).toString();
 		if (!source.isEmpty()) {
-			sourceValues.add(0, new AutoCompletionListItem(source));
+			sourceValues.add(new AutoCompletionItem(source));
 		}
 
-		sourceField.setPossibleACItems(sourceValues);
+		sourceField.setPossibleAcItems(sourceValues);
 		sourceField.setEditable(true);
 		sourceField.setPreferredSize(new Dimension(400, 24));
 		sourceField.setSelectedItem(Main.pref.get(PREF_SOURCE));
@@ -353,8 +354,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 			if (item instanceof String) {
 				return (String) item;
 			}
-			if (item instanceof AutoCompletionListItem) {
-				return ((AutoCompletionListItem) item).getValue();
+			if (item instanceof AutoCompletionItem) {
+				return ((AutoCompletionItem) item).getValue();
 			}
 			return item.toString();
 		} else {
@@ -386,7 +387,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 		updateTag(TAG_SOURCE, getAutoCompletingComboBoxValue(sourceField));
 
 		if (!tags.isEmpty()) {
-			AutoCompletionListItem aci = new AutoCompletionListItem(tags);
+			AutoCompletionItem aci = new AutoCompletionItem(tags);
 			if (!aciTags.contains(aci)) {
 				aciTags.add(aci);
 			}
