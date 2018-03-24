@@ -48,7 +48,7 @@ import org.openstreetmap.josm.tools.Logging;
 
 /**
  * based on AdressDialog from building_tools.<br>
- * http://wiki.openstreetmap.org/wiki/JOSM/Plugins/BuildingsTools
+ * https://wiki.openstreetmap.org/wiki/JOSM/Plugins/BuildingsTools
  * @author Paul Woelfel (paul@woelfel.at)
  */
 public class AddressDialog extends ExtendedDialog implements ChangeListener {

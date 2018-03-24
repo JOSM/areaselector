@@ -38,4 +38,4 @@ For image manipulation [Marvin Project](http://marvinproject.sourceforge.net/) i
 
 The second image manipulation library, which is also used to detect polygons is [boofcv](http://boofcv.org/). This software is licensed under Apache License, Version 2.0. 
 
-The icons are based on [Tracer Plugin](http://wiki.openstreetmap.org/wiki/JOSM/Plugins/Tracer). 
+The icons are based on [Tracer Plugin](https://wiki.openstreetmap.org/wiki/JOSM/Plugins/Tracer). 
