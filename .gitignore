@@ -1,6 +1,8 @@
 bin
+.gradle
 .svn
 build
+out
 test
 lib/jar
 lib/javadoc
