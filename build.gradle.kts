@@ -6,9 +6,9 @@ import org.openstreetmap.josm.gradle.plugin.task.MarkdownToHtml
 import java.net.URL
 
 plugins {
-    id("org.openstreetmap.josm") version "0.6.1"
-    id("com.github.spotbugs") version "1.6.4"
-    id("net.ltgt.errorprone") version "0.6"
+    id("org.openstreetmap.josm") version "0.6.2"
+    id("com.github.spotbugs") version "2.0.0"
+    id("net.ltgt.errorprone") version "0.8.1"
     java
     pmd
     `maven-publish`
@@ -18,8 +18,8 @@ java.sourceCompatibility = JavaVersion.VERSION_1_8
 base.archivesBaseName = "areaselector"
 
 val errorProneVersion = "2.3.2"
-val spotbugsVersion = "3.1.5"
-val pmdVersion = "6.16.0"
+val spotbugsVersion = "3.1.12"
+val pmdVersion = "6.18.0"
 val junitVersion = "5.3.1"
 
 repositories {
