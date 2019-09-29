@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -290,7 +291,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         }
         ArrayList<Command> cmds = new ArrayList<>();
 
-        cmds.add(new RemoveNodesCommand(existingWay, existingWay.getNodes()));
+        cmds.add(new RemoveNodesCommand(existingWay, new HashSet<>(existingWay.getNodes())));
 
         int i = 1;
         for (Node existingNode : existingWay.getNodes()){

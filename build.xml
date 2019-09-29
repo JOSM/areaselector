@@ -4,7 +4,7 @@
 	<!-- enter the SVN commit message -->
 	<property name="commit.message" value="Commit message" />
 	<!-- enter the *lowest* JOSM version this plugin is currently compatible with -->
-	<property name="plugin.main.version" value="14153" />
+	<property name="plugin.main.version" value="15013" />
 
 	<!-- Configure these properties (replace "..." accordingly).
          See https://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
@@ -19,7 +19,7 @@
 	
 	<property name="plugin.canloadatruntime" value="true"/>
 	
-	<path id="ivy.lib.path" path="ant/ivy-2.4.0.jar" />
+	<path id="ivy.lib.path" path="ant/ivy-2.5.0-rc1.jar" />
 	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
 
 	<!-- ** include targets that all plugins have in common ** -->
