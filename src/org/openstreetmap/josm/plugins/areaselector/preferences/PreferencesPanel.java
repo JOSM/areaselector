@@ -49,6 +49,8 @@ public class PreferencesPanel extends JPanel {
 
 	private JCheckBox ckbxReplaceBuilding;
 
+	private JCheckBox ckbxAddSourceTag;
+
 	/**
 	 * Constructs a new {@code PreferencesPanel}.
 	 */
@@ -109,6 +111,9 @@ public class PreferencesPanel extends JPanel {
 
 		ckbxReplaceBuilding = new JCheckBox("<html><p><b>" + tr("Replace existing buildings") + "</b></p></html>");
 		this.addCheckbox(tr("Replace an existing building with the new one."), ckbxReplaceBuilding);
+
+		ckbxAddSourceTag = new JCheckBox("<html><p><b>" + tr("Add source tag") + "</b></p></html>");
+		this.addCheckbox(tr("Add source tag."), ckbxAddSourceTag);
 
 		ckbxDebug = new JCheckBox("<html><p><b>" + tr("Debug") + "</b></p></html>");
 		this.addCheckbox(tr("Debugging mode will write images for each processing step."), ckbxDebug);
@@ -190,6 +195,7 @@ public class PreferencesPanel extends JPanel {
 		new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).put(ckbxDebug.isSelected());
 		new BooleanProperty(AreaSelectorAction.KEY_AAH, false).put(ckbxAustriaAdressHelper.isSelected());
 		new BooleanProperty(AreaSelectorAction.KEY_REPLACEBUILDINGS, true).put(ckbxReplaceBuilding.isSelected());
+		new BooleanProperty(AreaSelectorAction.KEY_ADDSOURCETAG, false).put(ckbxAddSourceTag.isSelected());
 	}
 
 	/**
@@ -211,5 +217,6 @@ public class PreferencesPanel extends JPanel {
 		algorithm.setSelectedIndex(algorithmIdx < algorithm.getMaximumRowCount() ? algorithmIdx : ImageAnalyzer.DEFAULT_ALGORITHM);
 		ckbxDebug.setSelected(new BooleanProperty(ImageAnalyzer.KEY_DEBUG, false).get());
 		ckbxReplaceBuilding.setSelected(new BooleanProperty(AreaSelectorAction.KEY_REPLACEBUILDINGS, true).get());
+		ckbxAddSourceTag.setSelected(new BooleanProperty(AreaSelectorAction.KEY_ADDSOURCETAG, false).get());
 	}
 }

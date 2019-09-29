@@ -66,13 +66,15 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
     protected double toleranceDist = ImageAnalyzer.DEFAULT_TOLERANCEDIST,
             toleranceAngle = ImageAnalyzer.DEFAULT_TOLERANCEANGLE;
 
-    protected boolean showAddressDialog = true, mergeNodes = true, useAustriaAdressHelper = false, replaceBuildings = true;
+    protected boolean showAddressDialog = true, mergeNodes = true, useAustriaAdressHelper = false,
+            replaceBuildings = true, addSourceTag = false;
 
     public static final String PLUGIN_NAME = "areaselector";
 
     public static final String KEY_SHOWADDRESSDIALOG = PLUGIN_NAME + ".showaddressdialog",
             KEY_MERGENODES = PLUGIN_NAME + ".mergenodes", KEY_AAH = PLUGIN_NAME + ".austriaadresshelper",
-            KEY_REPLACEBUILDINGS = PLUGIN_NAME + ".replacebuildings";
+            KEY_REPLACEBUILDINGS = PLUGIN_NAME + ".replacebuildings",
+            KEY_ADDSOURCETAG = PLUGIN_NAME + ".addsourcetag";
 
     protected Logger log = LogManager.getLogger(AreaSelectorAction.class.getCanonicalName());
 
@@ -93,6 +95,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         this.showAddressDialog = new BooleanProperty(KEY_SHOWADDRESSDIALOG, true).get();
         useAustriaAdressHelper = new BooleanProperty(KEY_AAH, false).get();
         replaceBuildings = new BooleanProperty(KEY_REPLACEBUILDINGS, true).get();
+        addSourceTag = new BooleanProperty(KEY_ADDSOURCETAG, false).get();
     }
 
     private static Cursor getCursor() {
@@ -200,7 +203,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
             way.put(AddressDialog.TAG_BUILDING, new StringProperty(AddressDialog.PREF_BUILDING, "yes").get());
 
-            if (!showAddressDialog) {
+            if (!showAddressDialog && addSourceTag) {
                 ArrayList<String> sources = new ArrayList<>();
                 for (Layer layer : mapView.getLayerManager().getVisibleLayersInZOrder()) {
                     if (layer.isVisible() && layer.isBackgroundLayer()) {
