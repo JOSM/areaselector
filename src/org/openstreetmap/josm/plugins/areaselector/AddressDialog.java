@@ -85,7 +85,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
     protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField, sourceField;
 
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
-    protected static final String[] BUTTON_ICONS = new String[] {"ok.png", "cancel.png"};
+    protected static final String[] BUTTON_ICONS = new String[] {"ok", "cancel"};
 
     protected final JPanel panel = new JPanel(new GridBagLayout());
 
