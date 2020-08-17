@@ -30,7 +30,7 @@ public class BugReportDialog extends ExtendedDialog {
 
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK")};
 
-    protected static final String[] BUTTON_ICONS = new String[] {"ok.png"};
+    protected static final String[] BUTTON_ICONS = new String[] {"ok"};
 
     public static final String ISSUESLINK = "https://github.com/JOSM/JOSM-areaselector/issues";
 
