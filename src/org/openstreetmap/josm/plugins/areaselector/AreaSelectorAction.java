@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.JOptionPane;
@@ -241,8 +242,10 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             }
 
             if (useAustriaAdressHelper) {
-                newWay = (Way) fetchAddress(way);
-                if (newWay != null) {
+                Map<String, String> newAddress = fetchAddress(way);
+                if (newAddress != null) {
+                    newWay = new Way(way);
+                    newWay.setKeys(newAddress);
                     log.info("Found attributes: {}", newWay.getKeys());
                     if (!showAddressDialog) {
                         final List<Command> commands = new ArrayList<>();
@@ -266,9 +269,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
     }
 
     /**
-     * fetch Address using Austria Adress Helper
+     * fetch Address using Austria Address Helper
      */
-    public OsmPrimitive fetchAddress(OsmPrimitive selectedObject) {
+    public Map<String, String> fetchAddress(OsmPrimitive selectedObject) {
         try {
             log.info("trying to fetch address ");
             return AustriaAddressHelperAction.loadAddress(selectedObject);

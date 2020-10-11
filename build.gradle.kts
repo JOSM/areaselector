@@ -26,7 +26,7 @@ repositories {
     jcenter()
     ivy {
         url = uri("https://github.com/JOSM/austriaaddresshelper/releases/download/")
-        val aahVersion = "v0.6.1"
+        val aahVersion = "v0.8.0"
         patternLayout {
             artifact("/$aahVersion/[artifact].[ext]")
             ivy("$aahVersion/ivy.xml")
