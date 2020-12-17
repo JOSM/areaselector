@@ -1,12 +1,10 @@
 import com.github.spotbugs.SpotBugsTask
 import net.ltgt.gradle.errorprone.*
-import org.openstreetmap.josm.gradle.plugin.config.I18nConfig
-import org.openstreetmap.josm.gradle.plugin.config.JosmManifest
 import org.openstreetmap.josm.gradle.plugin.task.MarkdownToHtml
 import java.net.URL
 
 plugins {
-    id("org.openstreetmap.josm") version "0.6.2"
+    id("org.openstreetmap.josm") version "0.7.1"
     id("com.github.spotbugs") version "2.0.0"
     id("net.ltgt.errorprone") version "0.8.1"
     java
@@ -129,14 +127,18 @@ pmd {
 }
 
 josm {
+    pluginName = "areaselector"
     i18n {
-        pathTransformer = getPathTransformer("github.com/JOSM/areaselector/blob")
+        pathTransformer = getPathTransformer(project.projectDir, "github.com/JOSM/areaselector/blob")
     }
     manifest {
         pluginDependencies.add("austriaaddresshelper")
         pluginDependencies.add("ejml")
         pluginDependencies.add("log4j")
-    }
+        oldVersionDownloadLink(15017, "v2.5.1", URL("https://github.com/JOSM/areaselector/releases/download/v2.5.1/areaselector.jar"))
+        oldVersionDownloadLink(12859, "v2.4.9", URL("https://github.com/JOSM/areaselector/releases/download/v2.4.9/areaselector.jar"))
+        oldVersionDownloadLink(11226, "v2.4.3", URL("https://github.com/JOSM/areaselector/releases/download/v2.4.3/areaselector.jar"))
+  }
 }
 
 tasks.withType(JavaCompile::class) {
