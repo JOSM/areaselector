@@ -47,6 +47,7 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.preferences.BooleanProperty;
 import org.openstreetmap.josm.data.preferences.DoubleProperty;
 import org.openstreetmap.josm.data.preferences.StringProperty;
+import org.openstreetmap.josm.gui.IconToggleButton;
 import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
@@ -120,7 +121,9 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
     }
 
     public void updateMapFrame(MapFrame oldFrame, MapFrame newFrame) {
-        // or not, we just use Main to get the current mapFrame
+        if (oldFrame == null && newFrame != null) {
+            MainApplication.getMap().addMapMode(new IconToggleButton(this));
+        }
     }
 
     /**
