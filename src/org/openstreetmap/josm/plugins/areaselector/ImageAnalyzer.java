@@ -27,6 +27,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.openstreetmap.josm.data.Preferences;
 import org.openstreetmap.josm.data.preferences.BooleanProperty;
 import org.openstreetmap.josm.data.preferences.DoubleProperty;
 import org.openstreetmap.josm.data.preferences.IntegerProperty;
@@ -906,18 +907,28 @@ public class ImageAnalyzer {
         return saveImgToFile(convertBinaryMatrixToImage(image), filename);
     }
 
+    private File getPluginFolder() {
+        // Our own folder in the the plugins directory
+        return new File(Preferences.main().getPluginsDirectory(), "areaselector");
+    }
+
+    private File getDebugImageFolder() {
+        return new File(getPluginFolder(), "debug");
+    }
+
     public boolean saveImgToFile(BufferedImage buf, String filename) {
         try {
-            File folder = new File("test");
+            // Put the image into the plugins directory, in our own folder
+            File folder = getDebugImageFolder();
             if (!folder.exists()) {
                 folder.mkdirs();
             }
             if (!folder.isDirectory()) {
-                log.warn("test is not a folder, but a file");
+                log.warn("debug folder target is a file instead of a folder: "+folder.getAbsolutePath());
                 return false;
             } else {
                 ImageIO.write(buf, IMG_TYPE,
-                        new File("test/"+(fileCount < 10 ? "0" : "")+(fileCount++)+"_"+filename+"."+IMG_TYPE.toLowerCase()));
+                        new File(folder, (fileCount < 10 ? "0" : "")+(fileCount++)+"_"+filename+"."+IMG_TYPE.toLowerCase()));
                 return true;
             }
         } catch (Exception e) {
@@ -927,10 +938,13 @@ public class ImageAnalyzer {
     }
 
     public static BufferedImage getImgFromFile(String filename) {
+        return getImgFromFile(new File(filename+"."+IMG_TYPE.toLowerCase()));
+    }
+    public static BufferedImage getImgFromFile(File file) {
         try {
-            return ImageIO.read(new File(filename+"."+IMG_TYPE.toLowerCase()));
+            return ImageIO.read(file);
         } catch (IOException e) {
-            log.warn("unable to read file "+filename, e);
+            log.warn("unable to read file "+file.getAbsolutePath(), e);
         }
         return null;
     }
@@ -939,7 +953,7 @@ public class ImageAnalyzer {
      * find out if marvin fits our needs.
      */
     public void testMarvin() {
-        MarvinImage mImg = new MarvinImage(getImgFromFile("test/boundary_in"));
+        MarvinImage mImg = new MarvinImage(getImgFromFile(new File(getPluginFolder(), "boundary_in")));
         MarvinImage inverted = applyPlugin("org.marvinproject.image.color.invert", mImg);
         MarvinImage blackAndWhite = MarvinColorModelConverter.rgbToBinary(inverted, 127);
         MarvinImage boundary = applyPlugin("org.marvinproject.image.morphological.boundary", blackAndWhite);

@@ -12,3 +12,7 @@ lib/*-source.jar
 lib/*-jar.jar
 lib/*-maven-plugin.jar
 lib/*-bundle.jar
+javadoc
+# Intellij project files
+*.iml
+
