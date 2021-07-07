@@ -315,7 +315,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             if (taggingPresetToApply == null) {
                 JOptionPane.showMessageDialog(
                     MainApplication.getMap(),
-                    tr("Could not find configured tagging preset: '{0}'.", taggingPresetName),
+                    tr("Could not find configured tagging preset: ''{0}''.", taggingPresetName),
                     tr("Area Selector"),
                     JOptionPane.WARNING_MESSAGE
                 );
@@ -326,7 +326,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             if (!taggingPresetToApply.types.contains(TaggingPresetType.CLOSEDWAY)) {
                 JOptionPane.showMessageDialog(
                     MainApplication.getMap(),
-                    tr("Selected preset is not suitable for a closed way, select another one: '{0}'.", taggingPresetName),
+                    tr("Selected preset is not suitable for a closed way, select another one: ''{0}''.", taggingPresetName),
                     tr("Area Selector"),
                     JOptionPane.WARNING_MESSAGE
                 );
@@ -344,7 +344,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
                 if (commands.isEmpty()) {
                     JOptionPane.showMessageDialog(
                         MainApplication.getMap(),
-                        tr("Tagging preset '{0}' does not have any tags to apply.", taggingPresetToApply.getRawName()),
+                        tr("Tagging preset ''{0}'' does not have any tags to apply.", taggingPresetToApply.getRawName()),
                         tr("Area Selector"),
                         JOptionPane.WARNING_MESSAGE
                     );
@@ -369,7 +369,7 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         } else {
             JOptionPane.showMessageDialog(
                 MainApplication.getMap(),
-                tr("Unknown tagging style setting: '{0}'.", taggingStyle),
+                tr("Unknown tagging style setting: ''{0}''.", taggingStyle),
                 tr("Area Selector"),
                 JOptionPane.WARNING_MESSAGE
             );
