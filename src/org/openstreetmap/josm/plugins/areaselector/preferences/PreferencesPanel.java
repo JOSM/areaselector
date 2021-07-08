@@ -184,7 +184,7 @@ public class PreferencesPanel extends JPanel {
 		this.addRadioButton(
 			tagging,
 			none,
-			tr("Don't apply any tags, only create the polygon")
+			tr("Don''t apply any tags, only create the polygon")
 		);
 		taggingStyleOptions.put("none", none);
 
@@ -193,7 +193,7 @@ public class PreferencesPanel extends JPanel {
 		this.addRadioButton(
 			tagging,
 			presetSearchDialog,
-			tr("Don't apply any tags, only create the polygon")
+			tr("Don''t apply any tags, only create the polygon")
 		);
 		taggingStyleOptions.put("presetSearchDialog", presetSearchDialog);
 
@@ -202,7 +202,7 @@ public class PreferencesPanel extends JPanel {
 		this.addRadioButton(
 			tagging,
 			specificPreset,
-			tr("Don't apply any tags, only create the polygon")
+			tr("Don''t apply any tags, only create the polygon")
 		);
 		taggingStyleOptions.put("specificPreset", specificPreset);
 
@@ -237,7 +237,7 @@ public class PreferencesPanel extends JPanel {
 		this.addCheckbox(
 			tagging,
 			ckbxApplyPresetDirectly,
-			tr("Don't show the preset dialog, but apply all non-empty tags of the preset directly to the created area"),
+			tr("Don''t show the preset dialog, but apply all non-empty tags of the preset directly to the created area"),
 			true
 		);
 
@@ -246,7 +246,7 @@ public class PreferencesPanel extends JPanel {
 		this.addRadioButton(
 			tagging,
 			address,
-			tr("Don't apply any tags, only create the polygon")
+			tr("Don''t apply any tags, only create the polygon")
 		);
 		taggingStyleOptions.put("address", address);
 
