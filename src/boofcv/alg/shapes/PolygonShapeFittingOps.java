@@ -21,8 +21,8 @@ package boofcv.alg.shapes;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ddogleg.struct.FastQueue;
-import org.ddogleg.struct.GrowQueue_I32;
+import org.ddogleg.struct.DogArray;
+import org.ddogleg.struct.DogArray_I32;
 
 import boofcv.alg.shapes.polyline.RefinePolyLineCorner;
 import boofcv.alg.shapes.polyline.SplitMergeLineFitAngleLoop;
@@ -60,7 +60,7 @@ public class PolygonShapeFittingOps {
 	 */
 	public static List<PointIndex_I32> fitPolygon(List<Point2D_I32> sequence,  boolean loop,
 			double toleranceDist, double toleranceAngle, int iterations) {
-		GrowQueue_I32 splits;
+		DogArray_I32 splits;
 
 		if( loop ) {
 			SplitMergeLineFitAngleLoop alg = new SplitMergeLineFitAngleLoop(toleranceDist,toleranceAngle,iterations);
@@ -76,7 +76,7 @@ public class PolygonShapeFittingOps {
 			refine.fit(sequence,splits);
 		}
 
-		FastQueue<PointIndex_I32> output = new FastQueue<PointIndex_I32>(PointIndex_I32.class,true);
+		DogArray<PointIndex_I32> output = new DogArray<>(PointIndex_I32::new);
 		indexToPointIndex(sequence,splits,output);
 
 
@@ -91,8 +91,8 @@ public class PolygonShapeFittingOps {
 	 * @param indexes List of indexes in the sequence.
 	 * @param output Output list of {@link PointIndex_I32}.
 	 */
-	public static void indexToPointIndex( List<Point2D_I32> sequence , GrowQueue_I32 indexes ,
-			FastQueue<PointIndex_I32> output ) {
+	public static void indexToPointIndex( List<Point2D_I32> sequence , DogArray_I32 indexes ,
+			DogArray<PointIndex_I32> output ) {
 		output.reset();
 
 		for( int i = 0; i < indexes.size; i++ ) {

@@ -20,8 +20,9 @@ package boofcv.alg.shapes.polyline;
 
 import java.util.List;
 
-import org.ddogleg.struct.GrowQueue_B;
-import org.ddogleg.struct.GrowQueue_I32;
+import org.ddogleg.struct.DogArray_I32;
+import org.ddogleg.struct.DogArray_B;
+import org.ddogleg.struct.DogArray_I32;
 
 import georegression.struct.line.LineParametric2D_F64;
 import georegression.struct.point.Point2D_F64;
@@ -67,11 +68,11 @@ public abstract class SplitMergeLineFitAngle {
 	protected Point2D_F64 point2D = new Point2D_F64();
 
 	// list of vertexes
-	protected GrowQueue_I32 splits = new GrowQueue_I32();
-	protected GrowQueue_I32 work = new GrowQueue_I32();
+	protected DogArray_I32 splits = new DogArray_I32();
+	protected DogArray_I32 work = new DogArray_I32();
 
 	// indicates which line segments need to be checked for splits
-	protected GrowQueue_B changed = new GrowQueue_B();
+	protected DogArray_B changed = new DogArray_B();
 
 	/**
 	 *
@@ -119,7 +120,7 @@ public abstract class SplitMergeLineFitAngle {
 	 *
 	 * @return List of indexes
 	 */
-	public GrowQueue_I32 getSplits() {
+	public DogArray_I32 getSplits() {
 		return splits;
 	}
 

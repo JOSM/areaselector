@@ -20,8 +20,8 @@ base.archivesBaseName = "areaselector"
 
 val versions = mapOf(
     "austriaaddresshelper" to "v0.8.0",
-    "boofcv" to "0.24.1",
-    "ddogleg" to "0.17",
+    "boofcv" to "0.39",
+    "ddogleg" to "0.20",
     "ejml" to "0.41",
     "errorprone" to "2.9.0",
     "junit" to "5.8.1",
@@ -89,19 +89,20 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:${versions["log4j"]}")
     implementation("org.apache.logging.log4j:log4j-core:${versions["log4j"]}")
 
-    packIntoJar("org.boofcv:core:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:feature:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:visualize:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:ip:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:io:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:boofcv-core:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:boofcv-feature:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:boofcv-swing:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:boofcv-ip:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:boofcv-io:${versions["boofcv"]}")
     packIntoJar("org.ddogleg:ddogleg:${versions["ddogleg"]}")
     packIntoJar(files("lib/marvin-custom.jar"))
     packIntoJar(files("lib/marvinplugins-custom.jar"))
-    libsImplementation("org.boofcv:core:${versions["boofcv"]}")
-    libsImplementation("org.boofcv:feature:${versions["boofcv"]}")
-    libsImplementation("org.boofcv:visualize:${versions["boofcv"]}")
-    libsImplementation("org.boofcv:ip:${versions["boofcv"]}")
-    libsImplementation("org.boofcv:io:${versions["boofcv"]}")
+
+    libsImplementation("org.boofcv:boofcv-core:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:boofcv-feature:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:boofcv-swing:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:boofcv-ip:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:boofcv-io:${versions["boofcv"]}")
     libsImplementation("org.ddogleg:ddogleg:${versions["ddogleg"]}")
 
     testImplementation ("org.openstreetmap.josm:josm-unittest:SNAPSHOT"){ isChanging = true }
@@ -138,8 +139,8 @@ spotbugs {
     reportLevel.set(Confidence.LOW)
 }
 pmd {
-    toolVersion = versions["pmd"]
-    setIgnoreFailures(true)
+    toolVersion = versions["pmd"]!!
+    isIgnoreFailures = true
     sourceSets = listOf(project.sourceSets["main"])
     ruleSets("category/java/bestpractices.xml", "category/java/codestyle.xml", "category/java/errorprone.xml")
 }
