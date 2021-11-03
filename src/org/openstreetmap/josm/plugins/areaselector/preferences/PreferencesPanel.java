@@ -30,7 +30,9 @@ import org.openstreetmap.josm.plugins.areaselector.ImageAnalyzer;
 import org.openstreetmap.josm.tools.GBC;
 import org.openstreetmap.josm.tools.Logging;
 
-import java.awt.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
 
