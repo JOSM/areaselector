@@ -1,12 +1,15 @@
-import com.github.spotbugs.SpotBugsTask
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
 import net.ltgt.gradle.errorprone.*
 import org.openstreetmap.josm.gradle.plugin.task.MarkdownToHtml
 import java.net.URL
 
 plugins {
+    id("com.github.ben-manes.versions") version "0.39.0"
     id("org.openstreetmap.josm") version "0.7.1"
-    id("com.github.spotbugs") version "2.0.0"
-    id("net.ltgt.errorprone") version "0.8.1"
+    id("com.github.spotbugs") version "4.7.9"
+    id("net.ltgt.errorprone") version "2.0.2"
     java
     pmd
     `maven-publish`
@@ -15,19 +18,35 @@ plugins {
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 base.archivesBaseName = "areaselector"
 
-val errorProneVersion = "2.3.2"
-val spotbugsVersion = "3.1.12"
-val pmdVersion = "6.18.0"
-val junitVersion = "5.3.1"
+val versions = mapOf(
+    "austriaaddresshelper" to "v0.8.0",
+    "boofcv" to "0.24.1",
+    "ddogleg" to "0.17",
+    "ejml" to "0.41",
+    "errorprone" to "2.9.0",
+    "junit" to "5.8.1",
+    "log4j" to "2.14.1",
+    "pmd" to "6.18.0",
+    "spotbugs" to "4.4.2",
+    "xmlpull" to "1.1.3.1",
+    "xpp" to "1.1.6",
+    "xstream" to "1.4.18"
+)
 
 repositories {
     jcenter()
+    mavenCentral()
     ivy {
         url = uri("https://github.com/JOSM/austriaaddresshelper/releases/download/")
-        val aahVersion = "v0.8.0"
+        content {
+            includeModule("org.openstreetmap.josm.plugins", "austriaaddresshelper")
+        }
         patternLayout {
-            artifact("/$aahVersion/[artifact].[ext]")
-            ivy("$aahVersion/ivy.xml")
+            artifact("/${versions["austriaaddresshelper"]}/[artifact].[ext]")
+            //ivy("${versions["austriaaddresshelper"]}/ivy.xml")
+        }
+        metadataSources {
+            artifact()
         }
     }
     flatDir {
@@ -63,37 +82,37 @@ val libsImplementation by configurations.getting {
 }
 
 dependencies {
-    packIntoJar("com.thoughtworks.xstream:xstream:1.4.11.1")
-    packIntoJar("org.ejml:ejml-core:0.38")
-    packIntoJar("org.ogce:xpp3:1.1.5")
-    packIntoJar("xmlpull:xmlpull:1.1.3.1")
-    implementation("org.apache.logging.log4j:log4j-api:2.12.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.12.0")
+    packIntoJar("com.thoughtworks.xstream:xstream:${versions["xstream"]}")
+    packIntoJar("org.ejml:ejml-core:${versions["ejml"]}")
+    packIntoJar("org.ogce:xpp3:${versions["xpp"]}")
+    packIntoJar("xmlpull:xmlpull:${versions["xmlpull"]}")
+    implementation("org.apache.logging.log4j:log4j-api:${versions["log4j"]}")
+    implementation("org.apache.logging.log4j:log4j-core:${versions["log4j"]}")
 
-    packIntoJar("org.boofcv:core:0.24.1")
-    packIntoJar("org.boofcv:feature:0.24.1")
-    packIntoJar("org.boofcv:visualize:0.24.1")
-    packIntoJar("org.boofcv:ip:0.24.1")
-    packIntoJar("org.boofcv:io:0.24.1")
-    packIntoJar("org.ddogleg:ddogleg:0.17")
+    packIntoJar("org.boofcv:core:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:feature:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:visualize:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:ip:${versions["boofcv"]}")
+    packIntoJar("org.boofcv:io:${versions["boofcv"]}")
+    packIntoJar("org.ddogleg:ddogleg:${versions["ddogleg"]}")
     packIntoJar(files("lib/marvin-custom.jar"))
     packIntoJar(files("lib/marvinplugins-custom.jar"))
-    libsImplementation("org.boofcv:core:0.24.1")
-    libsImplementation("org.boofcv:feature:0.24.1")
-    libsImplementation("org.boofcv:visualize:0.24.1")
-    libsImplementation("org.boofcv:ip:0.24.1")
-    libsImplementation("org.boofcv:io:0.24.1")
-    libsImplementation("org.ddogleg:ddogleg:0.17")
+    libsImplementation("org.boofcv:core:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:feature:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:visualize:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:ip:${versions["boofcv"]}")
+    libsImplementation("org.boofcv:io:${versions["boofcv"]}")
+    libsImplementation("org.ddogleg:ddogleg:${versions["ddogleg"]}")
 
     testImplementation ("org.openstreetmap.josm:josm-unittest:SNAPSHOT"){ isChanging = true }
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testImplementation("com.github.spotbugs:spotbugs-annotations:3.1.7")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${versions["junit"]}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${versions["junit"]}")
+    testImplementation("com.github.spotbugs:spotbugs-annotations:${versions["spotbugs"]}")
 }
 
 // Set up ErrorProne
 dependencies {
-  errorprone("com.google.errorprone:error_prone_core:$errorProneVersion")
+  errorprone("com.google.errorprone:error_prone_core:${versions["errorprone"]}")
   if (!JavaVersion.current().isJava9Compatible) {
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
   }
@@ -113,14 +132,13 @@ tasks.withType(JavaCompile::class).configureEach {
 }
 
 spotbugs {
-    toolVersion = spotbugsVersion
-    setIgnoreFailures(true)
-    effort = "max"
-    reportLevel = "low"
-    sourceSets = listOf(project.sourceSets["main"])
+    toolVersion.set(versions["spotbugs"])
+    ignoreFailures.set(true)
+    effort.set(Effort.MAX)
+    reportLevel.set(Confidence.LOW)
 }
 pmd {
-    toolVersion = pmdVersion
+    toolVersion = versions["pmd"]
     setIgnoreFailures(true)
     sourceSets = listOf(project.sourceSets["main"])
     ruleSets("category/java/bestpractices.xml", "category/java/codestyle.xml", "category/java/errorprone.xml")
@@ -148,10 +166,8 @@ tasks.withType(Javadoc::class) {
   isFailOnError = false
 }
 tasks.withType(SpotBugsTask::class) {
-  reports {
-    xml.isEnabled = false
-    html.isEnabled = true
-  }
+  reports.create("html")
+  reports.create("xml")
 }
 tasks.create("md2html", MarkdownToHtml::class) {
   destDir = File(buildDir, "md2html")
