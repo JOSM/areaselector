@@ -20,7 +20,7 @@ package boofcv.alg.shapes.polyline;
 
 import java.util.List;
 
-import org.ddogleg.struct.GrowQueue_I32;
+import org.ddogleg.struct.DogArray_I32;
 
 import georegression.geometry.UtilPoint2D_I32;
 import georegression.metric.Distance2D_F64;
@@ -97,8 +97,8 @@ public class SplitMergeLineFitAngleLoop extends SplitMergeLineFitAngle {
 		Point2D_I32 a = contour.get(indexStart);
 		Point2D_I32 c = contour.get(indexEnd);
 
-		line.p.set(a.x,a.y);
-		line.slope.set(c.x-a.x,c.y-a.y);
+		line.p.setTo(a.x, a.y);
+		line.slope.setTo(c.x - a.x, c.y - a.y);
 
 		int splitOffset = selectSplitOffset(indexStart,length);
 
@@ -187,7 +187,7 @@ public class SplitMergeLineFitAngleLoop extends SplitMergeLineFitAngle {
 		}
 
 		// swap the two lists
-		GrowQueue_I32 tmp = work;
+		DogArray_I32 tmp = work;
 		work = splits;
 		splits = tmp;
 
@@ -209,7 +209,7 @@ public class SplitMergeLineFitAngleLoop extends SplitMergeLineFitAngle {
 		change = checkSplit(change, splits.size-1,0);
 
 		// swap the two lists
-		GrowQueue_I32 tmp = work;
+		DogArray_I32 tmp = work;
 		work = splits;
 		splits = tmp;
 
@@ -224,8 +224,8 @@ public class SplitMergeLineFitAngleLoop extends SplitMergeLineFitAngle {
 		Point2D_I32 a = contour.get(start);
 		Point2D_I32 b = contour.get(end);
 
-		line.p.set(a.x,a.y);
-		line.slope.set(b.x-a.x,b.y-a.y);
+		line.p.setTo(a.x, a.y);
+		line.slope.setTo(b.x - a.x, b.y - a.y);
 
 		int bestOffset = selectSplitOffset(start,length);
 		if( bestOffset >= 0 ) {
@@ -250,7 +250,7 @@ public class SplitMergeLineFitAngleLoop extends SplitMergeLineFitAngle {
 		// don't try splitting at the two end points
 		for( int i = 1; i < length; i++ ) {
 			Point2D_I32 b = contour.get((indexStart+i)%N);
-			point2D.set(b.x,b.y);
+			point2D.setTo(b.x, b.y);
 
 			double dist = Distance2D_F64.distanceSq(line, point2D);
 			if( dist > bestDistanceSq ) {

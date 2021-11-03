@@ -327,11 +327,11 @@ public class ImageAnalyzer {
         float hue = color[0];
         float saturation = color[1];
 
-        Planar<GrayF32> input = ConvertBufferedImage.convertFromMulti(image, null, true, GrayF32.class);
+        Planar<GrayF32> input = ConvertBufferedImage.convertFromPlanar(image, null, true, GrayF32.class);
         Planar<GrayF32> hsv = new Planar<>(GrayF32.class, input.width, input.height, 3);
 
         // Convert into HSV
-        ColorHsv.rgbToHsv_F32(input, hsv);
+        ColorHsv.rgbToHsv(input, hsv);
 
         // Euclidean distance squared threshold for deciding which pixels are members of the selected set
         float maxDist2 = 0.4f*0.4f;
@@ -379,7 +379,7 @@ public class ImageAnalyzer {
         int[] histogram = new int[256];
         int[] transform = new int[256];
 
-        ImageStatistics.histogram(gray, histogram);
+        ImageStatistics.histogram(gray, 0, histogram);
         EnhanceImageOps.equalize(histogram, transform);
         EnhanceImageOps.applyTransform(gray, transform, adjusted);
 
@@ -389,7 +389,7 @@ public class ImageAnalyzer {
         // create a binary image by thresholding
         ThresholdImageOps.threshold(adjusted, binary, (int) mean, true);
 
-        EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram, transform);
+        EnhanceImageOps.equalizeLocal(gray, 50, adjusted, histogram.length, null);
 
         return ConvertBufferedImage.convertTo(adjusted, null);
     }
@@ -457,7 +457,7 @@ public class ImageAnalyzer {
                     gray.width, gray.height, null);
             int[] colors = null;
             BufferedImage visualEdgeContour = new BufferedImage(gray.width, gray.height, BufferedImage.TYPE_INT_ARGB);
-            VisualizeBinaryData.renderExternal(contours, colors, visualEdgeContour);
+            VisualizeBinaryData.render(contours, colors, visualEdgeContour);
             saveImgToFile(visualBinary, "canny_binary");
             saveImgToFile(visualCannyContour, "canny_contour");
             saveImgToFile(visualEdgeContour, "canny_edge");
@@ -1103,7 +1103,7 @@ public class ImageAnalyzer {
     }
 
     public static void main(String[] args) {
-        ConsoleAppender console = ConsoleAppender.newBuilder().withName("console").withLayout(
+        ConsoleAppender console = ConsoleAppender.newBuilder().setName("console").setLayout(
                 PatternLayout.newBuilder().withPattern("%d{yyyy-MM-dd HH:mm:ss} %-5p %c:%L: %m %x%n").build())
                 .build();
 
