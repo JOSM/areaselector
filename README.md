@@ -12,7 +12,7 @@ If you want to know how to configure the plugin, you can look at the [Configurat
 ## Building from source
 Checkout the JOSM source, compile it and checkout the plugin source:
 
-    svn co http://svn.openstreetmap.org/applications/editors/josm josm
+    svn co https://josm.openstreetmap.de/osmsvn/applications/editors/josm josm
     cd josm/core
     ant clean dist
     cd ../plugins
