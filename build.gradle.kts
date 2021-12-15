@@ -25,7 +25,7 @@ val versions = mapOf(
     "ejml" to "0.41",
     "errorprone" to "2.9.0",
     "junit" to "5.8.1",
-    "log4j" to "2.14.1",
+    "log4j" to "2.16.0",
     "pmd" to "6.18.0",
     "spotbugs" to "4.4.2",
     "xmlpull" to "1.1.3.1",
