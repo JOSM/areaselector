@@ -20,12 +20,13 @@ base.archivesBaseName = "areaselector"
 
 val versions = mapOf(
     "austriaaddresshelper" to "v0.8.0",
+    // Note: boofcv 0.39.1 is NOT Java 8 compatible
     "boofcv" to "0.39",
     "ddogleg" to "0.20",
-    "errorprone" to "2.9.0",
-    "junit" to "5.8.1",
+    "errorprone" to "2.10.0",
+    "junit" to "5.8.2",
     "pmd" to "6.18.0",
-    "spotbugs" to "4.4.2",
+    "spotbugs" to "4.5.2",
     "xmlpull" to "1.1.3.1",
     "xpp" to "1.1.6",
     "xstream" to "1.4.18"
