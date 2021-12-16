@@ -11,5 +11,8 @@
     <dependency org="org.boofcv" name="boofcv-io" rev="0.39"/>
     <!-- from ejml plugin -->
     <exclude org="org.ejml"/>
+    <!-- from apache-commons plugin -->
+    <exclude org="org.apache.commons" module="commons-compress"/>
+    <exclude org="commons-io" module="commons-io"/>
   </dependencies>
 </ivy-module>

@@ -14,13 +14,14 @@
   <import file="../build-common.xml" />
 
     <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
-        <include name="austriaaddresshelper.jar"/>
-        <include name="ejml.jar"/>
-        <include name="log4j.jar"/>
+      <include name="apache-commons.jar"/>
+      <include name="austriaaddresshelper.jar"/>
+      <include name="ejml.jar"/>
+      <include name="log4j.jar"/>
     </fileset>
 
     <target name="pre-compile" depends="fetch_dependencies">
-        <!-- include fetch_dependencies task -->
+      <!-- include fetch_dependencies task -->
     </target>
 
   <target name="install-plugin" depends="clean, dist, install">
