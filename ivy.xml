@@ -1,14 +1,15 @@
 <ivy-module version="2.0">
-	<info organisation="org.openstreetmap.josm.plugins" module="areaselector" revision="2.2.0" />
-	<configurations defaultconf="default" defaultconfmapping="default->default,sources,javadoc">
-		<conf name="default" />
-	</configurations>
-	<dependencies>
-		<dependency org="org.boofcv" name="boofcv-core" rev="0.39"/>
-		<dependency org="org.boofcv" name="boofcv-feature" rev="0.39"/>
-		<dependency org="org.boofcv" name="boofcv-swing" rev="0.39"/>
-		<dependency org="org.boofcv" name="boofcv-ip" rev="0.39"/>
-		<dependency org="org.boofcv" name="boofcv-io" rev="0.39"/>
-
-	</dependencies>
+  <info organisation="org.openstreetmap.josm.plugins" module="areaselector" revision="2.2.0" />
+  <configurations defaultconf="default" defaultconfmapping="default->default,sources,javadoc">
+    <conf name="default" />
+  </configurations>
+  <dependencies>
+    <dependency org="org.boofcv" name="boofcv-core" rev="0.39"/>
+    <dependency org="org.boofcv" name="boofcv-feature" rev="0.39"/>
+    <dependency org="org.boofcv" name="boofcv-swing" rev="0.39"/>
+    <dependency org="org.boofcv" name="boofcv-ip" rev="0.39"/>
+    <dependency org="org.boofcv" name="boofcv-io" rev="0.39"/>
+    <!-- from ejml plugin -->
+    <exclude org="org.ejml"/>
+  </dependencies>
 </ivy-module>
