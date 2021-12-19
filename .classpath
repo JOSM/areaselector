@@ -1,31 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JOSM"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-log4j"/>
 	<classpathentry kind="lib" path="../../dist/log4j.jar"/>
-	<classpathentry kind="lib" path="lib/calibration-jar.jar"/>
-	<classpathentry kind="lib" path="lib/core-jar.jar" sourcepath="lib/core-source.jar"/>
-	<classpathentry kind="lib" path="lib/ddogleg-jar.jar"/>
-	<classpathentry kind="lib" path="lib/dense64-jar.jar"/>
-	<classpathentry kind="lib" path="lib/equation-jar.jar"/>
-	<classpathentry kind="lib" path="lib/feature-jar.jar" sourcepath="lib/feature-source.jar"/>
-	<classpathentry kind="lib" path="lib/geo-jar.jar"/>
-	<classpathentry kind="lib" path="lib/georegression-jar.jar"/>
-	<classpathentry kind="lib" path="lib/io-jar.jar" sourcepath="lib/io-source.jar"/>
-	<classpathentry kind="lib" path="lib/ip-jar.jar" sourcepath="lib/ip-source.jar"/>
-	<classpathentry kind="lib" path="lib/learning-jar.jar"/>
-	<classpathentry kind="lib" path="lib/recognition-jar.jar"/>
-	<classpathentry kind="lib" path="lib/sfm-jar.jar"/>
-	<classpathentry kind="lib" path="lib/simple-jar.jar"/>
-	<classpathentry kind="lib" path="lib/visualize-jar.jar" sourcepath="lib/visualize-source.jar"/>
-	<classpathentry kind="lib" path="lib/xmlpull-jar.jar"/>
-	<classpathentry kind="lib" path="lib/xpp3_min-jar.jar"/>
-	<classpathentry kind="lib" path="lib/xstream-jar.jar"/>
 	<classpathentry kind="lib" path="lib/marvin-custom.jar"/>
 	<classpathentry kind="lib" path="lib/marvinplugins-custom.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JOSM-austriaaddresshelper"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=JOSM-areaselector&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
