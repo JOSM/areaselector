@@ -13,6 +13,28 @@
   <!-- ** include targets that all plugins have in common ** -->
   <import file="../build-common.xml" />
 
+    <!-- Disable build below java 11 -->
+    <condition property="skip-compile">
+        <not>
+            <isset property="isJava11"/>
+        </not>
+    </condition>
+    <condition property="skip-dist">
+        <not>
+            <isset property="isJava11"/>
+        </not>
+    </condition>
+    <condition property="skip-javadoc">
+        <not>
+            <isset property="isJava11"/>
+        </not>
+    </condition>
+    <condition property="skip-test">
+        <not>
+            <isset property="isJava11"/>
+        </not>
+    </condition>
+
     <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
       <include name="apache-commons.jar"/>
       <include name="austriaaddresshelper.jar"/>
