@@ -4,11 +4,11 @@
     <conf name="default" />
   </configurations>
   <dependencies>
-    <dependency org="org.boofcv" name="boofcv-core" rev="0.39"/>
-    <dependency org="org.boofcv" name="boofcv-feature" rev="0.39"/>
-    <dependency org="org.boofcv" name="boofcv-swing" rev="0.39"/>
-    <dependency org="org.boofcv" name="boofcv-ip" rev="0.39"/>
-    <dependency org="org.boofcv" name="boofcv-io" rev="0.39"/>
+    <dependency org="org.boofcv" name="boofcv-core" rev="0.39.1"/>
+    <dependency org="org.boofcv" name="boofcv-feature" rev="0.39.1"/>
+    <dependency org="org.boofcv" name="boofcv-swing" rev="0.39.1"/>
+    <dependency org="org.boofcv" name="boofcv-ip" rev="0.39.1"/>
+    <dependency org="org.boofcv" name="boofcv-io" rev="0.39.1"/>
     <!-- from ejml plugin -->
     <exclude org="org.ejml"/>
     <!-- from apache-commons plugin -->
