@@ -42,7 +42,7 @@ import org.openstreetmap.josm.data.tagging.ac.AutoCompletionSet;
 import org.openstreetmap.josm.gui.ExtendedDialog;
 import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.layer.Layer;
-import org.openstreetmap.josm.gui.tagging.ac.AutoCompletingComboBox;
+import org.openstreetmap.josm.gui.tagging.ac.AutoCompComboBox;
 import org.openstreetmap.josm.gui.tagging.ac.AutoCompletionManager;
 import org.openstreetmap.josm.spi.preferences.Config;
 import org.openstreetmap.josm.tools.GBC;
@@ -82,7 +82,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
     protected JTextField houseNumField;
     protected ButtonGroup houseNumChange;
 
-    protected AutoCompletingComboBox streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField, sourceField;
+    protected AutoCompComboBox<AutoCompletionItem> streetNameField, cityField, postCodeField, countryField, houseNameField, buildingField, tagsField, sourceField;
 
     protected static final String[] BUTTON_TEXTS = new String[] {tr("OK"), tr("Cancel")};
     protected static final String[] BUTTON_ICONS = new String[] {"ok", "cancel"};
@@ -125,8 +125,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
         AutoCompletionManager acm = AutoCompletionManager.of(OsmDataManager.getInstance().getEditDataSet());
 
-        houseNameField = new AutoCompletingComboBox();
-        houseNameField.setPossibleAcItems(acm.getTagValues(TAG_HOUSENAME));
+        houseNameField = new AutoCompComboBox<>();
+        houseNameField.getModel().addAllElements(acm.getTagValues(TAG_HOUSENAME));
         houseNameField.setEditable(true);
 
         houseNumField = new JTextField();
@@ -177,29 +177,29 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         });
         houseNumPanel.add(skip);
 
-        streetNameField = new AutoCompletingComboBox();
-        streetNameField.setPossibleAcItems(acm.getTagValues(TAG_STREETNAME));
+        streetNameField = new AutoCompComboBox<>();
+        streetNameField.getModel().addAllElements(acm.getTagValues(TAG_STREETNAME));
         streetNameField.setEditable(true);
         streetNameField.setSelectedItem(Config.getPref().get(PREF_STREETNAME));
 
-        cityField = new AutoCompletingComboBox();
-        cityField.setPossibleAcItems(acm.getTagValues(TAG_CITY));
+        cityField = new AutoCompComboBox<>();
+        cityField.getModel().addAllElements(acm.getTagValues(TAG_CITY));
         cityField.setEditable(true);
         cityField.setSelectedItem(Config.getPref().get(PREF_CITY));
 
-        postCodeField = new AutoCompletingComboBox();
-        postCodeField.setPossibleAcItems(acm.getTagValues(TAG_POSTCODE));
+        postCodeField = new AutoCompComboBox<>();
+        postCodeField.getModel().addAllElements(acm.getTagValues(TAG_POSTCODE));
         postCodeField.setEditable(true);
         postCodeField.setSelectedItem(Config.getPref().get(PREF_POSTCODE));
 
-        countryField = new AutoCompletingComboBox();
-        countryField.setPossibleAcItems(acm.getTagValues(TAG_COUNTRY));
+        countryField = new AutoCompComboBox<>();
+        countryField.getModel().addAllElements(acm.getTagValues(TAG_COUNTRY));
         countryField.setEditable(true);
         countryField.setSelectedItem(Config.getPref().get(PREF_COUNTRY));
 
 
-        buildingField = new AutoCompletingComboBox();
-        buildingField.setPossibleAcItems(acm.getTagValues(TAG_BUILDING));
+        buildingField = new AutoCompComboBox<>();
+        buildingField.getModel().addAllElements(acm.getTagValues(TAG_BUILDING));
         buildingField.setEditable(true);
         buildingField.setSelectedItem(Config.getPref().get(PREF_BUILDING));
 
@@ -226,12 +226,12 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         }
 
 
-        tagsField = new AutoCompletingComboBox();
-        tagsField.setPossibleAcItems(aciTags);
+        tagsField = new AutoCompComboBox<>();
+        tagsField.getModel().addAllElements(aciTags);
         tagsField.setEditable(true);
         tagsField.setSelectedItem(otherTags.length() > 0 ? otherTags : Config.getPref().get(PREF_TAGS));
 
-        sourceField = new AutoCompletingComboBox();
+        sourceField = new AutoCompComboBox<>();
         AutoCompletionSet sourceValues = acm.getTagValues(TAG_SOURCE);
 
         ArrayList<String> sources = new ArrayList<>();
@@ -241,12 +241,12 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
             }
         }
         Collections.reverse(sources);
-        String source = sources.stream().map(Object::toString).collect(Collectors.joining("; ")).toString();
+        String source = sources.stream().map(Object::toString).collect(Collectors.joining("; "));
         if (!source.isEmpty()) {
             sourceValues.add(new AutoCompletionItem(source));
         }
 
-        sourceField.setPossibleAcItems(sourceValues);
+        sourceField.getModel().addAllElements(sourceValues);
         sourceField.setEditable(true);
         sourceField.setPreferredSize(new Dimension(400, 24));
         sourceField.setSelectedItem(Config.getPref().get(PREF_SOURCE));
@@ -281,8 +281,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         fields.addAll(Arrays.asList(fieldArr));
 
         for (Component field: fields){
-            if (field instanceof AutoCompletingComboBox){
-                AutoCompletingComboBox combox = (AutoCompletingComboBox) field;
+            if (field instanceof AutoCompComboBox){
+                AutoCompComboBox<?> combox = (AutoCompComboBox<?>) field;
                 if (selectedOsmObject.hasKey(combox.getName())){
                     combox.setSelectedItem(selectedOsmObject.get(combox.getName()));
                 }
@@ -328,8 +328,8 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
 
                     if (fields.get(i).equals(c)) {
                         return i;
-                    } else if (fields.get(i) instanceof AutoCompletingComboBox) {
-                        AutoCompletingComboBox ac = (AutoCompletingComboBox) fields.get(i);
+                    } else if (fields.get(i) instanceof AutoCompComboBox) {
+                        AutoCompComboBox<?> ac = (AutoCompComboBox<?>) fields.get(i);
                         if (Arrays.asList(ac.getComponents()).contains(c)) {
                             return i;
                         }
@@ -350,7 +350,7 @@ public class AddressDialog extends ExtendedDialog implements ChangeListener {
         }
     }
 
-    protected String getAutoCompletingComboBoxValue(AutoCompletingComboBox box) {
+    protected String getAutoCompletingComboBoxValue(AutoCompComboBox<?> box) {
         Object item = box.getSelectedItem();
         if (item != null) {
             if (item instanceof String) {

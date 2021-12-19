@@ -20,14 +20,13 @@ base.archivesBaseName = "areaselector"
 
 val versions = mapOf(
     "austriaaddresshelper" to "v0.8.0",
+    // Note: boofcv 0.39.1 is NOT Java 8 compatible
     "boofcv" to "0.39",
     "ddogleg" to "0.20",
-    "ejml" to "0.41",
-    "errorprone" to "2.9.0",
-    "junit" to "5.8.1",
-    "log4j" to "2.16.0",
+    "errorprone" to "2.10.0",
+    "junit" to "5.8.2",
     "pmd" to "6.18.0",
-    "spotbugs" to "4.4.2",
+    "spotbugs" to "4.5.2",
     "xmlpull" to "1.1.3.1",
     "xpp" to "1.1.6",
     "xstream" to "1.4.18"
@@ -36,6 +35,8 @@ val versions = mapOf(
 repositories {
     jcenter()
     mavenCentral()
+    // Note: This may become unnecessary in future josm gradle plugin versions.
+    // See https://gitlab.com/floscher/gradle-josm-plugin/-/merge_requests/9
     ivy {
         url = uri("https://github.com/JOSM/austriaaddresshelper/releases/download/")
         content {
@@ -83,11 +84,8 @@ val libsImplementation by configurations.getting {
 
 dependencies {
     packIntoJar("com.thoughtworks.xstream:xstream:${versions["xstream"]}")
-    packIntoJar("org.ejml:ejml-core:${versions["ejml"]}")
     packIntoJar("org.ogce:xpp3:${versions["xpp"]}")
     packIntoJar("xmlpull:xmlpull:${versions["xmlpull"]}")
-    implementation("org.apache.logging.log4j:log4j-api:${versions["log4j"]}")
-    implementation("org.apache.logging.log4j:log4j-core:${versions["log4j"]}")
 
     packIntoJar("org.boofcv:boofcv-core:${versions["boofcv"]}")
     packIntoJar("org.boofcv:boofcv-feature:${versions["boofcv"]}")
@@ -105,7 +103,6 @@ dependencies {
     libsImplementation("org.boofcv:boofcv-io:${versions["boofcv"]}")
     libsImplementation("org.ddogleg:ddogleg:${versions["ddogleg"]}")
 
-    testImplementation ("org.openstreetmap.josm:josm-unittest:SNAPSHOT"){ isChanging = true }
     testImplementation("org.junit.jupiter:junit-jupiter-api:${versions["junit"]}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${versions["junit"]}")
     testImplementation("com.github.spotbugs:spotbugs-annotations:${versions["spotbugs"]}")
@@ -151,9 +148,7 @@ josm {
         pathTransformer = getPathTransformer(project.projectDir, "github.com/JOSM/areaselector/blob")
     }
     manifest {
-        pluginDependencies.add("austriaaddresshelper")
-        pluginDependencies.add("ejml")
-        pluginDependencies.add("log4j")
+        oldVersionDownloadLink(16871, "v2.6.0-beta.1", URL("https://github.com/JOSM/areaselector/releases/download/v2.6.0-beta.1/areaselector.jar"))
         oldVersionDownloadLink(15017, "v2.5.1", URL("https://github.com/JOSM/areaselector/releases/download/v2.5.1/areaselector.jar"))
         oldVersionDownloadLink(12859, "v2.4.9", URL("https://github.com/JOSM/areaselector/releases/download/v2.4.9/areaselector.jar"))
         oldVersionDownloadLink(11226, "v2.4.3", URL("https://github.com/JOSM/areaselector/releases/download/v2.4.3/areaselector.jar"))
