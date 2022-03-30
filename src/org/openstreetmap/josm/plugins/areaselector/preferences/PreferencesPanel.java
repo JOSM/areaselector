@@ -23,6 +23,7 @@ import org.openstreetmap.josm.data.preferences.IntegerProperty;
 import org.openstreetmap.josm.data.preferences.StringProperty;
 import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.tagging.presets.TaggingPreset;
+import org.openstreetmap.josm.gui.tagging.presets.TaggingPresetSeparator;
 import org.openstreetmap.josm.gui.tagging.presets.TaggingPresetType;
 import org.openstreetmap.josm.gui.tagging.presets.TaggingPresets;
 import org.openstreetmap.josm.plugins.areaselector.AreaSelectorAction;
@@ -35,6 +36,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Area Selector Preferences JPanel
@@ -381,7 +383,7 @@ public class PreferencesPanel extends JPanel {
 		String taggingPresetName = new StringProperty(AreaSelectorAction.KEY_TAGGINGPRESETNAME, "").get();
 		lblPresetName.setText(taggingPresetName);
 		for (TaggingPreset t : TaggingPresets.getTaggingPresets()) {
-			if (t.getRawName().equals(taggingPresetName)) {
+			if (!(t instanceof TaggingPresetSeparator) && Objects.equals(t.getRawName(), taggingPresetName)) {
 				lblPresetName.setIcon(t.getIcon(Action.LARGE_ICON_KEY));
 				break;
 			}
