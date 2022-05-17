@@ -49,9 +49,7 @@ import org.openstreetmap.josm.data.osm.Way;
 import org.openstreetmap.josm.data.preferences.BooleanProperty;
 import org.openstreetmap.josm.data.preferences.DoubleProperty;
 import org.openstreetmap.josm.data.preferences.StringProperty;
-import org.openstreetmap.josm.gui.IconToggleButton;
 import org.openstreetmap.josm.gui.MainApplication;
-import org.openstreetmap.josm.gui.MapFrame;
 import org.openstreetmap.josm.gui.MapView;
 import org.openstreetmap.josm.gui.Notification;
 import org.openstreetmap.josm.gui.layer.Layer;
@@ -100,17 +98,18 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
 
     protected Point clickPoint = null;
 
-    public AreaSelectorAction(MapFrame mapFrame) {
+    public AreaSelectorAction() {
         super(tr("Area Selection"), "areaselector", tr("Select an area (e.g. building) from an underlying image."),
                 Shortcut.registerShortcut("tools:areaselector", tr("Tools: {0}", tr("Area Selector")), KeyEvent.VK_A,
                         Shortcut.ALT_CTRL),
                 getCursor());
 
         // load prefs
-        this.readPrefs();
+        this.readPreferences();
     }
 
-    protected void readPrefs() {
+    @Override
+    protected void readPreferences() {
         this.mergeNodes = new BooleanProperty(KEY_MERGENODES, true).get();
         this.showAddressDialog = new BooleanProperty(KEY_SHOWADDRESSDIALOG, true).get();
         this.taggingStyle = new StringProperty(KEY_TAGGINGSTYLE, "none").get();
@@ -141,12 +140,6 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         MainApplication.getMap().mapView.removeMouseListener(this);
     }
 
-    public void updateMapFrame(MapFrame oldFrame, MapFrame newFrame) {
-        if (oldFrame == null && newFrame != null) {
-            MainApplication.getMap().addMapMode(new IconToggleButton(this));
-        }
-    }
-
     /**
      * Invoked when the mouse button has been clicked (pressed and released) on
      * a component.
@@ -167,16 +160,12 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
             new Notification("<strong>" + tr("Area Selector") + "</strong><br />" + tr("Trying to detect an area at:")
             + "<br>" + coordinates.getX() + ", " + coordinates.getY()).setIcon(JOptionPane.INFORMATION_MESSAGE)
             .show();
-            SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        createArea();
-                    } catch (Exception ex) {
-                        log.error("failed to add area", ex);
-                        new BugReportDialog(ex);
-                    }
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    createArea();
+                } catch (Exception ex) {
+                    log.error("failed to add area", ex);
+                    new BugReportDialog(ex);
                 }
             });
 
@@ -552,7 +541,4 @@ public class AreaSelectorAction extends MapMode implements MouseListener {
         return MergeNodesAction.mergeNodes(selectedNodes, targetNode, targetLocationNode);
     }
 
-    public void setPrefs() {
-        this.readPrefs();
-    }
 }
