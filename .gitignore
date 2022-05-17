@@ -3,7 +3,6 @@ bin
 .svn
 build
 out
-test
 lib/jar
 lib/javadoc
 lib/source

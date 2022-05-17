@@ -10,6 +10,7 @@ import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.openstreetmap.josm.gui.IconToggleButton;
 import org.openstreetmap.josm.gui.MainApplication;
 import org.openstreetmap.josm.gui.MainMenu;
 import org.openstreetmap.josm.gui.MapFrame;
@@ -33,7 +34,7 @@ public class AreaSelectorPlugin extends Plugin {
 
 		setupLogging();
 
-		areaSelectorAction = new AreaSelectorAction(MainApplication.getMap());
+		areaSelectorAction = new AreaSelectorAction();
 		MainMenu.add(MainApplication.getMenu().toolsMenu, areaSelectorAction);
 
 		addressDialogAction = new AddressDialogAction(MainApplication.getMap());
@@ -45,12 +46,15 @@ public class AreaSelectorPlugin extends Plugin {
 	 */
 	@Override
 	public void mapFrameInitialized(MapFrame oldFrame, MapFrame newFrame) {
-		areaSelectorAction.updateMapFrame(oldFrame, newFrame);
+		// Do not share AreaSelectorActions -- the action added to the mapmode is destroyed when the mapmode is destroyed
+		 if (oldFrame == null && newFrame != null) {
+			 MainApplication.getMap().addMapMode(new IconToggleButton(new AreaSelectorAction()));
+		 }
 	}
 
 	@Override
 	public PreferenceSetting getPreferenceSetting() {
-		return new AreaSelectorPreference(this);
+		return new AreaSelectorPreference();
 	}
 
 	/**
