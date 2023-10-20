@@ -1,0 +1,25 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - master
+      - $default-branch
+      - $protected-branches
+  pull_request:
+    branches:
+      - master
+      - $default-branch
+  schedule:
+  - cron: "43 19 * * 3"
+  workflow_dispatch:
+
+jobs:
+  call-workflow:
+    strategy:
+      matrix:
+        josm-revision: ["", "r18173"]
+    uses: JOSM/JOSMPluginAction/.github/workflows/ant.yml@v2
+    with:
+      josm-revision: ${{ matrix.josm-revision }}
+    secrets: inherit
