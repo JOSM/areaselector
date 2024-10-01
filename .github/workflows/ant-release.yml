@@ -4,12 +4,16 @@ on:
   release:
     types: [created]
 
+permissions:
+  id-token: write
+  attestations: write
+  contents: write
+  packages: write
+  checks: write
+
 jobs:
   call-workflow:
-    uses: JOSM/JOSMPluginAction/.github/workflows/ant.yml@v2
+    uses: JOSM/JOSMPluginAction/.github/workflows/ant.yml@v3
     with:
-      josm-revision: "r18173"
+      josm-revision: "r19044"
     secrets: inherit
-    permissions:
-      contents: write
-

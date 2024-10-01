@@ -6,50 +6,33 @@ import org.openstreetmap.josm.gradle.plugin.task.MarkdownToHtml
 import java.net.URL
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.39.0"
-    id("org.openstreetmap.josm") version "0.7.1"
-    id("com.github.spotbugs") version "4.7.9"
-    id("net.ltgt.errorprone") version "2.0.2"
+    id("com.github.ben-manes.versions") version "0.51.0"
+    id("org.openstreetmap.josm") version "0.8.2"
+    id("com.github.spotbugs") version "6.0.23"
+    id("net.ltgt.errorprone") version "4.0.1"
     java
     pmd
     `maven-publish`
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_1_8
+java.sourceCompatibility = JavaVersion.VERSION_11
 base.archivesBaseName = "areaselector"
 
 val versions = mapOf(
-    "austriaaddresshelper" to "v0.8.0",
-    // Note: boofcv 0.39.1 is NOT Java 8 compatible
-    "boofcv" to "0.39",
-    "ddogleg" to "0.20",
-    "errorprone" to "2.10.0",
-    "junit" to "5.8.2",
+    "austriaaddresshelper" to "v0.8.2",
+    "boofcv" to "1.1.6",
+    "ddogleg" to "0.23.3",
+    "errorprone" to "2.33.0",
+    "junit" to "5.11.1",
     "pmd" to "6.18.0",
-    "spotbugs" to "4.5.2",
-    "xmlpull" to "1.1.3.1",
+    "spotbugs" to "4.8.6",
+    "xmlpull" to "1.1.3.4a",
     "xpp" to "1.1.6",
-    "xstream" to "1.4.18"
+    "xstream" to "1.4.20"
 )
 
 repositories {
-    jcenter()
     mavenCentral()
-    // Note: This may become unnecessary in future josm gradle plugin versions.
-    // See https://gitlab.com/floscher/gradle-josm-plugin/-/merge_requests/9
-    ivy {
-        url = uri("https://github.com/JOSM/austriaaddresshelper/releases/download/")
-        content {
-            includeModule("org.openstreetmap.josm.plugins", "austriaaddresshelper")
-        }
-        patternLayout {
-            artifact("/${versions["austriaaddresshelper"]}/[artifact].[ext]")
-            //ivy("${versions["austriaaddresshelper"]}/ivy.xml")
-        }
-        metadataSources {
-            artifact()
-        }
-    }
     flatDir {
         dirs("lib")
     }
@@ -83,18 +66,18 @@ val libsImplementation by configurations.getting {
 }
 
 dependencies {
-    packIntoJar("com.thoughtworks.xstream:xstream:${versions["xstream"]}")
-    packIntoJar("org.ogce:xpp3:${versions["xpp"]}")
-    packIntoJar("xmlpull:xmlpull:${versions["xmlpull"]}")
+    implementation("com.thoughtworks.xstream:xstream:${versions["xstream"]}")
+    implementation("org.ogce:xpp3:${versions["xpp"]}")
+    implementation("xmlpull:xmlpull:${versions["xmlpull"]}")
 
-    packIntoJar("org.boofcv:boofcv-core:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:boofcv-feature:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:boofcv-swing:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:boofcv-ip:${versions["boofcv"]}")
-    packIntoJar("org.boofcv:boofcv-io:${versions["boofcv"]}")
-    packIntoJar("org.ddogleg:ddogleg:${versions["ddogleg"]}")
-    packIntoJar(files("lib/marvin-custom.jar"))
-    packIntoJar(files("lib/marvinplugins-custom.jar"))
+    implementation("org.boofcv:boofcv-core:${versions["boofcv"]}")
+    implementation("org.boofcv:boofcv-feature:${versions["boofcv"]}")
+    implementation("org.boofcv:boofcv-swing:${versions["boofcv"]}")
+    implementation("org.boofcv:boofcv-ip:${versions["boofcv"]}")
+    implementation("org.boofcv:boofcv-io:${versions["boofcv"]}")
+    implementation("org.ddogleg:ddogleg:${versions["ddogleg"]}")
+    implementation(files("lib/marvin-custom.jar"))
+    implementation(files("lib/marvinplugins-custom.jar"))
 
     libsImplementation("org.boofcv:boofcv-core:${versions["boofcv"]}")
     libsImplementation("org.boofcv:boofcv-feature:${versions["boofcv"]}")
@@ -119,7 +102,7 @@ tasks.withType(JavaCompile::class).configureEach {
   options.compilerArgs.addAll(listOf("-Xlint:all", "-Xlint:-serial"))
   options.errorprone {
     check("ClassCanBeStatic", CheckSeverity.ERROR)
-    check("StringEquality", CheckSeverity.ERROR)
+    check("ReferenceEquality", CheckSeverity.ERROR)
     check("WildcardImport", CheckSeverity.ERROR)
     check("MethodCanBeStatic", CheckSeverity.WARN)
     check("RemoveUnusedImports", CheckSeverity.WARN)
@@ -148,6 +131,7 @@ josm {
         pathTransformer = getPathTransformer(project.projectDir, "github.com/JOSM/areaselector/blob")
     }
     manifest {
+        oldVersionDownloadLink(18173, "v2.6.2", URL("https://github.com/JOSM/areaselector/releases/download/v2.6.2/areaselector.jar"))
         oldVersionDownloadLink(16871, "v2.6.0-beta.1", URL("https://github.com/JOSM/areaselector/releases/download/v2.6.0-beta.1/areaselector.jar"))
         oldVersionDownloadLink(15017, "v2.5.1", URL("https://github.com/JOSM/areaselector/releases/download/v2.5.1/areaselector.jar"))
         oldVersionDownloadLink(12859, "v2.4.9", URL("https://github.com/JOSM/areaselector/releases/download/v2.4.9/areaselector.jar"))
@@ -165,6 +149,7 @@ tasks.withType(SpotBugsTask::class) {
   reports.create("html")
   reports.create("xml")
 }
+
 tasks.create("md2html", MarkdownToHtml::class) {
   destDir = File(buildDir, "md2html")
   source(projectDir)

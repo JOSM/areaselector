@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="areaselector" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
-
-  <!-- enter the SVN commit message -->
-  <property name="commit.message" value="Commit message" />
-
   <!-- Configure these properties (replace "..." accordingly).
        See https://josm.openstreetmap.de/wiki/DevelopersGuide/DevelopingPlugins
   -->
@@ -12,28 +8,6 @@
 
   <!-- ** include targets that all plugins have in common ** -->
   <import file="../build-common.xml" />
-
-    <!-- Disable build below java 11 -->
-    <condition property="skip-compile">
-        <not>
-            <isset property="isJava11"/>
-        </not>
-    </condition>
-    <condition property="skip-dist">
-        <not>
-            <isset property="isJava11"/>
-        </not>
-    </condition>
-    <condition property="skip-javadoc">
-        <not>
-            <isset property="isJava11"/>
-        </not>
-    </condition>
-    <condition property="skip-test">
-        <not>
-            <isset property="isJava11"/>
-        </not>
-    </condition>
 
     <fileset id="plugin.requires.jars" dir="${plugin.dist.dir}">
       <include name="apache-commons.jar"/>

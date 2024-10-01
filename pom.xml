@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openstreetmap.josm.plugins</groupId>
+        <artifactId>plugin-root</artifactId>
+        <version>SNAPSHOT</version>
+    </parent>
+    <artifactId>areaselector</artifactId>
+
+    <url>${plugin.link}</url>
+    <developers>
+        <developer>
+          <name>Paul Woelfel</name>
+        </developer>
+        <developer>
+          <name>Thomas Konrad</name>
+        </developer>
+    </developers>
+    <properties>
+        <plugin.src.dir>src</plugin.src.dir>
+        <plugin.main.version>19044</plugin.main.version>
+        <plugin.author>Paul Woelfel, Thomas Konrad </plugin.author>
+        <plugin.class>org.openstreetmap.josm.plugins.areaselector.AreaSelectorPlugin</plugin.class>
+        <plugin.description>Allows selection of areas in an layer and automatic creation of a way as polygon. Built to ease mapping of building from background layers. Optimized for basemap.at.</plugin.description>
+        <plugin.icon>images/mapmode/areaselector.png</plugin.icon>
+        <plugin.link>https://github.com/JOSM/areaselector</plugin.link>
+        <plugin.requires>apache-commons;austriaaddresshelper;ejml;log4j</plugin.requires>
+        <plugin.canloadatruntime>true</plugin.canloadatruntime>
+        <boofcv.version>1.1.6</boofcv.version>
+    </properties>
+    <dependencies>
+      <dependency>
+        <groupId>org.boofcv</groupId>
+        <artifactId>boofcv-core</artifactId>
+        <version>${boofcv.version}</version>
+        <!-- ejml is provided by the JOSM ejml plugin -->
+        <exclusions>
+          <exclusion>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-fdense</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-ddense</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-simple</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-dsparse</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.boofcv</groupId>
+        <artifactId>boofcv-feature</artifactId>
+        <version>${boofcv.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.boofcv</groupId>
+        <artifactId>boofcv-swing</artifactId>
+        <version>${boofcv.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.boofcv</groupId>
+        <artifactId>boofcv-ip</artifactId>
+        <version>${boofcv.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.boofcv</groupId>
+        <artifactId>boofcv-io</artifactId>
+        <version>${boofcv.version}</version>
+          <!-- from apache-commons plugin -->
+          <exclusions>
+            <exclusion>
+              <groupId>commons-io</groupId>
+              <artifactId>commons-io</artifactId>
+            </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.openstreetmap.josm.plugins</groupId>
+        <artifactId>apache-commons</artifactId>
+        <version>SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <!--
+      <dependency>
+        <groupId>org.openstreetmap.josm.plugins</groupId>
+        <artifactId>austriaaddresshelper</artifactId>
+        <version>SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      -->
+      <dependency>
+        <groupId>org.openstreetmap.josm.plugins</groupId>
+        <artifactId>ejml</artifactId>
+        <version>SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.openstreetmap.josm.plugins</groupId>
+        <artifactId>log4j</artifactId>
+        <version>SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+    <!-- from apache-commons plugin -->
+          <!--<exclude org="org.apache.commons" module="commons-compress"/>-->
+          <!--<exclude org="commons-io" module="commons-io"/>-->
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Plugin-Link>${plugin.link}</Plugin-Link>
+                            <Plugin-Icon>${plugin.icon}</Plugin-Icon>
+                            <Plugin-Canloadatruntime>${plugin.canloadatruntime}</Plugin-Canloadatruntime>
+                            <Plugin-Requires>${plugin.requires}</Plugin-Requires>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
