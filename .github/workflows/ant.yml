@@ -52,4 +52,5 @@ jobs:
     with:
       josm-revision: ${{ matrix.josm-revision }}
       perform-revision-tagging: false
+      perform-revision-tagging: ${{  matrix.josm-revision == 'r19044' && needs.check-release-needed.outputs.release_needed == 'true' }}
     secrets: inherit
