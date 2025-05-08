@@ -29,6 +29,14 @@
         <plugin.canloadatruntime>true</plugin.canloadatruntime>
         <boofcv.version>1.1.6</boofcv.version>
     </properties>
+    <repositories>
+        <repository>
+            <id>local-scm</id>
+            <name>Local SCM</name>
+            <url>file://${project.basedir}/lib</url>
+            <snapshots/>
+        </repository>
+    </repositories>
     <dependencies>
       <dependency>
         <groupId>org.boofcv</groupId>
@@ -86,19 +94,29 @@
           </exclusions>
       </dependency>
       <dependency>
+        <groupId>marvin</groupId>
+        <artifactId>marvin-custom</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>compile></scope>
+      </dependency>
+      <dependency>
+        <groupId>org.marvinproject</groupId>
+        <artifactId>marvinplugins-custom</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <scope>compile></scope>
+      </dependency>
+      <dependency>
         <groupId>org.openstreetmap.josm.plugins</groupId>
         <artifactId>apache-commons</artifactId>
         <version>1.0-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
-      <!--
       <dependency>
         <groupId>org.openstreetmap.josm.plugins</groupId>
         <artifactId>austriaaddresshelper</artifactId>
         <version>1.0-SNAPSHOT</version>
         <scope>provided</scope>
       </dependency>
-      -->
       <dependency>
         <groupId>org.openstreetmap.josm.plugins</groupId>
         <artifactId>ejml</artifactId>
