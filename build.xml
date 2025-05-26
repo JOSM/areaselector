@@ -28,6 +28,17 @@
       <!-- include fetch_dependencies task -->
     </target>
 
+    <!-- Don't delete the SNAPSHOTs either -->
+    <target name="clean_ivy">
+        <delete failonerror="false">
+            <fileset dir="${plugin.lib.dir}">
+                <include name="**/*.jar"/>
+                <exclude name="**/*-custom.jar" />
+                <exclude name="**/*-custom*SNAPSHOT.jar" />
+            </fileset>
+        </delete>
+    </target>
+
   <target name="install-plugin" depends="clean, dist, install">
     <echo>Installed areaselector plugin</echo>
   </target>
