@@ -18,11 +18,9 @@ import marvin.plugin.MarvinAbstractImagePlugin;
 import marvin.util.MarvinAttributes;
 
 /**
- * Thresholding with a range<br />
- * based on thresholding plugin
+ * Thresholding with a range based on thresholding plugin
  * @author Gabriel Ambrosio Archanjo
  * @author Paul Woelfel
- *
  */
 public class SelectColor extends MarvinAbstractImagePlugin{
 

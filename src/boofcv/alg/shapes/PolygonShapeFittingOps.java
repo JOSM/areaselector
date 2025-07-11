@@ -34,9 +34,6 @@ import georegression.struct.point.Point2D_I32;
  * Functions for fitting shapes to sequences of points. Points sequences are often found by computing a shape's
  * contour or edge.
  *
- * @see boofcv.alg.feature.detect.edge.CannyEdge
- * @see boofcv.alg.filter.binary.BinaryImageOps#contour(boofcv.struct.image.ImageUInt8, boofcv.struct.ConnectRule, boofcv.struct.image.ImageSInt32)
- *
  * @author Peter Abeles
  */
 public class PolygonShapeFittingOps {

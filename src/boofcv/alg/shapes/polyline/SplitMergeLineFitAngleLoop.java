@@ -39,7 +39,7 @@ public class SplitMergeLineFitAngleLoop extends SplitMergeLineFitAngle {
 	protected int N;
 
 	/**
-	 * @see SplitMergeLineFitAngle#SplitMergeLineFit(double, double, int)
+	 * @see SplitMergeLineFitAngle#SplitMergeLineFitAngle(double, double, int)
 	 */
 	public SplitMergeLineFitAngleLoop(double toleranceSplit,
 			double toleranceMerge,
