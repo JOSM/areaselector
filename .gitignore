@@ -15,4 +15,5 @@ javadoc
 lib
 # Intellij project files
 *.iml
-
+dependency-reduced-pom.xml
+target/
